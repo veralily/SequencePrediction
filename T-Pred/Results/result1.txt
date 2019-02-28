@@ -1,0 +1,53 @@
+
+[epoch: 14, 0] precision: 0.416667, deviation: 133923.031250, d_loss: -4613.610840, g_loss: 133925.203125
+
+gen_e_loss: 2.168193, gen_t_loss: 133929248.000000, d_1_loss: -4613.610840, g_penal_loss: 0.418790
+
+[epoch: 14, 1] precision: 0.615138, deviation: 8098.914586, d_loss: 220.289032, g_loss: 3634.339111
+
+gen_e_loss: 2.729006, gen_t_loss: 3631628.250000, d_1_loss: 220.289032, g_penal_loss: 0.415999
+
+[epoch: 14, 2] precision: 0.619930, deviation: 8463.742751, d_loss: 457.039368, g_loss: 62.574516
+
+gen_e_loss: 1.082758, gen_t_loss: 61494.609375, d_1_loss: 457.039368, g_penal_loss: 0.441549
+
+[epoch: 14, 3] precision: 0.631120, deviation: 8196.754789, d_loss: 2538.467285, g_loss: 28954.029297
+
+gen_e_loss: 1.507631, gen_t_loss: 28949902.000000, d_1_loss: 2538.467285, g_penal_loss: 0.403640
+
+[epoch: 14, 4] precision: 0.631102, deviation: 8112.577022, d_loss: 253.038849, g_loss: 15001.039062
+
+gen_e_loss: 0.667307, gen_t_loss: 15000557.000000, d_1_loss: 253.038849, g_penal_loss: 0.423535
+
+[epoch: 14, 5] precision: 0.647769, deviation: 8298.862621, d_loss: 24.439335, g_loss: 1502.161743
+
+gen_e_loss: 1.246233, gen_t_loss: 1500759.750000, d_1_loss: 24.439331, g_penal_loss: 0.425573
+
+[epoch: 14, 6] precision: 0.649637, deviation: 8215.612773, d_loss: 501.909698, g_loss: 51.508682
+
+gen_e_loss: 0.838117, gen_t_loss: 50671.761719, d_1_loss: 501.909698, g_penal_loss: 0.411122
+
+[epoch: 14, 7] precision: 0.649518, deviation: 8225.915396, d_loss: 541.649597, g_loss: 9626.821289
+
+gen_e_loss: 1.039469, gen_t_loss: 9625309.000000, d_1_loss: 541.649597, g_penal_loss: 0.424439
+
+[epoch: 14, 8] precision: 0.648775, deviation: 8190.570414, d_loss: 779.749573, g_loss: 24864.216797
+
+gen_e_loss: 1.358356, gen_t_loss: 24862690.000000, d_1_loss: 779.749573, g_penal_loss: 0.446597
+
+[epoch: 14, 9] precision: 0.648502, deviation: 8342.836345, d_loss: -888.823364, g_loss: 12232.208984
+
+gen_e_loss: 0.074311, gen_t_loss: 12233432.000000, d_1_loss: -888.823364, g_penal_loss: 0.404169
+
+length_traces: 60
+0.000000, precision: 0.383333, deviation: 133905.109375, d_loss: -5266.288574, g_loss: 133907.296875
+1.000000, precision: 0.580598, deviation: 8099.713082, d_loss: -97.757500, g_loss: 3617.218750
+2.000000, precision: 0.539839, deviation: 8463.367360, d_loss: 307.587982, g_loss: 64.966881
+3.000000, precision: 0.558750, deviation: 8198.333793, d_loss: 3210.208008, g_loss: 28929.554688
+4.000000, precision: 0.564452, deviation: 8113.882439, d_loss: -67.090973, g_loss: 14974.105469
+5.000000, precision: 0.582279, deviation: 8299.379871, d_loss: -739.902344, g_loss: 1505.767456
+6.000000, precision: 0.592967, deviation: 8215.554201, d_loss: 274.337921, g_loss: 52.297390
+7.000000, precision: 0.595647, deviation: 8226.534847, d_loss: 247.012207, g_loss: 9639.194336
+8.000000, precision: 0.595592, deviation: 8192.203270, d_loss: 589.863953, g_loss: 24868.001953
+9.000000, precision: 0.598542, deviation: 8344.599289, d_loss: -1445.053589, g_loss: 12226.726562
+Checkpoint: log/log_kick2018.12.19-02:18:15/model-15.ckpt

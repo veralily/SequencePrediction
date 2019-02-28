@@ -1,0 +1,33 @@
+length_traces: 60
+0.000000, precision: 0.466667, loss: 1.283849
+1.000000, precision: 0.579848, loss: 1.928005
+2.000000, precision: 0.635396, loss: 1.275812
+3.000000, precision: 0.611122, loss: 1.716588
+4.000000, precision: 0.610894, loss: 1.088410
+5.000000, precision: 0.609824, loss: 2.380777
+6.000000, precision: 0.635939, loss: 0.729812
+7.000000, precision: 0.633014, loss: 2.350751
+8.000000, precision: 0.631709, loss: 1.394904
+9.000000, precision: 0.622758, loss: 1.740561
+length_traces: 60
+[epoch: 14, 0] precision: 0.466667, loss: 1.283849
+[epoch: 14, 1] precision: 0.617817, loss: 1.223398
+[epoch: 14, 2] precision: 0.668866, loss: 0.851539
+[epoch: 14, 3] precision: 0.644952, loss: 2.047264
+[epoch: 14, 4] precision: 0.640155, loss: 0.776511
+[epoch: 14, 5] precision: 0.644916, loss: 2.443448
+[epoch: 14, 6] precision: 0.671660, loss: 0.164234
+[epoch: 14, 7] precision: 0.668140, loss: 1.897846
+[epoch: 14, 8] precision: 0.669423, loss: 1.114632
+[epoch: 14, 9] precision: 0.660529, loss: 1.564642
+length_traces: 60
+0.000000, precision: 0.500000, loss: 1.269622
+1.000000, precision: 0.586196, loss: 1.870823
+2.000000, precision: 0.643998, loss: 1.232090
+3.000000, precision: 0.619685, loss: 1.700493
+4.000000, precision: 0.619120, loss: 1.081842
+5.000000, precision: 0.618040, loss: 2.423839
+6.000000, precision: 0.644093, loss: 0.695144
+7.000000, precision: 0.641319, loss: 2.294834
+8.000000, precision: 0.641501, loss: 1.321520
+9.000000, precision: 0.632235, loss: 1.692920
