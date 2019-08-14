@@ -13,8 +13,8 @@ class SmallConfig(object):
   keep_prob = 1.0
   res_rate = 0.3
   lr_decay = 0.5
-  batch_size = 20
-  vocab_size = 55000
+  batch_size = 100
+  vocab_size = 123000
   label_size = 10
   LAMBDA = 0.000001
   delta = 1000

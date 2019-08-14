@@ -1,3 +1,11 @@
+'''
+Edit time: 2019-01-15
+Here is a model to generate time trace using event sequence as inputs
+A GAN is established to generate the time trace
+The discriminator : resNet
+Loss Function: the similarity between input_t + pred_t and sample_input + sample_target which is wrong actually
+'''
+
 from __future__ import print_function
 import os
 import time
@@ -10,7 +18,7 @@ import utils
 import read_data
 import model_config
 
-os.environ['CUDA_VISIBLE_DEVICES']='1'
+os.environ['CUDA_VISIBLE_DEVICES']='0'
 
 def parse_time():
     return time.strftime("%Y.%m.%d-%H:%M:%S", time.localtime())
@@ -240,6 +248,7 @@ class T_Pred(object):
 			iterations = batch_num // 6
 			print(iterations)
 
+			t_x = np.random.normal(0.0, 20, (self.batch_size, self.num_steps))
 			
 			sample_t_x_list = list(t_x_list)
 			sample_t_y_list = list(t_y_list)
@@ -257,7 +266,7 @@ class T_Pred(object):
 				for j in range(d_iters):
 					feed_dict = {
 					self.input_e : e_x_list[i*6+j],
-					self.inputs_t : t_x_list[i*6+j],
+					self.inputs_t : t_x,
 					self.target_t : t_y_list[i*6+j],
 					self.targets_e : e_y_list[i*6+j],
 					self.sample_t : sample_t_x_list[i*6+j],
@@ -440,8 +449,8 @@ def main():
 	args = parser.parse_args()
 
 	assert args.logdir[-1] != '/'
-	event_file = './T-pred-Dataset/RECSYS15_event.txt'
-	time_file = './T-pred-Dataset/RECSYS15_time.txt'
+	event_file = './T-pred-Dataset/IPTV_event.txt'
+	time_file = './T-pred-Dataset/IPTV_time.txt'
 	model_config = get_config(args.mode)
 	is_training = args.is_training
 	cell_type = args.cell_type

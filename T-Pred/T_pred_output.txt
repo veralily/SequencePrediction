@@ -1,0 +1,52 @@
+
+linli@bpm203:~/T-Pred$ 6.000000, precision: 0.002443, deviation: 95.264333, d_loss: 491752.968750, g_loss: nan
+6.000000,: command not found
+linli@bpm203:~/T-Pred$ 7.000000, precision: 0.002497, deviation: 95.141324, d_loss: -75716.164062, g_loss: nan
+7.000000,: command not found
+linli@bpm203:~/T-Pred$ 8.000000, precision: 0.002497, deviation: 94.851456, d_loss: -270837.250000, g_loss: nan
+8.000000,: command not found
+linli@bpm203:~/T-Pred$ 9.000000, precision: 0.002487, deviation: 94.909021, d_loss: 51060.699219, g_loss: nan
+9.000000,: command not found
+linli@bpm203:~/T-Pred$ 10.000000, precision: 0.002503, deviation: 94.710524, d_loss: -130785.031250, g_loss: nan
+10.000000,: command not found
+linli@bpm203:~/T-Pred$ length_traces: 6474804
+length_traces:: command not found
+linli@bpm203:~/T-Pred$ 14493
+14493: command not found
+linli@bpm203:~/T-Pred$ [epoch: 14, 0] precision: 0.000000, deviation: 294.628939, d_loss: 96123.312500, g_loss: nan
+[epoch:: command not found
+linli@bpm203:~/T-Pred$
+linli@bpm203:~/T-Pred$ gen_e_loss: 20.231859, gen_t_loss: nan, d_1_loss: 70386.531250, g_penal_loss: 25736779776.000000
+gen_e_loss:: command not found
+linli@bpm203:~/T-Pred$
+linli@bpm203:~/T-Pred$ [epoch: 14, 1] precision: 0.002580, deviation: 145.916600, d_loss: -105725.937500, g_loss: nan
+[epoch:: command not found
+linli@bpm203:~/T-Pred$
+linli@bpm203:~/T-Pred$ gen_e_loss: 15.408261, gen_t_loss: nan, d_1_loss: -113172.875000, g_penal_loss: 7446936064.000000
+gen_e_loss:: command not found
+linli@bpm203:~/T-Pred$
+linli@bpm203:~/T-Pred$ [epoch: 14, 2] precision: 0.002136, deviation: 164.604459, d_loss: -55341.476562, g_loss: nan
+[epoch:: command not found
+linli@bpm203:~/T-Pred$
+linli@bpm203:~/T-Pred$ gen_e_loss: 14.241829, gen_t_loss: nan, d_1_loss: -66293.937500, g_penal_loss: 10952460288.000000
+gen_e_loss:: command not found
+linli@bpm203:~/T-Pred$
+linli@bpm203:~/T-Pred$ [epoch: 14, 3] precision: 0.002024, deviation: 168.411476, d_loss: 12357.441406, g_loss: nan
+[epoch:: command not found
+linli@bpm203:~/T-Pred$
+linli@bpm203:~/T-Pred$ gen_e_loss: 15.686719, gen_t_loss: nan, d_1_loss: -12474.375000, g_penal_loss: 24831815680.000000
+gen_e_loss:: command not found
+linli@bpm203:~/T-Pred$
+linli@bpm203:~/T-Pred$ [epoch: 14, 4] precision: 0.002034, deviation: 171.124100, d_loss: -36649.125000, g_loss: nan
+[epoch:: command not found
+linli@bpm203:~/T-Pred$
+linli@bpm203:~/T-Pred$ gen_e_loss: 16.483910, gen_t_loss: nan, d_1_loss: -53085.625000, g_penal_loss: 16436497408.000000
+gen_e_loss:: command not found
+linli@bpm203:~/T-Pred$
+linli@bpm203:~/T-Pred$ [epoch: 14, 5] precision: 0.001995, deviation: 168.028710, d_loss: -91708.046875, g_loss: nan
+[epoch:: command not found
+linli@bpm203:~/T-Pred$
+linli@bpm203:~/T-Pred$ gen_e_loss: 11.485435, gen_t_loss: nan, d_1_loss: -109973.125000, g_penal_loss: 18265073664.000000
+^CFatal Python error: Py_Initialize: can't initialize sys standard streams
+Traceback (most recent call last):
+  File "/usr/lib/python3.5/io.py", line 52, in <module>

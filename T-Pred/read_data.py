@@ -74,11 +74,11 @@ def data_split(event_file=None, time_file=None, shuffle=True):
 
 	train_data = shuffled_input_traces[0:7*data_size]
 	valid_data = shuffled_input_traces[7*data_size:9*data_size]
-	test_data = shuffled_input_traces[9*data_size:]
+	test_data = shuffled_input_traces[9*data_size:-1]
 
 	return train_data, valid_data, test_data
 
-def data_iterator(input_raw_traces, event_to_id, num_steps, length, batch_size, overlap = True):
+def data_iterator(input_raw_traces, event_to_id, num_steps, length, overlap = True):
 	input_len_sum = 0
 	input_event_data = []
 	target_event_data = []
@@ -134,7 +134,11 @@ def data_iterator(input_raw_traces, event_to_id, num_steps, length, batch_size, 
 	input_time_data = np.array(input_time_data, dtype = np.float32)
 	target_time_data = np.array(target_time_data, dtype = np.float32)
 
-	batch_num = input_len_sum // batch_size
+	return input_len_sum, input_event_data, target_event_data, input_time_data, target_time_data
+
+def generate_batch(input_len, batch_size, input_event_data, target_event_data, input_time_data, target_time_data):
+
+	batch_num = input_len // batch_size
 
 	e_x_list = []
 	e_y_list = []
@@ -148,6 +152,19 @@ def data_iterator(input_raw_traces, event_to_id, num_steps, length, batch_size, 
 		t_y_list.append(target_time_data[i*batch_size:(i+1)*batch_size,:])
 
 	return batch_num, e_x_list, e_y_list, t_x_list, t_y_list
+
+def generate_sample_t(input_len, batch_size, input_time_data, target_time_data):
+
+	batch_num = input_len // batch_size
+
+	t_sample_list = []
+	t_list = np.concatenate([input_time_data, target_time_data], axis = 1)
+	np.random.shuffle(t_list)
+
+	for i in range(batch_num):
+		t_sample_list.append(t_list[i*batch_size : (i+1)*batch_size, :])
+
+	return batch_num, t_sample_list
 
 def batch_count(input_raw_traces, num_steps, length, batch_size, overlap = True):
 	input_len_sum = 0

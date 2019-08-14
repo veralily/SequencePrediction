@@ -3,6 +3,7 @@ import os
 import numpy as np
 # from tqdm import tqdm
 import time
+import math
 
 # with tf.name_scope('cltdevelop'):
 #     def uniform(stdev, size):
@@ -33,30 +34,35 @@ import time
 # for i in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES):
 #     print i
 
-x = [[1,2,3],[4,5,6],[7,8,9]]
-y = np.array(x)
 
-a_list = list(range(20))
-b_list = list(a_list)
-np.random.shuffle(b_list)
+''' 
+emmmmm
+'''
 
-def iterator(a_list):
-	for i in a_list:
-		yield (i+1)
+# x = [[1,2,3],[4,5,6],[7,8,9]]
+# y = np.array(x)
 
-g_1 = iterator(a_list)
-# print(list(g_1))
-g_2 = iterator(b_list)
-# print(list(g_2))
+# a_list = list(range(20))
+# b_list = list(a_list)
+# np.random.shuffle(b_list)
 
-s = 20 // 3
-print('----------s:%d---------' % s)
+# def iterator(a_list):
+# 	for i in a_list:
+# 		yield (i+1)
 
-for i in range(s):
-    #print(next(gen))
-    for i in range(3):
-    	print('g_1:----%d' % g_1.next())
-    print('g_2:----%d' % g_2.next())
+# g_1 = iterator(a_list)
+# # print(list(g_1))
+# g_2 = iterator(b_list)
+# # print(list(g_2))
+
+# s = 20 // 3
+# print('----------s:%d---------' % s)
+
+# for i in range(s):
+#     #print(next(gen))
+#     for i in range(3):
+#     	print('g_1:----%d' % g_1.next())
+#     print('g_2:----%d' % g_2.next())
 
 # event_file = './T-pred-Dataset/IPTV_event.txt'
 # time_file = './T-pred-Dataset/IPTV_time.txt'
@@ -78,3 +84,17 @@ for i in range(s):
 
 # with tf.Session() as sess:
 #     print(sess.run(z[:,0,:]))
+
+a = list([[[1,2],[2,3]],[[2,3],[3,4]]])
+b = list([[[3,4],[4,5]],[[4,5],[5,6]]])
+
+c = np.concatenate([np.array(a), np.array(b)])
+print(c)
+
+print(a)
+print(b)
+
+
+time_ = time.localtime(1192.075)
+format_time = time.strftime("%Y-%m-%d %H:%M:%S", time_)
+print(format_time)

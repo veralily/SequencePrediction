@@ -36,27 +36,57 @@ def delete_param_aliases(param_aliases):
     return param_aliases
 
 
-def build_rnn_graph(hidden_r, num_layers, hidden_size, batch_size, length, name):
-	def make_cell():
-		cell = tf.contrib.rnn.GRUBlockCellV2(
-			num_units = hidden_size,
-			reuse = None)
-		return cell
+def build_rnn_graph_decoder1(hidden_r, num_layers, hidden_size, batch_size, length, name):
+    '''
+    This decoder use hidden_r as input of each timestep
+    The hidden_r has the type of [batch_size, num_step * hidden_size]
+    '''
+    def make_cell():
+        cell = tf.contrib.rnn.GRUBlockCellV2(
+            num_units = hidden_size,
+            reuse = None)
+        return cell
 
-	cell = tf.contrib.rnn.MultiRNNCell(
-		[make_cell() for _ in range(num_layers)], state_is_tuple = True)
+    cell = tf.contrib.rnn.MultiRNNCell(
+        [make_cell() for _ in range(num_layers)], state_is_tuple = True)
 
-	outputs = []
-	with tf.variable_scope(name):
-		initial_state = cell.zero_state(batch_size, tf.float32)
-		state = initial_state
+    outputs = []
+    with tf.variable_scope(name):
+        initial_state = cell.zero_state(batch_size, tf.float32)
+        state = initial_state
 
-		for time_step in range(length):
-			if time_step > 0: tf.get_variable_scope().reuse_variables()
-			(cell_output, state) = cell(hidden_r, state)
-			outputs.append(cell_output)
+        for time_step in range(length):
+            if time_step > 0: tf.get_variable_scope().reuse_variables()
+            (cell_output, state) = cell(hidden_r, state)
+            outputs.append(cell_output)
 
-	return outputs
+    return outputs
+
+def build_rnn_graph_decoder2(hidden_r, num_layers, hidden_size, batch_size, length, name):
+    '''
+    This decoder use hidden_r as input of each timestep
+    The hidden_r has the type of [batch_size, num_step * hidden_size]
+    '''
+    def make_cell():
+        cell = tf.contrib.rnn.GRUBlockCellV2(
+            num_units = hidden_size,
+            reuse = None)
+        return cell
+
+    cell = tf.contrib.rnn.MultiRNNCell(
+        [make_cell() for _ in range(num_layers)], state_is_tuple = True)
+
+    outputs = []
+    with tf.variable_scope(name):
+        initial_state = cell.zero_state(batch_size, tf.float32)
+        state = initial_state
+
+        for time_step in range(length):
+            if time_step > 0: tf.get_variable_scope().reuse_variables()
+            (cell_output, state) = cell(hidden_r, state)
+            outputs.append(cell_output)
+
+    return outputs
 
 def build_encoder_graph_t(cell_type, inputs, t, hidden_size, num_layers, batch_size, num_steps, keep_prob, is_training, name):
     def make_cell():
@@ -72,7 +102,7 @@ def build_encoder_graph_t(cell_type, inputs, t, hidden_size, num_layers, batch_s
                 name = 'T_LSTMCell')
         if is_training and keep_prob < 1:
             cell = tf.contrib.rnn.DropoutWrapper(cell,
-                output_keep_pron = keep_prob)
+                output_keep_prob = keep_prob)
         return cell
 
     cell = tf.nn.rnn_cell.MultiRNNCell(
@@ -120,9 +150,9 @@ def build_encoder_graph_gru(inputs, hidden_size, num_layers, batch_size, num_ste
 
 def conv1d(name, input_dim, output_dim, filter_size, inputs, stride = 1, he_init=True, weightnorm = None, gain = 1., biases = True):
 	'''
-	inputs: tensor of shape (batch_size, num_channels, width)
+	inputs: tensor of shape (batch_size, width, num_channels)
 
-	returns: tensor of shape (batch_size, num_channels, width)
+	returns: tensor of shape (batch_size, width, num_channels)
 	'''
 
 	with tf.variable_scope(name, reuse = tf.AUTO_REUSE):
@@ -161,13 +191,13 @@ def conv1d(name, input_dim, output_dim, filter_size, inputs, stride = 1, he_init
 			filters = filters,
 			stride = stride,
 			padding = 'SAME',
-			data_format = 'NCW')
+			data_format = 'NWC')
 		if biases:
 			_biases = tf.get_variable(
 				'Biases',
 				initializer = tf.zeros([output_dim], dtype='float32'))
-			result = tf.expand_dims(result, 3)
-			result = tf.nn.bias_add(result, _biases, data_format='NCHW')
+			result = tf.expand_dims(result, 1)
+			result = tf.nn.bias_add(result, _biases, data_format='NHWC')
 			result = tf.squeeze(result)
 
 		return result

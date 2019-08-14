@@ -12,9 +12,11 @@ import tflib.ops.linear
 import tflib.ops.conv1d
 import tflib.plot
 
+os.environ['CUDA_VISIBLE_DEVICES']='0'
+
 # Download Google Billion Word at http://www.statmt.org/lm-benchmark/ and
 # fill in the path to the extracted files here!
-DATA_DIR = ''
+DATA_DIR = 'data/1-billion-word-language-modeling-benchmark-r13output'
 if len(DATA_DIR) == 0:
     raise Exception('Please specify path to data directory in gan_language.py!')
 

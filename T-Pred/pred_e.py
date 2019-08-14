@@ -1,3 +1,10 @@
+'''
+Edit time: 2019-01-15
+Here is a model to generate event sequence using history event sequence as inputs
+A Encoder-Decoder model is established to generate the event suffix(sequence)
+Encoder and Decoder type : RNN
+Loss Function: the seq2seq loss between predicted event sequence and target event sequence
+'''
 from __future__ import print_function
 import os
 import time
