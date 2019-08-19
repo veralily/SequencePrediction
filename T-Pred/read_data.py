@@ -9,6 +9,7 @@ import numpy as np
 import datetime
 from tqdm import tqdm
 
+
 def read_words(filename):
 	print('----read words----')
 	start_time = datetime.datetime.now()
@@ -25,6 +26,7 @@ def read_words(filename):
 		print("time: " + str((end_time - start_time).seconds))
 		return event_words
 
+
 def build_vocab(filename):
 	data = read_words(filename)
 	start_time = datetime.datetime.now()
@@ -38,15 +40,18 @@ def build_vocab(filename):
 	print("event_dict length: " + str(len(word_to_id)))
 	return word_to_id
 
+
 def write_dict(filename, dict):
 	with open(filename, "w") as f:
 		for word in dict.keys():
 			f.write("{0} {1}\n".format(word, dict[word]))
 		f.close()
 
+
 def vocab_size(filenamee):
 	word_to_id = build_vocab(filenamee)
 	return len(word_to_id)
+
 
 def data_split(event_file=None, time_file=None, shuffle=True):
 	num_pieces = 10
@@ -77,6 +82,7 @@ def data_split(event_file=None, time_file=None, shuffle=True):
 	test_data = shuffled_input_traces[9*data_size:-1]
 
 	return train_data, valid_data, test_data
+
 
 def data_iterator(input_raw_traces, event_to_id, num_steps, length, overlap = True):
 	input_len_sum = 0
@@ -136,6 +142,7 @@ def data_iterator(input_raw_traces, event_to_id, num_steps, length, overlap = Tr
 
 	return input_len_sum, input_event_data, target_event_data, input_time_data, target_time_data
 
+
 def generate_batch(input_len, batch_size, input_event_data, target_event_data, input_time_data, target_time_data):
 
 	batch_num = input_len // batch_size
@@ -153,12 +160,13 @@ def generate_batch(input_len, batch_size, input_event_data, target_event_data, i
 
 	return batch_num, e_x_list, e_y_list, t_x_list, t_y_list
 
+
 def generate_sample_t(input_len, batch_size, input_time_data, target_time_data):
 
 	batch_num = input_len // batch_size
 
 	t_sample_list = []
-	t_list = np.concatenate([input_time_data, target_time_data], axis = 1)
+	t_list = np.concatenate([input_time_data, target_time_data], axis=1)
 	np.random.shuffle(t_list)
 
 	for i in range(batch_num):
@@ -166,7 +174,8 @@ def generate_sample_t(input_len, batch_size, input_time_data, target_time_data):
 
 	return batch_num, t_sample_list
 
-def batch_count(input_raw_traces, num_steps, length, batch_size, overlap = True):
+
+def batch_count(input_raw_traces, num_steps, length, batch_size, overlap=True):
 	input_len_sum = 0
 	for event_trace, time_trace in list(input_raw_traces):
 		if event_trace == '':
