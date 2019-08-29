@@ -45,6 +45,7 @@ class T_Pred(object):
 		self.length = config.output_length
 		self.vocab_size = config.vocab_size
 		self.learning_rate = config.learning_rate
+		self.lr = config.learning_rate
 		self.LAMBDA = config.LAMBDA
 		self.delta = config.delta
 		self.gamma = config.gamma
@@ -260,24 +261,43 @@ class T_Pred(object):
 		gen_params = self.params_with_name('Generator')
 		disc_params = self.params_with_name('Discriminator')
 
-		gen_train_op = tf.train.AdamOptimizer(learning_rate=1e-4, beta1=0.5, beta2=0.9).minimize(gen_cost, var_list=gen_params)
-		disc_train_op = tf.train.AdamOptimizer(learning_rate=1e-4, beta1=0.5, beta2=0.9).minimize(disc_cost, var_list=disc_params)
-		
+		'''
+		Use the Adam Optimizer to update the variables
+		'''
+		# gen_train_op = tf.train.AdamOptimizer(learning_rate=1e-4, beta1=0.5, beta2=0.9).minimize(gen_cost, var_list=gen_params)
+		# disc_train_op = tf.train.AdamOptimizer(learning_rate=1e-4, beta1=0.5, beta2=0.9).minimize(disc_cost, var_list=disc_params)
+
+		'''
+		Use the RMSProp Optimizer to update the variables
+		'''
+		gen_train_op = tf.train.RMSPropOptimizer(learning_rate=self.lr).minimize(gen_cost, var_list=gen_params)
+		disc_train_op = tf.train.RMSPropOptimizer(learning_rate=self.lr).minimize(disc_cost, var_list=disc_params)
+
 		# constraint the weight of t for t1 to be negative
 		if variable_content_e is not None:
-			clip_op = []
+			e_clip_op = []
 			for v in variable_content_e:
-				clip_op.append(tf.assign(v, tf.clip_by_value(v, -np.infty, 0)))
+				e_clip_op.append(tf.assign(v, tf.clip_by_value(v, -np.infty, 0)))
 		else:
-			clip_op = None
+			e_clip_op = None
 
-		return gen_train_op, disc_train_op, clip_op, gen_cost, disc_cost, gen_t_cost, gen_e_cost
+		# constraint the weight of discriminator between [-0.1, 0.1]
+		variable_content_w = self.params_with_name('Discriminator')
+		if variable_content_w is not None:
+			w_clip_op = []
+			for v in variable_content_w:
+				w_clip_op.append(tf.assign(v, tf.clip_by_value(v, -0.1, 0.1)))
+		else:
+			w_clip_op = None
+
+		return gen_train_op, disc_train_op, w_clip_op, gen_cost, disc_cost, gen_t_cost, gen_e_cost
 
 	def build(self):
 		'''
 		build the model
 		define the loss function
 		define the optimization method'''
+
 		self.input_e =  tf.placeholder(tf.int32, [self.batch_size, self.num_steps])
 		self.targets_e = tf.placeholder(tf.int32, [self.batch_size, self.length])
 		self.inputs_t = tf.placeholder(tf.float32, [self.batch_size, self.num_steps])
@@ -300,15 +320,16 @@ class T_Pred(object):
 		3. concat
 		4. plus
 		'''
-		self.pred_e = pred_e = self.g_event(tf.reshape(tf.concat([hidden_re, hidden_rt], axis=2), [self.batch_size, -1]))
+
+		self.pred_e = self.g_event(tf.reshape(tf.concat([hidden_re, hidden_rt], axis=2), [self.batch_size, -1]))
 		# use the extracted feature from input events and timestamps to generate the time sequence
-		self.pred_t = pred_t = self.g_time(tf.reshape(tf.concat([hidden_re, hidden_rt], axis=2), [self.batch_size, -1]))
+		self.pred_t = self.g_time(tf.reshape(tf.concat([hidden_re, hidden_rt], axis=2), [self.batch_size, -1]))
 		# use random noise to generate the time sequence
 		# self.pred_t = pred_t = self.g_time(make_noise(hidden_r.get_shape()))
 
 		gen_train_op, disc_train_op, clip_op, gen_cost, disc_cost, gen_t_cost, gen_e_cost = self.loss_with_wasserstein(
-			pred_e,
-			pred_t,
+			self.pred_e,
+			self.pred_t,
 			self.targets_e,
 			self.targets_t,
 			self.inputs_t,
@@ -323,13 +344,13 @@ class T_Pred(object):
 		self.gen_t_cost = gen_t_cost
 
 		print('pred_e shape: ')
-		print(pred_e.get_shape())
+		print(self.pred_e.get_shape())
 		print('targets_e shape: ')
 		print(self.targets_e.get_shape())
 
-		correct_pred = tf.cast(tf.nn.in_top_k(tf.reshape(pred_e, [self.batch_size*self.length,-1]), tf.reshape(self.targets_e, [-1]), 1), tf.float32)
+		correct_pred = tf.cast(tf.nn.in_top_k(tf.reshape(self.pred_e, [self.batch_size*self.length,-1]), tf.reshape(self.targets_e, [-1]), 1), tf.float32)
 		self.correct_pred = tf.reduce_sum(correct_pred)
-		self.deviation = tf.reduce_sum(tf.abs(tf.squeeze(tf.exp(pred_t) - self.targets_t)))
+		self.deviation = tf.reduce_sum(tf.abs(tf.squeeze(tf.exp(self.pred_t) - self.targets_t)))
 		self.saver = tf.train.Saver(max_to_keep=None)
 
 	def train(self, sess, args):
@@ -345,7 +366,7 @@ class T_Pred(object):
 		if args.weights is not None:
 			self.saver.restore(sess, args.weights)
 
-		lr = self.learning_rate
+		self.lr = self.learning_rate
 
 		for epoch in range(args.iters):
 			'''training'''
@@ -382,30 +403,28 @@ class T_Pred(object):
 			for i in range(iterations):
 
 				if i > 0 and i % (iterations // 10) == 0:
-					lr = lr *2./3
+					self.lr = self.lr * 2./3
 				
 				for j in range(g_iters):
 					feed_dict = {
-					self.input_e : e_x_list[(i)*gap+j],
-					self.inputs_t : np.maximum(np.log(t_x_list[(i)*gap+j]), 0),
-					self.target_t : t_y_list[(i)*gap+j],
-					self.targets_e : e_y_list[(i)*gap+j],
-					self.sample_t : np.maximum(np.log(sample_t_list[(i)*gap+j]), 0)}
+						self.input_e: e_x_list[i*gap+j],
+						self.inputs_t: np.maximum(np.log(t_x_list[i*gap+j]), 0),
+						self.target_t: t_y_list[i*gap+j],
+						self.targets_e: e_y_list[i*gap+j],
+						self.sample_t: np.maximum(np.log(sample_t_list[i*gap+j]), 0)}
 
 					_, correct_pred, deviation, pred_e, pred_t, d_loss, g_loss, gen_e_cost, gen_t_cost = sess.run(
-					[self.g_train_op,self.correct_pred, self.deviation, self.pred_e, self.pred_t, self.d_cost, self.g_cost,
-					self.gen_e_cost, self.gen_t_cost],
-					feed_dict=feed_dict)
+						[self.g_train_op, self.correct_pred, self.deviation, self.pred_e, self.pred_t, self.d_cost, self.g_cost,
+							self.gen_e_cost, self.gen_t_cost], feed_dict=feed_dict)
 
-				
 				feed_dict = {
-				self.input_e : e_x_list[(i)*gap+g_iters],
-				self.inputs_t : np.maximum(np.log(t_x_list[(i)*gap+g_iters]),0),
-				self.target_t : t_y_list[(i)*gap+g_iters],
-				self.targets_e : e_y_list[(i)*gap+g_iters],
-				self.sample_t : np.maximum(np.log(sample_t_list[(i)*gap+g_iters]),0)}
+					self.input_e: e_x_list[i*gap+g_iters],
+					self.inputs_t: np.maximum(np.log(t_x_list[i*gap+g_iters]), 0),
+					self.target_t: t_y_list[i*gap+g_iters],
+					self.targets_e: e_y_list[i*gap+g_iters],
+					self.sample_t: np.maximum(np.log(sample_t_list[i*gap+g_iters]), 0)}
 				
-				_ = sess.run(self.d_train_op, feed_dict=feed_dict)
+				_, _ = sess.run([self.d_train_op, self.clip_op], feed_dict=feed_dict)
 				
 				if self.cell_type == 'T_LSTMCell':
 					sess.run(self.clip_op)
@@ -454,6 +473,8 @@ class T_Pred(object):
 			sum_iter = 0.0
 			sum_deviation = 0.0
 			gen_cost_ratio = []
+
+			self.lr = self.learning_rate
 			
 			for i in range(iterations):
 				feed_dict = {
@@ -464,7 +485,7 @@ class T_Pred(object):
 				self.sample_t: np.maximum(np.log(sample_t_list[i]), 0)}
 
 				if i > 0 and i % (iterations // 10) == 0:
-					lr = lr *2./3
+					self.lr = self.lr *2./3
 
 				correct_pred, deviation, pred_e, pred_t, d_loss, g_loss, gen_e_cost, gen_t_cost = sess.run(
 					[self.correct_pred, self.deviation, self.pred_e, self.pred_t, self.d_cost, self.g_cost,
@@ -543,8 +564,7 @@ class T_Pred(object):
 			# 	[self.correct_pred, self.deviation, self.pred_e, self.pred_t, self.d_cost, self.g_cost,
 			# 	self.gen_e_cost, self.gen_t_cost,self.disc_cost_1, self.gradient_penalty],
 			# 	feed_dict = feed_dict)
-			pred_e, pred_t, = sess.run(
-				[self.pred_e, self.pred_t], feed_dict = feed_dict)
+			pred_e, pred_t, = sess.run([self.pred_e, self.pred_t], feed_dict=feed_dict)
 			
 			# sum_correct_pred = sum_correct_pred + correct_pred
 			# sum_iter = sum_iter + 1

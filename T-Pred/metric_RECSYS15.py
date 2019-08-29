@@ -49,7 +49,7 @@ def mae(pred, target):
     return sum / float(number)
 
 
-filename = 'output-RECSYS15-0712.txt'
+filename = 'output-cikm16-0826.txt'
 # filename = 'output-CIKM16-0716.txt'
 
 
@@ -71,7 +71,7 @@ with open(filename) as f:
             content = line.replace('\n', '').split(': ')[1].split('\t')
             target_t = content
             print('Accuracy: %f' % (accuracy(pred_e, target_e)))
-            # plot(pred_t, target_t)
+            plot(pred_t, target_t)
             # print(pred_t)
             mean_abs_error.append(mae(pred_t, target_t))
             print('MAE: %f' % (mae(pred_t, target_t)))
