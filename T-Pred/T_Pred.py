@@ -190,7 +190,7 @@ class T_Pred(object):
 			output = tf.reshape(output, [-1, (self.length + self.num_steps) * self.filter_output_dim])
 			# if the output size is 1, it is the discriminator score of D
 			# if the output size is 2, it is a bi-classification result of D
-			output = tf.nn.sigmoid(utils.linear('D.Output', (self.length + self.num_steps) * self.filter_output_dim, 2, output))
+			output = tf.nn.sigmoid(utils.linear('D.Output', (self.length + self.num_steps) * self.filter_output_dim, 1, output))
 			print('The shape of output from D: ')
 			print(output.get_shape())
 			return output
@@ -225,39 +225,37 @@ class T_Pred(object):
 		disc_real = self.discriminator(sample_t_concat)
 
 		'''
-		if the discriminator is a score-base critic
+		if the discriminator is a Wasserstein distance based critic
 		'''
-		# disc_cost_1 = tf.reduce_mean(disc_fake) - tf.reduce_mean(disc_real)
-		# gen_t_cost = -tf.reduce_mean(disc_fake)
-		
-		# gen_e_cost = loss = tf.contrib.legacy_seq2seq.sequence_loss_by_example(
-		# 	logits, labels, weights=[tf.ones([self.batch_size]) for i in range(self.length)], name="SeqLossByExample")
-		#
-		# gen_e_cost = tf.reduce_mean(gen_e_cost)
-		#
-		# log_t_loss = tf.losses.huber_loss(real_t, tf.exp(pred_t))
-		# gen_t_cost = log_t_loss
-		# gen_t_cost = -tf.reduce_mean(disc_fake) + self.gamma * log_t_loss
+		disc_cost = -(tf.reduce_mean(disc_real) - tf.reduce_mean(disc_fake))
+		# gen_t_cost_1 = tf.reduce_mean(disc_real) - tf.reduce_mean(disc_fake)
+		gen_t_cost_1 = -tf.reduce_mean(disc_fake)
+		gen_e_cost = tf.contrib.seq2seq.sequence_loss(pred_e, real_e, weights=tf.ones([self.batch_size, self.length]), name="SeqLoss")
 
-		# gen_cost = gen_t_cost + self.delta * gen_e_cost
+		huber_t_loss = tf.losses.huber_loss(real_t, tf.exp(pred_t))
+		gen_t_cost = gen_t_cost_1 + self.gamma * huber_t_loss
+		gen_cost = gen_t_cost + self.alpha * gen_e_cost
 
 		'''
 		if the output of Discriminator is bi-classification, 
 		the losses used to train G and D is as follows
 		'''
 
-		d_label_G = tf.one_hot(tf.ones([self.batch_size], dtype=tf.int32), 2)
-		d_label_real = tf.one_hot(tf.zeros([self.batch_size], dtype=tf.int32), 2)
+		# d_label_G = tf.one_hot(tf.ones([self.batch_size], dtype=tf.int32), 2)
+		# d_label_real = tf.one_hot(tf.zeros([self.batch_size], dtype=tf.int32), 2)
+		#
+		# disc_cost = tf.losses.log_loss(d_label_real, disc_real) + tf.losses.log_loss(d_label_G, disc_fake)
+		# log_t_loss = tf.losses.huber_loss(real_t, tf.exp(pred_t))
+		# gen_t_cost = tf.losses.log_loss(d_label_real, disc_fake) + log_t_loss
+		#
+		# gen_e_cost = tf.contrib.seq2seq.sequence_loss(
+		# 	pred_e, real_e, weights=tf.ones([self.batch_size, self.length]), name="SeqLoss")
+		#
+		# gen_cost = gen_t_cost + self.alpha*gen_e_cost
 
-		disc_cost = tf.losses.log_loss(d_label_real, disc_real) + tf.losses.log_loss(d_label_G, disc_fake)
-		log_t_loss = tf.losses.huber_loss(real_t, tf.exp(pred_t))
-		gen_t_cost = tf.losses.log_loss(d_label_real, disc_fake) + log_t_loss
-
-		gen_e_cost = tf.contrib.seq2seq.sequence_loss(
-			pred_e, real_e, weights=tf.ones([self.batch_size, self.length]), name="SeqLossByExample")
-
-		gen_cost = gen_t_cost + self.alpha*gen_e_cost
-
+		'''
+		The separate training of Generator and Discriminator
+		'''
 		gen_params = self.params_with_name('Generator')
 		disc_params = self.params_with_name('Discriminator')
 
@@ -286,11 +284,11 @@ class T_Pred(object):
 		if variable_content_w is not None:
 			w_clip_op = []
 			for v in variable_content_w:
-				w_clip_op.append(tf.assign(v, tf.clip_by_value(v, -0.1, 0.1)))
+				w_clip_op.append(tf.assign(v, tf.clip_by_value(v, -1, 1)))
 		else:
 			w_clip_op = None
 
-		return gen_train_op, disc_train_op, w_clip_op, gen_cost, disc_cost, gen_t_cost, gen_e_cost
+		return gen_train_op, disc_train_op, w_clip_op, gen_cost, disc_cost, gen_t_cost, gen_e_cost, gen_t_cost_1, huber_t_loss
 
 	def build(self):
 		'''
@@ -327,7 +325,7 @@ class T_Pred(object):
 		# use random noise to generate the time sequence
 		# self.pred_t = pred_t = self.g_time(make_noise(hidden_r.get_shape()))
 
-		gen_train_op, disc_train_op, clip_op, gen_cost, disc_cost, gen_t_cost, gen_e_cost = self.loss_with_wasserstein(
+		gen_train_op, disc_train_op, clip_op, gen_cost, disc_cost, gen_t_cost, gen_e_cost, gen_t_cost_1, huber_t_loss = self.loss_with_wasserstein(
 			self.pred_e,
 			self.pred_t,
 			self.targets_e,
@@ -342,6 +340,8 @@ class T_Pred(object):
 		self.d_cost = disc_cost
 		self.gen_e_cost = gen_e_cost
 		self.gen_t_cost = gen_t_cost
+		self.gen_t_cost_1 = gen_t_cost_1
+		self.huber_t_loss = huber_t_loss
 
 		print('pred_e shape: ')
 		print(self.pred_e.get_shape())
@@ -413,9 +413,10 @@ class T_Pred(object):
 						self.targets_e: e_y_list[i*gap+j],
 						self.sample_t: np.maximum(np.log(sample_t_list[i*gap+j]), 0)}
 
-					_, correct_pred, deviation, pred_e, pred_t, d_loss, g_loss, gen_e_cost, gen_t_cost = sess.run(
+
+					_, correct_pred, deviation, pred_e, pred_t, d_loss, g_loss, gen_e_cost, gen_t_cost, huber_t_loss = sess.run(
 						[self.g_train_op, self.correct_pred, self.deviation, self.pred_e, self.pred_t, self.d_cost, self.g_cost,
-							self.gen_e_cost, self.gen_t_cost], feed_dict=feed_dict)
+							self.gen_e_cost, self.gen_t_cost, self.huber_t_loss], feed_dict=feed_dict)
 
 				feed_dict = {
 					self.input_e: e_x_list[i*gap+g_iters],
@@ -425,7 +426,8 @@ class T_Pred(object):
 					self.sample_t: np.maximum(np.log(sample_t_list[i*gap+g_iters]), 0)}
 				
 				_, _ = sess.run([self.d_train_op, self.clip_op], feed_dict=feed_dict)
-				
+
+
 				if self.cell_type == 'T_LSTMCell':
 					sess.run(self.clip_op)
 
@@ -439,11 +441,12 @@ class T_Pred(object):
 						int(i // (iterations // 10)),
 						sum_correct_pred / (sum_iter * self.batch_size * self.length),
 						sum_deviation / (sum_iter * self.batch_size * self.length)))
-					print('d_loss: %f, g_loss: %f, gen_e_loss: %f, gen_t_loss: %f' % (
+					print('d_loss: %f, g_loss: %f, gen_e_loss: %f, gen_t_loss: %f, hunber_t_loss: %f' % (
 						d_loss,
 						g_loss,
 						gen_e_cost,
-						gen_t_cost))
+						gen_t_cost,
+						huber_t_loss))
 				
 			'''
 			evaluation
@@ -473,6 +476,7 @@ class T_Pred(object):
 			sum_iter = 0.0
 			sum_deviation = 0.0
 			gen_cost_ratio = []
+			t_cost_ratio = []
 
 			self.lr = self.learning_rate
 			
@@ -487,23 +491,27 @@ class T_Pred(object):
 				if i > 0 and i % (iterations // 10) == 0:
 					self.lr = self.lr *2./3
 
-				correct_pred, deviation, pred_e, pred_t, d_loss, g_loss, gen_e_cost, gen_t_cost = sess.run(
+				correct_pred, deviation, pred_e, pred_t, d_loss, g_loss, gen_e_cost, gen_t_cost, gen_t_cost_1, huber_t_loss = sess.run(
 					[self.correct_pred, self.deviation, self.pred_e, self.pred_t, self.d_cost, self.g_cost,
-					self.gen_e_cost, self.gen_t_cost],
+					self.gen_e_cost, self.gen_t_cost, self.gen_t_cost_1, self.huber_t_loss],
 					feed_dict=feed_dict)
 				sum_correct_pred = sum_correct_pred + correct_pred
 				sum_iter = sum_iter + 1
 				sum_deviation = sum_deviation + deviation
 				gen_cost_ratio.append(gen_t_cost / gen_e_cost)
+				t_cost_ratio.append(gen_t_cost_1 / huber_t_loss)
 
 				if i % (iterations // 10) == 0:
-					print('%f, precision: %f, deviation: %f, d_loss: %f, g_loss: %f' %(
+					print('%f, precision: %f, deviation: %f, d_loss: %f, g_loss: %f, huber_t_loss:%f' %(
 						i // (iterations // 10),
 						sum_correct_pred / (sum_iter * self.batch_size * self.length),
 						sum_deviation / (sum_iter * self.batch_size * self.length),
 						d_loss,
-						g_loss))
+						g_loss,
+						huber_t_loss))
 			self.alpha = tf.reduce_mean(gen_cost_ratio)
+			self.gamma = tf.reduce_mean(t_cost_ratio)
+			print('alpha: %f, gamma: %f' % (sess.run(self.alpha), sess.run(self.gamma)))
 
 		self.save_model(sess, self.logdir, args.iters)
 
@@ -615,13 +623,13 @@ def main():
 	parser.add_argument('--gpu', default=0, type=int)
 	parser.add_argument('--eval_only', default=False, action='store_true')
 	parser.add_argument('--logdir', default='log/log_kick', type=str)
-	parser.add_argument('--iters', default=15, type=int)
+	parser.add_argument('--iters', default=30, type=int)
 	parser.add_argument('--cell_type', default='T_GRUCell', type=str)
 	args = parser.parse_args()
 
 	assert args.logdir[-1] != '/'
-	event_file = './T-pred-Dataset/RECSYS15_event.txt'
-	time_file = './T-pred-Dataset/RECSYS15_time.txt'
+	event_file = './T-pred-Dataset/IPTV_event.txt'
+	time_file = './T-pred-Dataset/IPTV_time.txt'
 	model_config = get_config(args.mode)
 	is_training = args.is_training
 	cell_type = args.cell_type
