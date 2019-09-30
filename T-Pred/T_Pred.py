@@ -39,6 +39,7 @@ class T_Pred(object):
 		self.filter_size = config.filter_size
 		self.batch_size = config.batch_size
 		self.num_steps = config.num_steps
+		self.n_g = config.num_gen
 		self.is_training = is_training
 		self.keep_prob = config.keep_prob
 		self.res_rate = config.res_rate
@@ -143,7 +144,7 @@ class T_Pred(object):
 		'''
 
 		with tf.variable_scope("Generator_E" + name):
-			outputs = utils.build_rnn_graph_decoder2(
+			outputs = utils.build_rnn_graph_decoder1(
 				hidden_r,
 				self.num_layers,
 				self.g_size,
@@ -163,7 +164,7 @@ class T_Pred(object):
 		2. use the unfolded hidden representation separately for each time step
 		'''
 		with tf.variable_scope('Generator_T' + name):
-			outputs = utils.build_rnn_graph_decoder2(
+			outputs = utils.build_rnn_graph_decoder1(
 				hidden_r,
 				self.num_layers,
 				self.hidden_size,
@@ -174,6 +175,22 @@ class T_Pred(object):
 			output = utils.linear('G_T.Output', self.g_size, 1, output)
 			logits = tf.reshape(output, [self.batch_size, self.length, 1])
 			return logits
+
+	def attention_g_t(self, hidden_re, hidden_rt, num_gen):
+		"""
+		If there are multiple generator for time sequences,
+		use this attention vector to select an output from these generators.
+		:param hidden_re: the representation of event
+		:param hidden_rt: the representation of time
+		:param num_gen: the number of generators for time sequence
+		:return: the attention vector to weight the generators
+		"""
+		with tf.variable_scope('Generator_T/Attention'):
+			a_w = tf.get_variable('a_w', [self.batch_size, num_gen], dtype=tf.float32)
+			a_b = tf.get_variable('a_b', [self.batch_size, num_gen], dtype=tf.float32)
+			logits_a = tf.nn.xw_plus_b(tf.concat([hidden_re, hidden_rt], 1), a_w, a_b)
+			attention = tf.nn.softmax(logits_a)
+		return attention
 
 	def discriminator(self, inputs_logits, num_blocks=3, use_bias=False, num_classes=1):
 		'''
@@ -320,13 +337,29 @@ class T_Pred(object):
 		4. plus
 		'''
 
-		# self.pred_e = self.g_event(tf.reshape(output_re, [self.batch_size, -1]))
-		self.pred_e = self.g_event(output_re)
+		self.pred_e = self.g_event(tf.reshape(output_re, [self.batch_size, -1]))
+		# self.pred_e = self.g_event(output_re)
 		# use the extracted feature from input events and timestamps to generate the time sequence
-		# self.pred_t = self.g_time(tf.reshape(output_rt, [self.batch_size, -1]))
-		self.pred_t = self.g_time(output_rt)
-		# use random noise to generate the time sequence
-		# self.pred_t = pred_t = self.g_time(make_noise(hidden_r.get_shape()))
+
+		if self.n_g == 1:
+			self.pred_t = self.g_time(tf.reshape(output_rt, [self.batch_size, -1]))
+			# self.pred_t = self.g_time(output_rt)
+			# use random noise to generate the time sequence
+			# self.pred_t = pred_t = self.g_time(make_noise(hidden_r.get_shape()))
+
+		else:
+			self.pred_t_list = []
+			for i in range(self.n_g):
+				self.pred_t_list.append(self.g_time(tf.reshape(output_rt, [self.batch_size, -1]), name=str(i)))
+				# self.pred_t = self.g_time(output_rt)
+				# use random noise to generate the time sequence
+				# self.pred_t = pred_t = self.g_time(make_noise(hidden_r.get_shape()))
+			'''
+			The attention module for select the pred_t from all t-generators
+			'''
+			attention_gt = self.attention_g_t(hidden_re, hidden_rt, self.n_g)
+			k = tf.arg_max(attention_gt, 0)
+			self.pred_t = self.pred_t_list[k]
 
 		gen_train_op, disc_train_op, w_clip_op, gen_cost, disc_cost, gen_t_cost, gen_e_cost, gen_t_cost_1, huber_t_loss = self.loss_with_wasserstein(
 			self.pred_e,
