@@ -2,9 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import os
 import collections
-import random
 import numpy as np
 import datetime
 from tqdm import tqdm
@@ -48,8 +46,8 @@ def write_dict(filename, dict):
 		f.close()
 
 
-def vocab_size(filenamee):
-	word_to_id = build_vocab(filenamee)
+def vocab_size(filename):
+	word_to_id = build_vocab(filename)
 	return len(word_to_id)
 
 
@@ -63,12 +61,12 @@ def data_split(event_file=None, time_file=None, shuffle=True):
 	time_traces = read_time.read().split('\n')
 	read_time.close()
 
-	if (len(event_traces) != len(time_traces)):
+	if len(event_traces) != len(time_traces):
 		return None, None, None
 
 	data_zip = zip(event_traces, time_traces)
 	
-	if (shuffle):
+	if shuffle:
 		np.random.shuffle(data_zip)
 		shuffled_input_traces = data_zip
 	else:
@@ -84,13 +82,15 @@ def data_split(event_file=None, time_file=None, shuffle=True):
 	return train_data, valid_data, test_data
 
 
-def data_iterator(input_raw_traces, event_to_id, num_steps, length, overlap = True):
+def data_iterator(input_raw_traces, event_to_id, num_steps, length, overlap=True):
 	input_len_sum = 0
 	input_event_data = []
 	target_event_data = []
 	input_time_data = []
 	target_time_data = []
 	print("length_traces: " + str(len(input_raw_traces))) #9320
+
+	np.random.shuffle(input_raw_traces)
 
 	for event_trace, time_trace in list(input_raw_traces):
 		if event_trace == '':
@@ -101,7 +101,10 @@ def data_iterator(input_raw_traces, event_to_id, num_steps, length, overlap = Tr
 		data_len = len(events)
 		time_len = len(times)
 
-		if (overlap):
+		if data_len != time_len:
+			print("The length of data traces and that of time traces are noe equal!")
+
+		if overlap:
 			input_len = data_len - (num_steps + length)
 			if input_len > 1:
 				for i in range(input_len):
@@ -135,10 +138,10 @@ def data_iterator(input_raw_traces, event_to_id, num_steps, length, overlap = Tr
 				pass
 				# print("the trace is too short")
 
-	input_event_data = np.array(input_event_data, dtype = np.int32)
-	target_event_data = np.array(target_event_data, dtype = np.int32)
-	input_time_data = np.array(input_time_data, dtype = np.float32)
-	target_time_data = np.array(target_time_data, dtype = np.float32)
+	input_event_data = np.array(input_event_data, dtype=np.int32)
+	target_event_data = np.array(target_event_data, dtype=np.int32)
+	input_time_data = np.array(input_time_data, dtype=np.float32)
+	target_time_data = np.array(target_time_data, dtype=np.float32)
 
 	return input_len_sum, input_event_data, target_event_data, input_time_data, target_time_data
 
@@ -186,7 +189,10 @@ def batch_count(input_raw_traces, num_steps, length, batch_size, overlap=True):
 		data_len = len(events)
 		time_len = len(times)
 
-		if (overlap):
+		if data_len != time_len:
+			print("The length of data traces and that of time traces are noe equal!")
+
+		if overlap:
 			input_len = data_len - (num_steps + length)
 			if input_len > 1:
 				input_len_sum += input_len

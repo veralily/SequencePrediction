@@ -128,18 +128,22 @@ class T_Pred(object):
 				output_z = tf.reshape(tf.multiply(tf.reshape(b, [-1]), input_z), [re.get_shape()[1], self.batch_size, -1])
 				output_z = tf.transpose(output_z, [1, 0, 2])
 				output_z = tf.reduce_sum(output_z, 2)
-				outputs_z.append(output_z)
-				variable_b.append(tf.expand_dims(tf.reduce_mean(b,0),0))
+				outputs_z.append(tf.expand_dims(output_z, 1))
+				variable_b.append(tf.expand_dims(tf.reduce_mean(b, 0), 0))
+			outputs_z = tf.concat(outputs_z, 1)
 			return outputs_z
 
-	def g_event(self, hidden_r):
+	def g_event(self, hidden_r, name=''):
 
 		'''
-		The generator model for time and event
+		The generative model for time and event
+		mode:
+		1. use the concatenated hidden representation for each time step
+		2. use the unfolded hidden representation separately for each time step
 		'''
 
-		with tf.variable_scope("Generator_E"):
-			outputs = utils.build_rnn_graph_decoder1(
+		with tf.variable_scope("Generator_E" + name):
+			outputs = utils.build_rnn_graph_decoder2(
 				hidden_r,
 				self.num_layers,
 				self.g_size,
@@ -151,12 +155,15 @@ class T_Pred(object):
 			logits = tf.reshape(output, [self.batch_size, self.length, self.vocab_size])
 			return logits
 
-	def g_time(self, hidden_r):
+	def g_time(self, hidden_r, name=''):
 		'''
-		The generator model for time and event
+		The generative model for time and event
+		mode:
+		1. use the concatenated hidden representation for each time step
+		2. use the unfolded hidden representation separately for each time step
 		'''
-		with tf.variable_scope('Generator_T'):
-			outputs = utils.build_rnn_graph_decoder1(
+		with tf.variable_scope('Generator_T' + name):
+			outputs = utils.build_rnn_graph_decoder2(
 				hidden_r,
 				self.num_layers,
 				self.hidden_size,
@@ -208,12 +215,6 @@ class T_Pred(object):
 		return [v for v in variables if name in v.name]
 
 	def loss_with_wasserstein(self, pred_e, pred_t, real_e, real_t, input_t, sample_t):
-		logits = []
-		labels = []
-		# for i in range(self.length):
-		# 	logits.append(pred_e[:,i,:])
-		# 	labels.append(real_e[:,i])
-
 		if self.cell_type == 'T_LSTMCell':
 			variable_content_e = self.params_with_name('time_gate_t1')
 		else:
@@ -284,7 +285,7 @@ class T_Pred(object):
 		if variable_content_w is not None:
 			w_clip_op = []
 			for v in variable_content_w:
-				w_clip_op.append(tf.assign(v, tf.clip_by_value(v, -1, 1)))
+				w_clip_op.append(tf.assign(v, tf.clip_by_value(v, -0.01, 0.01)))
 		else:
 			w_clip_op = None
 
@@ -319,13 +320,15 @@ class T_Pred(object):
 		4. plus
 		'''
 
-		self.pred_e = self.g_event(tf.reshape(tf.concat([hidden_re, hidden_rt], axis=2), [self.batch_size, -1]))
+		# self.pred_e = self.g_event(tf.reshape(output_re, [self.batch_size, -1]))
+		self.pred_e = self.g_event(output_re)
 		# use the extracted feature from input events and timestamps to generate the time sequence
-		self.pred_t = self.g_time(tf.reshape(tf.concat([hidden_re, hidden_rt], axis=2), [self.batch_size, -1]))
+		# self.pred_t = self.g_time(tf.reshape(output_rt, [self.batch_size, -1]))
+		self.pred_t = self.g_time(output_rt)
 		# use random noise to generate the time sequence
 		# self.pred_t = pred_t = self.g_time(make_noise(hidden_r.get_shape()))
 
-		gen_train_op, disc_train_op, clip_op, gen_cost, disc_cost, gen_t_cost, gen_e_cost, gen_t_cost_1, huber_t_loss = self.loss_with_wasserstein(
+		gen_train_op, disc_train_op, w_clip_op, gen_cost, disc_cost, gen_t_cost, gen_e_cost, gen_t_cost_1, huber_t_loss = self.loss_with_wasserstein(
 			self.pred_e,
 			self.pred_t,
 			self.targets_e,
@@ -335,7 +338,7 @@ class T_Pred(object):
 
 		self.g_train_op = gen_train_op
 		self.d_train_op = disc_train_op
-		self.clip_op = clip_op
+		self.w_clip_op = w_clip_op
 		self.g_cost = gen_cost
 		self.d_cost = disc_cost
 		self.gen_e_cost = gen_e_cost
@@ -395,38 +398,34 @@ class T_Pred(object):
 				target_time_data)
 			
 			g_iters = 5
-			gap = g_iters + 1			
-			
-			iterations = batch_num // gap
-			print(iterations)
+			gap = g_iters + 1
 
-			for i in range(iterations):
+			for i in range(batch_num):
 
-				if i > 0 and i % (iterations // 10) == 0:
+				if i > 0 and i % (batch_num // 10) == 0:
 					self.lr = self.lr * 2./3
 				
-				for j in range(g_iters):
+				if i % gap == 0:
 					feed_dict = {
-						self.input_e: e_x_list[i*gap+j],
-						self.inputs_t: np.maximum(np.log(t_x_list[i*gap+j]), 0),
-						self.target_t: t_y_list[i*gap+j],
-						self.targets_e: e_y_list[i*gap+j],
-						self.sample_t: np.maximum(np.log(sample_t_list[i*gap+j]), 0)}
+						self.input_e: e_x_list[i],
+						self.inputs_t: np.maximum(np.log(t_x_list[i]), 0),
+						self.target_t: t_y_list[i],
+						self.targets_e: e_y_list[i],
+						self.sample_t: np.maximum(np.log(sample_t_list[i]), 0)}
 
+					_, _ = sess.run([self.d_train_op, self.w_clip_op], feed_dict=feed_dict)
 
-					_, correct_pred, deviation, pred_e, pred_t, d_loss, g_loss, gen_e_cost, gen_t_cost, huber_t_loss = sess.run(
-						[self.g_train_op, self.correct_pred, self.deviation, self.pred_e, self.pred_t, self.d_cost, self.g_cost,
-							self.gen_e_cost, self.gen_t_cost, self.huber_t_loss], feed_dict=feed_dict)
+				else:
+					feed_dict = {
+						self.input_e: e_x_list[i],
+						self.inputs_t: np.maximum(np.log(t_x_list[i]), 0),
+						self.target_t: t_y_list[i],
+						self.targets_e: e_y_list[i],
+						self.sample_t: np.maximum(np.log(sample_t_list[i]), 0)}
 
-				feed_dict = {
-					self.input_e: e_x_list[i*gap+g_iters],
-					self.inputs_t: np.maximum(np.log(t_x_list[i*gap+g_iters]), 0),
-					self.target_t: t_y_list[i*gap+g_iters],
-					self.targets_e: e_y_list[i*gap+g_iters],
-					self.sample_t: np.maximum(np.log(sample_t_list[i*gap+g_iters]), 0)}
-				
-				_, _ = sess.run([self.d_train_op, self.clip_op], feed_dict=feed_dict)
-
+				_, correct_pred, deviation, pred_e, pred_t, d_loss, g_loss, gen_e_cost, gen_t_cost, huber_t_loss = sess.run(
+					[self.g_train_op, self.correct_pred, self.deviation, self.pred_e, self.pred_t, self.d_cost, self.g_cost,
+					 self.gen_e_cost, self.gen_t_cost, self.huber_t_loss], feed_dict=feed_dict)
 
 				if self.cell_type == 'T_LSTMCell':
 					sess.run(self.clip_op)
@@ -435,10 +434,10 @@ class T_Pred(object):
 				sum_iter = sum_iter + 1
 				sum_deviation = sum_deviation + deviation
 
-				if i % (iterations // 10) == 0:
+				if i % (batch_num // 10) == 0:
 					print('[epoch: %d, %d] precision: %f, deviation: %f' % (
 						epoch,
-						int(i // (iterations // 10)),
+						int(i // (batch_num // 10)),
 						sum_correct_pred / (sum_iter * self.batch_size * self.length),
 						sum_deviation / (sum_iter * self.batch_size * self.length)))
 					print('d_loss: %f, g_loss: %f, gen_e_loss: %f, gen_t_loss: %f, hunber_t_loss: %f' % (
@@ -470,8 +469,7 @@ class T_Pred(object):
 				self.batch_size,
 				input_time_data,
 				target_time_data)
-			
-			iterations = batch_num
+
 			sum_correct_pred = 0.0
 			sum_iter = 0.0
 			sum_deviation = 0.0
@@ -480,15 +478,15 @@ class T_Pred(object):
 
 			self.lr = self.learning_rate
 			
-			for i in range(iterations):
+			for i in range(batch_num):
 				feed_dict = {
-				self.input_e: e_x_list[i],
-				self.inputs_t: np.maximum(np.log(t_x_list[i]), 0),
-				self.target_t: t_y_list[i],
-				self.targets_e: e_y_list[i],
-				self.sample_t: np.maximum(np.log(sample_t_list[i]), 0)}
+					self.input_e: e_x_list[i],
+					self.inputs_t: np.maximum(np.log(t_x_list[i]), 0),
+					self.target_t: t_y_list[i],
+					self.targets_e: e_y_list[i],
+					self.sample_t: np.maximum(np.log(sample_t_list[i]), 0)}
 
-				if i > 0 and i % (iterations // 10) == 0:
+				if i > 0 and i % (batch_num // 10) == 0:
 					self.lr = self.lr *2./3
 
 				correct_pred, deviation, pred_e, pred_t, d_loss, g_loss, gen_e_cost, gen_t_cost, gen_t_cost_1, huber_t_loss = sess.run(
@@ -501,9 +499,9 @@ class T_Pred(object):
 				gen_cost_ratio.append(gen_t_cost / gen_e_cost)
 				t_cost_ratio.append(gen_t_cost_1 / huber_t_loss)
 
-				if i % (iterations // 10) == 0:
+				if i % (batch_num // 10) == 0:
 					print('%f, precision: %f, deviation: %f, d_loss: %f, g_loss: %f, huber_t_loss:%f' %(
-						i // (iterations // 10),
+						i // (batch_num // 10),
 						sum_correct_pred / (sum_iter * self.batch_size * self.length),
 						sum_deviation / (sum_iter * self.batch_size * self.length),
 						d_loss,
@@ -549,15 +547,10 @@ class T_Pred(object):
 			batch_size,
 			input_time_data,
 			target_time_data)
-			
-		iterations = batch_num
-		sum_correct_pred = 0.0
-		sum_iter = 0.0
-		sum_deviation = 0.0
 
-		f = open(os.path.join(args.logdir,"output.txt"), 'w+')
+		f = open(os.path.join(args.logdir, "output.txt"), 'w+')
 			
-		for i in range(iterations):
+		for i in range(batch_num):
 			# print(e_y_list[i])
 			feed_dict = {
 				self.input_e : e_x_list[i],
@@ -566,14 +559,14 @@ class T_Pred(object):
 				# self.targets_e : e_y_list[i],
 				self.sample_t : np.maximum(np.log(sample_t_list[i]),0)}
 			
-			if i > 0 and i % (iterations // 10) == 0:
+			if i > 0 and i % (batch_num // 10) == 0:
 				lr = lr *2./3
 			# correct_pred, deviation, pred_e, pred_t, d_loss, g_loss, gen_e_cost, gen_t_cost = sess.run(
 			# 	[self.correct_pred, self.deviation, self.pred_e, self.pred_t, self.d_cost, self.g_cost,
 			# 	self.gen_e_cost, self.gen_t_cost,self.disc_cost_1, self.gradient_penalty],
 			# 	feed_dict = feed_dict)
 			pred_e, pred_t, = sess.run([self.pred_e, self.pred_t], feed_dict=feed_dict)
-			
+
 			# sum_correct_pred = sum_correct_pred + correct_pred
 			# sum_iter = sum_iter + 1
 			# sum_deviation = sum_deviation + deviation
@@ -601,7 +594,7 @@ class T_Pred(object):
 
 def get_config(config_mode):
 	"""Get model config."""
-	config = None
+
 	if config_mode == "small":
 		config = model_config.SmallConfig()
 	elif config_mode == "medium":
@@ -628,8 +621,8 @@ def main():
 	args = parser.parse_args()
 
 	assert args.logdir[-1] != '/'
-	event_file = './T-pred-Dataset/IPTV_event.txt'
-	time_file = './T-pred-Dataset/IPTV_time.txt'
+	event_file = './T-pred-Dataset/RECSYS15_event.txt'
+	time_file = './T-pred-Dataset/RECSYS15_time.txt'
 	model_config = get_config(args.mode)
 	is_training = args.is_training
 	cell_type = args.cell_type

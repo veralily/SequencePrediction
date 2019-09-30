@@ -64,17 +64,17 @@ def build_rnn_graph_decoder1(hidden_r, num_layers, hidden_size, batch_size, leng
 
 def build_rnn_graph_decoder2(hidden_r, num_layers, hidden_size, batch_size, length, name):
     '''
-    This decoder use hidden_r as input of each timestep
-    The hidden_r has the type of [batch_size, num_step * hidden_size]
+    This decoder use unfolded hidden_r as inputs of timesteps
+    The hidden_r has the type of [batch_size, num_step, hidden_size]
     '''
     def make_cell():
         cell = tf.contrib.rnn.GRUBlockCellV2(
-            num_units = hidden_size,
-            reuse = None)
+            num_units=hidden_size,
+            reuse=tf.AUTO_REUSE)
         return cell
 
     cell = tf.contrib.rnn.MultiRNNCell(
-        [make_cell() for _ in range(num_layers)], state_is_tuple = True)
+        [make_cell() for _ in range(num_layers)], state_is_tuple=True)
 
     outputs = []
     with tf.variable_scope(name):
@@ -83,7 +83,7 @@ def build_rnn_graph_decoder2(hidden_r, num_layers, hidden_size, batch_size, leng
 
         for time_step in range(length):
             if time_step > 0: tf.get_variable_scope().reuse_variables()
-            (cell_output, state) = cell(hidden_r, state)
+            (cell_output, state) = cell(hidden_r[:, time_step, :], state)
             outputs.append(cell_output)
 
     return outputs

@@ -5,7 +5,7 @@ class SmallConfig(object):
   max_grad_norm = 5
   num_layers = 2
   num_steps = 5
-  output_length = 6
+  output_length = 5
   hidden_size = 200
   g_size = 200
   filter_output_dim = 200
