@@ -188,8 +188,8 @@ class T_Pred(object):
 		with tf.variable_scope('Generator_T/Attention'):
 			hidden_re = tf.reshape(hidden_re, [self.batch_size, -1])
 			hidden_rt = tf.reshape(hidden_rt, [self.batch_size, -1])
-			a_w = tf.get_variable('a_w', [self.batch_size, num_gen], dtype=tf.float32)
-			a_b = tf.get_variable('a_b', [self.batch_size, num_gen], dtype=tf.float32)
+			a_w = tf.get_variable('a_w', [hidden_re.get_shape()[1]+hidden_rt.get_shape()[1], num_gen], dtype=tf.float32)
+			a_b = tf.get_variable('a_b', [num_gen], dtype=tf.float32)
 			logits_a = tf.nn.xw_plus_b(tf.concat([hidden_re, hidden_rt], 1), a_w, a_b)
 			attention = tf.nn.softmax(logits_a)
 		return attention
