@@ -186,6 +186,8 @@ class T_Pred(object):
 		:return: the attention vector to weight the generators
 		"""
 		with tf.variable_scope('Generator_T/Attention'):
+			hidden_re = tf.reshape(hidden_re, [self.batch_size, -1])
+			hidden_rt = tf.reshape(hidden_rt, [self.batch_size, -1])
 			a_w = tf.get_variable('a_w', [self.batch_size, num_gen], dtype=tf.float32)
 			a_b = tf.get_variable('a_b', [self.batch_size, num_gen], dtype=tf.float32)
 			logits_a = tf.nn.xw_plus_b(tf.concat([hidden_re, hidden_rt], 1), a_w, a_b)
