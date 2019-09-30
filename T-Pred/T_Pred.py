@@ -352,16 +352,25 @@ class T_Pred(object):
 		else:
 			self.pred_t_list = []
 			for i in range(self.n_g):
-				self.pred_t_list.append(self.g_time(tf.reshape(output_rt, [self.batch_size, -1]), name=str(i)))
+				pred_t = self.g_time(tf.reshape(output_rt, [self.batch_size, -1]), name=str(i))
+				pred_t = tf.expand_dims(pred_t, 1)
+				self.pred_t_list.append(pred_t)
 				# self.pred_t = self.g_time(output_rt)
 				# use random noise to generate the time sequence
 				# self.pred_t = pred_t = self.g_time(make_noise(hidden_r.get_shape()))
+			# the shape of pred_t_list: [batch_size, num_gen, predicted value]
+			self.pred_t_list = tf.concat(self.pred_t_list, 1)
+
 			'''
 			The attention module for select the pred_t from all t-generators
 			'''
 			attention_gt = self.attention_g_t(hidden_re, hidden_rt, self.n_g)
-			k = np.argmax(attention_gt, 0)
-			self.pred_t = self.pred_t_list[k]
+			k = np.argmax(attention_gt, 1)
+			pred_t = []
+			for i in self.batch_size:
+				pred_t_e = self.pred_t_list[i][k]
+				pred_t.append(tf.expand_dims(pred_t_e, 0))
+			self.pred_t = tf.concat(pred_t, 0)
 
 		gen_train_op, disc_train_op, w_clip_op, gen_cost, disc_cost, gen_t_cost, gen_e_cost, gen_t_cost_1, huber_t_loss = self.loss_with_wasserstein(
 			self.pred_e,
