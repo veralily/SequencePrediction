@@ -360,7 +360,7 @@ class T_Pred(object):
 			The attention module for select the pred_t from all t-generators
 			'''
 			attention_gt = self.attention_g_t(hidden_re, hidden_rt, self.n_g)
-			k = tf.arg_max(attention_gt, 0)
+			k = np.argmax(attention_gt, 0)
 			self.pred_t = self.pred_t_list[k]
 
 		gen_train_op, disc_train_op, w_clip_op, gen_cost, disc_cost, gen_t_cost, gen_e_cost, gen_t_cost_1, huber_t_loss = self.loss_with_wasserstein(
