@@ -22,10 +22,10 @@ def plot_distribution(pred, target):
     plt.xlabel('Value of b')
     plt.ylabel('Probability')
     # plt.title(r'Distribution of Modulator b for Predicting Next Attribute on BPIC12')
-    n, bins, patches1 = ax.hist(pred, bins=50, density=True, label='b_e', facecolor='lightseagreen',
+    n, bins, patches1 = ax.hist(pred, bins=50, density=True, label='pred', facecolor='lightseagreen',
                                 edgecolor="black")
     sns.kdeplot(pred, shade=True, color='lightseagreen')
-    n, bins, patches2 = ax.hist(target, bins=50, density=True, label='b_a1', facecolor='lightcoral',
+    n, bins, patches2 = ax.hist(target, bins=50, density=True, label='target', facecolor='lightcoral',
                                 edgecolor="black",
                                 alpha=0.75)
     sns.kdeplot(target, shade=True, color='lightcoral')
@@ -83,7 +83,7 @@ def to_percent(y, position):
 sns.set_palette('deep', desat=.6)
 sns.set_context(rc={'figure.figsize': (8, 5)})
 
-filename = 'output-cikm16-0826.txt'
+filename = 'output-RECSYS15-0821.txt'
 # filename = 'output-CIKM16-0716.txt'
 
 with open(filename) as f:

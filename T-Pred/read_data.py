@@ -82,7 +82,7 @@ def data_split(event_file=None, time_file=None, shuffle=True):
 	return train_data, valid_data, test_data
 
 
-def data_iterator(input_raw_traces, event_to_id, num_steps, length, overlap=True):
+def data_iterator(input_raw_traces, event_to_id, num_steps, length, overlap=True, shuffle=True):
 	input_len_sum = 0
 	input_event_data = []
 	target_event_data = []
@@ -90,7 +90,10 @@ def data_iterator(input_raw_traces, event_to_id, num_steps, length, overlap=True
 	target_time_data = []
 	print("length_traces: " + str(len(input_raw_traces))) #9320
 
-	np.random.shuffle(input_raw_traces)
+	if shuffle:
+		np.random.shuffle(input_raw_traces)
+	else:
+		pass
 
 	for event_trace, time_trace in list(input_raw_traces):
 		if event_trace == '':
