@@ -81,6 +81,7 @@ class T_Pred(object):
                 self.is_training,
                 "Encoder_et" + cell_type)
             hidden_r = tf.concat(outputs, 1)
+            hidden_r = tf.reshape(hidden_r, [self.batch_size, self.num_steps, -1])
             return hidden_r
 
     def encoder_RecConv(self, cell_type, inputs, t):
@@ -114,10 +115,9 @@ class T_Pred(object):
         """
         attention to modulate the event and time
         hidden_re shape: [batch_size, num_steps, feature_size]
-        hidden_rt shape: [batch_size, num_sieps, feature_size]
+        hidden_rt shape: [batch_size, num_steps, feature_size]
+        output: [batch_size, num_steps, feature_size]
         """
-        outputs_z = []
-        variable_b = []
         z = tf.concat(
             [tf.multiply(tf.reshape(hidden_re, [self.batch_size, -1]), tf.reshape(hidden_rt, [self.batch_size, -1])),
              tf.reshape(hidden_re, [self.batch_size, -1]),
@@ -128,17 +128,20 @@ class T_Pred(object):
             z_b = tf.get_variable("z_b", [2], dtype=tf.float32)
             logits_z = tf.nn.xw_plus_b(z, z_w, z_b)
             b = tf.nn.softmax(logits_z)
-            for i in range(self.num_steps):
-                re = tf.expand_dims(hidden_re[:, i, :], -1)
-                rt = tf.expand_dims(hidden_rt[:, i, :], -1)
-                input_z = tf.reshape(tf.transpose(tf.concat([re, rt], -1), [1, 0, 2]), [re.get_shape()[1], -1])
-                output_z = tf.reshape(tf.multiply(tf.reshape(b, [-1]), input_z),
-                                      [re.get_shape()[1], self.batch_size, -1])
-                output_z = tf.transpose(output_z, [1, 0, 2])
-                output_z = tf.reduce_sum(output_z, 2)
-                outputs_z.append(tf.expand_dims(output_z, 1))
-                variable_b.append(tf.expand_dims(tf.reduce_mean(b, 0), 0))
-            outputs_z = tf.concat(outputs_z, 1)
+            # b shape: [batch_size, 2]
+
+            re = tf.expand_dims(tf.reshape(hidden_re, [self.batch_size, -1]), -1)
+            rt = tf.expand_dims(tf.reshape(hidden_rt, [self.batch_size, -1]), -1)
+            input_z = tf.transpose(tf.concat([re, rt], -1), [1, 0, 2])
+            output_z = tf.multiply(b, input_z)
+            output_z = tf.transpose(output_z, [1, 0, 2])
+            output_z = tf.reduce_sum(output_z, 2)
+            outputs_z = tf.reshape(output_z, [self.batch_size, self.num_steps, -1])
+
+            # noise = make_noise(outputs_z.get_shape())
+            # outputs_z = outputs_z + noise
+
+            variable_b = tf.reduce_mean(b, 0)
             return outputs_z
 
     def g_event(self, hidden_r, name=''):
@@ -298,7 +301,7 @@ class T_Pred(object):
         if variable_content_w is not None:
             w_clip_op = []
             for v in variable_content_w:
-                w_clip_op.append(tf.assign(v, tf.clip_by_value(v, -0.01, 0.01)))
+                w_clip_op.append(tf.assign(v, tf.clip_by_value(v, -0.1, 0.1)))
         else:
             w_clip_op = None
 
@@ -313,9 +316,11 @@ class T_Pred(object):
         self.targets_t = tf.expand_dims(self.target_t, 2)
         self.inputs_e = tf.nn.embedding_lookup(self.embeddings, self.input_e)
 
+        hidden_t = self.encoder_e_t(self.cell_type, self.inputs_e, self.inputs_t)
         hidden_re, hidden_rt = self.encoder_RecConv(self.cell_type, self.inputs_e, self.inputs_t)
         output_re = self.modulator(hidden_re, hidden_rt, 'modulator4e')
         output_rt = self.modulator(hidden_re, hidden_rt, 'modulator4t')
+
 
         """
         The optional form of combination of output_re and output_rt
@@ -328,6 +333,9 @@ class T_Pred(object):
         self.pred_e = self.g_event(tf.reshape(output_re, [self.batch_size, -1]))
         # self.pred_e = self.g_event(output_re)
         # use the extracted feature from input events and timestamps to generate the time sequence
+
+        # take the prediction of events as input information for t_generators
+        output_rt = tf.concat([output_rt, self.pred_e, hidden_t], -1)
 
         if self.n_g == 1:
             self.pred_t = self.g_time(tf.reshape(output_rt, [self.batch_size, -1]))
@@ -666,7 +674,7 @@ def main():
     parser.add_argument('--gpu', default=0, type=int)
     parser.add_argument('--eval_only', default=False, action='store_true')
     parser.add_argument('--logdir', default='log/log_kick', type=str)
-    parser.add_argument('--iters', default=60, type=int)
+    parser.add_argument('--iters', default=40, type=int)
     parser.add_argument('--cell_type', default='T_GRUCell', type=str)
     args = parser.parse_args()
 

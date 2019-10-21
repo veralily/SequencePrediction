@@ -83,7 +83,7 @@ def to_percent(y, position):
 sns.set_palette('deep', desat=.6)
 sns.set_context(rc={'figure.figsize': (8, 5)})
 
-filename = 'output-RECSYS15-0821.txt'
+filename = 'output-1011-RECSYS15.txt'
 # filename = 'output-CIKM16-0716.txt'
 
 with open(filename) as f:

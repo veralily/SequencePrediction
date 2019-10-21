@@ -49,7 +49,7 @@ def mae(pred, target):
     return sum / float(number)
 
 
-filename = 'output-IPTV-0911.txt'
+filename = 'output_t_gru-1013.txt'
 # filename = 'output-CIKM16-0716.txt'
 
 
