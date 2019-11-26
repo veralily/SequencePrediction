@@ -1,5 +1,5 @@
 import os
-# import tensorflow as tf
+import tensorflow as tf
 import numpy as np
 # from tqdm import tqdm
 import time
@@ -85,16 +85,34 @@ emmmmm
 # with tf.Session() as sess:
 #     print(sess.run(z[:,0,:]))
 
-a = list([[[1,2],[2,3]],[[2,3],[3,4]]])
-b = list([[[3,4],[4,5]],[[4,5],[5,6]]])
+''' test for dot-multiply of vectors'''
+# a = list([[[1,2],[2,3]],[[2,3],[3,4]]])
+# b = list([[[3,4],[4,5]],[[4,5],[5,6]]])
 
-c = np.concatenate([np.array(a), np.array(b)])
-print(c)
+# c = tf.concat([np.array(a, dtype=np.float64), np.array(b, dtype=np.float64)], 0)
 
-print(a)
-print(b)
+# d = np.array([[0.1, 0.2],[0.2, 0.2]])
+
+# print(tf.multiply(c, d))
 
 
-time_ = time.localtime(1192.075)
-format_time = time.strftime("%Y-%m-%d %H:%M:%S", time_)
-print(format_time)
+# sess = tf.Session()
+# print(sess.run(c))
+# print(sess.run(tf.multiply(d, c)))
+
+# time_ = time.localtime(1192.075)
+# format_time = time.strftime("%Y-%m-%d %H:%M:%S", time_)
+# print(format_time)
+
+'''test for argmax'''
+a = [[1, 10, 20],[2, 20, 3],[30, 20, 0],[1,5,8],[40,32,2]]
+b = np.array(a, dtype=np.float64)
+b_softmax = tf.nn.softmax(b, 1)
+b_argmax = tf.argmax(b_softmax, 1)
+
+sess = tf.Session()
+print(sess.run(b_softmax))
+print('lalala: ', sess.run(b_argmax))
+
+c = np.array([a for _ in range(4)], dtype=np.float64)
+print(c[0][0])
