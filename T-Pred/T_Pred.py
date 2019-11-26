@@ -49,7 +49,6 @@ class T_Pred(object):
         self.learning_rate = config.learning_rate
         self.lr = config.learning_rate
         self.LAMBDA = config.LAMBDA
-        self.delta = config.delta
         self.gamma = config.gamma
         self.event_to_id = read_data.build_vocab(self.event_file)
         self.train_data, self.valid_data, self.test_data = read_data.data_split(
@@ -68,7 +67,7 @@ class T_Pred(object):
         Encode the inputs and timestamps into hidden representation.
         Using T_GRU cell
         """
-        with tf.variable_scope("Generator"):
+        with tf.variable_scope("Generator/Event-Time"):
             outputs = utils.build_encoder_graph_t(
                 cell_type,
                 inputs,
@@ -85,7 +84,7 @@ class T_Pred(object):
             return hidden_r
 
     def encoder_RecConv(self, cell_type, inputs, t):
-        with tf.variable_scope('Generator'):
+        with tf.variable_scope('Generator/Event-Time'):
             outputs_e = utils.build_encoder_graph_gru(
                 inputs,
                 self.hidden_size,
@@ -123,7 +122,7 @@ class T_Pred(object):
              tf.reshape(hidden_re, [self.batch_size, -1]),
              tf.reshape(hidden_rt, [self.batch_size, -1])],
             1)
-        with tf.variable_scope('Generator_M' + name):
+        with tf.variable_scope('Generator/M' + name):
             z_w = tf.get_variable("z_w", [z.get_shape()[1], 2], dtype=tf.float32)
             z_b = tf.get_variable("z_b", [2], dtype=tf.float32)
             logits_z = tf.nn.xw_plus_b(z, z_w, z_b)
@@ -152,7 +151,7 @@ class T_Pred(object):
         2. use the unfolded hidden representation separately for each time step
         """
 
-        with tf.variable_scope("Generator_E" + name):
+        with tf.variable_scope("Generator/Event-g" + name):
             outputs = utils.build_rnn_graph_decoder1(
                 hidden_r,
                 self.num_layers,
@@ -172,7 +171,7 @@ class T_Pred(object):
         1. use the concatenated hidden representation for each time step
         2. use the unfolded hidden representation separately for each time step
         """
-        with tf.variable_scope('Generator_T' + name):
+        with tf.variable_scope('Generator/Time-g' + name):
             outputs = utils.build_rnn_graph_decoder1(
                 hidden_r,
                 self.num_layers,
@@ -194,7 +193,7 @@ class T_Pred(object):
         :param num_gen: the number of generators for time sequence
         :return: the attention vector to weight the generators
         """
-        with tf.variable_scope('Generator_T/Attention'):
+        with tf.variable_scope('Generator/Time/Attention'):
             hidden_re = tf.reshape(hidden_re, [self.batch_size, -1])
             hidden_rt = tf.reshape(hidden_rt, [self.batch_size, -1])
             a_w = tf.get_variable('a_w', [hidden_re.get_shape()[1] + hidden_rt.get_shape()[1], num_gen],
@@ -256,10 +255,22 @@ class T_Pred(object):
         disc_cost = -(tf.reduce_mean(disc_real) - tf.reduce_mean(disc_fake))
         # gen_t_cost_1 = tf.reduce_mean(disc_real) - tf.reduce_mean(disc_fake)
         gen_t_cost_1 = -tf.reduce_mean(disc_fake)
+
+        # WGANs lipschitz-penalty
+        # delta = tf.random_uniform(shape=[self.batch_size, 1, 1], minval=0., maxval=1.)
+        # difference = pred_t_concat - sample_t_concat
+        # interploates = sample_t_concat + (delta * difference)
+        # gradients = tf.gradients(self.discriminator(interploates), [interploates])[0]
+        # slopes = tf.sqrt(tf.reduce_sum(tf.square(gradients), reduction_indices=[1,2]))
+        # gradient_penalty = tf.reduce_mean((slopes -1.)**2)
+        # disc_cost += self.LAMBDA * gradient_penalty
+
+        # Entropy for event sequence
         gen_e_cost = tf.contrib.seq2seq.sequence_loss(pred_e, real_e, weights=tf.ones([self.batch_size, self.length]),
                                                       name="SeqLoss")
-
+        # huber loss for time sequence
         huber_t_loss = tf.losses.huber_loss(real_t, tf.exp(pred_t))
+
         gen_t_cost = gen_t_cost_1 + self.gamma * huber_t_loss
         gen_cost = gen_t_cost + self.alpha * gen_e_cost
 
@@ -278,15 +289,17 @@ class T_Pred(object):
 
         '''The separate training of Generator and Discriminator'''
         gen_params = self.params_with_name('Generator')
+        gen_event_params = self.params_with_name('Event')
         disc_params = self.params_with_name('Discriminator')
 
-        '''Use the Adam Optimizer to update the variables'''
+        '''Use the Adam Optimizer to update the variables if we use gradient penalty'''
         # gen_train_op = tf.train.AdamOptimizer(learning_rate=1e-4, beta1=0.5, beta2=0.9).minimize(gen_cost, var_list=gen_params)
         # disc_train_op = tf.train.AdamOptimizer(learning_rate=1e-4, beta1=0.5, beta2=0.9).minimize(disc_cost, var_list=disc_params)
 
-        '''Use the RMSProp Optimizer to update the variables'''
-        gen_train_op = tf.train.RMSPropOptimizer(learning_rate=self.lr).minimize(gen_cost, var_list=gen_params)
-        disc_train_op = tf.train.RMSPropOptimizer(learning_rate=self.lr).minimize(disc_cost, var_list=disc_params)
+        '''Use the RMSProp Optimizer to update the variables if we use basic wasserstein distance'''
+        gen_train_op = tf.train.RMSPropOptimizer(learning_rate=self.learning_rate).minimize(gen_cost, var_list=gen_params)
+        disc_train_op = tf.train.RMSPropOptimizer(learning_rate=self.learning_rate).minimize(disc_cost, var_list=disc_params)
+        gen_event_op = tf.train.RMSPropOptimizer(learning_rate=self.learning_rate).minimize(gen_e_cost, var_list=gen_event_params)
 
         # constraint the weight of t for t1 to be negative
         if variable_content_e is not None:
@@ -297,6 +310,7 @@ class T_Pred(object):
             e_clip_op = None
 
         # constraint the weight of discriminator between [-0.1, 0.1]
+        # if we use gradient penalty for discriminator, there is no need to do weight clip!!!
         variable_content_w = self.params_with_name('Discriminator')
         if variable_content_w is not None:
             w_clip_op = []
@@ -305,7 +319,7 @@ class T_Pred(object):
         else:
             w_clip_op = None
 
-        return gen_train_op, disc_train_op, w_clip_op, gen_cost, disc_cost, gen_t_cost, gen_e_cost, gen_t_cost_1, huber_t_loss
+        return gen_train_op, disc_train_op, w_clip_op, gen_cost, disc_cost, gen_t_cost, gen_e_cost, gen_t_cost_1, huber_t_loss, gen_event_op
 
     def build(self):
         """
@@ -318,8 +332,8 @@ class T_Pred(object):
 
         hidden_t = self.encoder_e_t(self.cell_type, self.inputs_e, self.inputs_t)
         hidden_re, hidden_rt = self.encoder_RecConv(self.cell_type, self.inputs_e, self.inputs_t)
-        output_re = self.modulator(hidden_re, hidden_rt, 'modulator4e')
-        output_rt = self.modulator(hidden_re, hidden_rt, 'modulator4t')
+        output_re = self.modulator(hidden_re, hidden_rt, 'modulator/Event')
+        output_rt = self.modulator(hidden_re, hidden_rt, 'modulator/Time')
 
 
         """
@@ -335,7 +349,9 @@ class T_Pred(object):
         # use the extracted feature from input events and timestamps to generate the time sequence
 
         # take the prediction of events as input information for t_generators
-        output_rt = tf.concat([output_rt, self.pred_e, hidden_t], -1)
+        pred_e4t = utils.linear('Generator/pred_e4t.Iutput', self.vocab_size, self.g_size, self.pred_e)
+        output_rt = tf.concat([tf.reshape(output_rt, [self.batch_size, -1]),
+                               tf.reshape(pred_e4t, [self.batch_size, -1])], -1)
 
         if self.n_g == 1:
             self.pred_t = self.g_time(tf.reshape(output_rt, [self.batch_size, -1]))
@@ -346,7 +362,7 @@ class T_Pred(object):
         else:
             self.pred_t_list = []
             for i in range(self.n_g):
-                pred_t = self.g_time(tf.reshape(hidden_rt, [self.batch_size, -1]), name=str(i))
+                pred_t = self.g_time(tf.reshape(output_rt, [self.batch_size, -1]), name=str(i))
                 pred_t = tf.expand_dims(pred_t, 1)
                 self.pred_t_list.append(pred_t)
             # self.pred_t = self.g_time(output_rt)
@@ -365,7 +381,7 @@ class T_Pred(object):
                 pred_t.append(tf.expand_dims(pred_t_e, 0))
             self.pred_t = tf.concat(pred_t, 0)
 
-        gen_train_op, disc_train_op, w_clip_op, gen_cost, disc_cost, gen_t_cost, gen_e_cost, gen_t_cost_1, huber_t_loss = self.loss_with_wasserstein(
+        gen_train_op, disc_train_op, w_clip_op, gen_cost, disc_cost, gen_t_cost, gen_e_cost, gen_t_cost_1, huber_t_loss, g_e_op = self.loss_with_wasserstein(
             self.pred_e,
             self.pred_t,
             self.targets_e,
@@ -382,6 +398,7 @@ class T_Pred(object):
         self.gen_t_cost = gen_t_cost
         self.gen_t_cost_1 = gen_t_cost_1
         self.huber_t_loss = huber_t_loss
+        self.g_e_op = g_e_op
 
         print('pred_e shape: ')
         print(self.pred_e.get_shape())
@@ -454,7 +471,7 @@ class T_Pred(object):
                 input_time_data,
                 target_time_data)
 
-            g_iters = 5
+            g_iters = 4
             gap = g_iters + 1
 
             for i in range(batch_num):
@@ -462,24 +479,17 @@ class T_Pred(object):
                 if i > 0 and i % (batch_num // 10) == 0:
                     self.lr = self.lr * 2. / 3
 
-                if i % gap == 0:
-                    feed_dict = {
-                        self.input_e: e_x_list[i],
-                        self.inputs_t: np.maximum(np.log(t_x_list[i]), 0),
-                        self.target_t: t_y_list[i],
-                        self.targets_e: e_y_list[i],
-                        self.sample_t: np.maximum(np.log(sample_t_list[i]), 0)}
+                feed_dict = {
+                    self.input_e: e_x_list[i],
+                    self.inputs_t: np.maximum(np.log(t_x_list[i]), 0),
+                    self.target_t: t_y_list[i],
+                    self.targets_e: e_y_list[i],
+                    self.sample_t: np.maximum(np.log(sample_t_list[i]), 0)}
 
+                if i % gap == 0:
                     _, _ = sess.run([self.d_train_op, self.w_clip_op], feed_dict=feed_dict)
 
                 else:
-                    feed_dict = {
-                        self.input_e: e_x_list[i],
-                        self.inputs_t: np.maximum(np.log(t_x_list[i]), 0),
-                        self.target_t: t_y_list[i],
-                        self.targets_e: e_y_list[i],
-                        self.sample_t: np.maximum(np.log(sample_t_list[i]), 0)}
-
                     _, _, _, deviation, batch_precision, batch_recall, d_loss, g_loss, gen_e_cost, gen_t_cost, huber_t_loss = sess.run(
                         [self.g_train_op, self.batch_precision_op, self.batch_recall_op,
                          self.deviation, self.batch_precision, self.batch_recall,
@@ -674,13 +684,13 @@ def main():
     parser.add_argument('--gpu', default=0, type=int)
     parser.add_argument('--eval_only', default=False, action='store_true')
     parser.add_argument('--logdir', default='log/log_kick', type=str)
-    parser.add_argument('--iters', default=40, type=int)
+    parser.add_argument('--iters', default=20, type=int)
     parser.add_argument('--cell_type', default='T_GRUCell', type=str)
     args = parser.parse_args()
 
     assert args.logdir[-1] != '/'
-    event_file = './T-pred-Dataset/RECSYS15_event.txt'
-    time_file = './T-pred-Dataset/RECSYS15_time.txt'
+    event_file = './T-pred-Dataset/lastfm-v5k_event.txt'
+    time_file = './T-pred-Dataset/lastfm-v5k_time.txt'
     model_config = get_config(args.mode)
     is_training = args.is_training
     cell_type = args.cell_type

@@ -5,6 +5,7 @@ import random
 import argparse
 import tensorflow as tf
 import numpy as np
+from tensorflow.contrib.slim.python.slim.nets import resnet_v1
 import utils
 import read_data
 import model_config
@@ -44,8 +45,10 @@ class T_Pred(object):
 		self.delta = config.delta
 		self.gamma = config.gamma
 		self.event_to_id = read_data.build_vocab(self.event_file)
-		self.train_data, self.valid_data, self.test_data = read_data.data_split(event_file, time_file)
-		self.embeddings = tf.get_variable("embedding", [self.vocab_size, self.hidden_size], dtype=tf.float32)
+		self.train_data, self.valid_data, self.test_data = read_data.data_split(
+			event_file, time_file)
+		self.embeddings = tf.get_variable(
+          "embedding", [self.vocab_size, self.hidden_size], dtype=tf.float32)
 		self.build()
 
 

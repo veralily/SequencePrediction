@@ -138,7 +138,7 @@ def build_encoder_graph_t(cell_type, inputs, t, hidden_size, num_layers, batch_s
 
 def build_encoder_graph_gru(inputs, hidden_size, num_layers, batch_size, num_steps, keep_prob, is_training, name):
     def make_cell():
-        cell = GRUCell(
+        cell = tf.contrib.rnn.GRUBlockCellV2(
             hidden_size,
             reuse=not is_training,
             name='GRUCell')
@@ -301,7 +301,7 @@ def linear(
         if weightnorm == None:
             weightnorm = _default_weightnorm
         if weightnorm:
-            norm_values = tf.sqrt(tf.sum(tf.square(weight_values), axis=0))
+            norm_values = tf.sqrt(tf.reduce_sum(tf.square(weight_values), axis=0))
             # norm_values = np.linalg.norm(weight_values, axis=0)
 
             target_norms = tf.get_variable('g', initializer=norm_values)
@@ -319,7 +319,7 @@ def linear(
         else:
             reshaped_inputs = tf.reshape(inputs, [-1, input_dim])
             result = tf.matmul(reshaped_inputs, weight)
-            result = tf.reshape(result, tf.pack(tf.unpack(tf.shape(inputs))[:-1] + [output_dim]))
+            result = tf.reshape(result, tf.stack(tf.unstack(tf.shape(inputs))[:-1] + [output_dim]))
 
         if biases:
             bias = tf.get_variable('b', initializer=tf.zeros(output_dim))

@@ -49,13 +49,10 @@ class T_Pred(object):
         self.learning_rate = config.learning_rate
         self.lr = config.learning_rate
         self.LAMBDA = config.LAMBDA
-        self.delta = config.delta
         self.gamma = config.gamma
-        self.event_to_id = read_data.build_vocab(self.event_file)
         self.train_data, self.valid_data, self.test_data = read_data.data_split(
             event_file, time_file, shuffle=False)
-        self.embeddings = tf.get_variable(
-            "embedding", [self.vocab_size, self.hidden_size], dtype=tf.float32)
+
         self.sample_t = tf.placeholder(tf.float32, [self.batch_size, self.num_steps + self.length])
         self.target_t = tf.placeholder(tf.float32, [self.batch_size, self.length])
         self.inputs_t = tf.placeholder(tf.float32, [self.batch_size, self.num_steps])
@@ -103,19 +100,22 @@ class T_Pred(object):
         variables = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES)
         return [v for v in variables if name in v.name]
 
+    def params_all(self):
+        variables = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES)
+        return variables
+
     def loss(self, pred_e, real_e):
 
         gen_e_cost = tf.contrib.seq2seq.sequence_loss(pred_e, real_e, weights=tf.ones([self.batch_size, self.length]),
                                                       name="SeqLoss")
         '''The separate training of Generator and Discriminator'''
-        gen_params = self.params_with_name('Generator')
+        gen_params = self.params_all()
 
         '''Use the Adam Optimizer to update the variables'''
-        # gen_train_op = tf.train.AdamOptimizer(learning_rate=1e-4, beta1=0.5, beta2=0.9).minimize(gen_cost, var_list=gen_params)
-        # disc_train_op = tf.train.AdamOptimizer(learning_rate=1e-4, beta1=0.5, beta2=0.9).minimize(disc_cost, var_list=disc_params)
+        gen_train_op = tf.train.AdamOptimizer(learning_rate=1e-4, beta1=0.5, beta2=0.9).minimize(gen_e_cost, var_list=gen_params)
 
         '''Use the RMSProp Optimizer to update the variables'''
-        gen_train_op = tf.train.RMSPropOptimizer(learning_rate=self.lr).minimize(gen_e_cost, var_list=gen_params)
+        # gen_train_op = tf.train.RMSPropOptimizer(learning_rate=self.lr).minimize(gen_e_cost, var_list=gen_params)
 
         return gen_train_op, gen_e_cost
 
@@ -125,29 +125,32 @@ class T_Pred(object):
         define the loss function
         define the optimization method
         """
-        self.inputs_e = tf.nn.embedding_lookup(self.embeddings, self.input_e)
+        embeddings = tf.get_variable(
+            "embedding", [self.vocab_size, self.hidden_size], dtype=tf.float32)
+        inputs_e = tf.nn.embedding_lookup(embeddings, self.input_e)
 
-        hidden_re = self.encoder_e(self.cell_type, self.inputs_e)
+        hidden_re = self.encoder_e(self.cell_type, inputs_e)
 
-        self.pred_e = self.g_event(tf.reshape(hidden_re, [self.batch_size, -1]))
+        pred_e = self.g_event(tf.reshape(hidden_re, [self.batch_size, -1]))
         # self.pred_e = self.g_event(output_re)
         # use the extracted feature from input events and timestamps to generate the time sequence
 
         gen_train_op, gen_e_cost = self.loss(
-            self.pred_e,
+            pred_e,
             self.targets_e)
 
         self.g_train_op = gen_train_op
         self.gen_e_cost = gen_e_cost
+        self.pred_e = pred_e
 
         print('pred_e shape: ')
-        print(self.pred_e.get_shape())
+        print(pred_e.get_shape())
         print('targets_e shape: ')
         print(self.targets_e.get_shape())
 
         # MRR@k
         self.batch_precision, self.batch_precision_op = tf.metrics.average_precision_at_k(
-            labels=self.targets_e, predictions=self.pred_e, k=20, name='precision_k')
+            labels=self.targets_e, predictions=pred_e, k=20, name='precision_k')
         # Isolate the variables stored behind the scenes by the metric operation
         self.running_precision_vars = tf.get_collection(tf.GraphKeys.LOCAL_VARIABLES, scope="precision_k")
         # Define initializer to initialize/reset running variables
@@ -155,7 +158,7 @@ class T_Pred(object):
 
         # Recall@k
         self.batch_recall, self.batch_recall_op = tf.metrics.recall_at_k(
-            labels=self.targets_e, predictions=self.pred_e, k=20, name='recall_k')
+            labels=self.targets_e, predictions=pred_e, k=20, name='recall_k')
         # Isolate the variables stored behind the scenes by the metric operation
         self.running_recall_vars = tf.get_collection(tf.GraphKeys.LOCAL_VARIABLES, scope="recall_k")
         # Define initializer to initialize/reset running variables
@@ -181,6 +184,9 @@ class T_Pred(object):
         for epoch in range(args.iters):
             '''training'''
 
+            if epoch > 0 and epoch % (args.iters // 5) == 0:
+                self.lr = self.lr * 2. / 3
+
             sess.run([self.running_precision_vars_initializer, self.running_recall_vars_initializer])
             # re initialize the metric variables of metric.precision and metric.recall,
             # to calculate these metric for each epoch
@@ -188,40 +194,31 @@ class T_Pred(object):
 
             sum_iter = 0.0
 
-            input_len, input_event_data, target_event_data, input_time_data, target_time_data = read_data.data_iterator(
+            input_event_data, target_event_data, input_time_data, target_time_data = read_data.data_iterator(
                 self.train_data,
-                self.event_to_id,
                 self.num_steps,
                 self.length)
 
-            batch_num, e_x_list, e_y_list, t_x_list, t_y_list = read_data.generate_batch(
-                input_len,
-                self.batch_size,
-                input_event_data,
-                target_event_data,
-                input_time_data,
-                target_time_data)
-
-            _, sample_t_list = read_data.generate_sample_t(
-                input_len,
+            sample_t = read_data.generate_sample_t(
                 self.batch_size,
                 input_time_data,
                 target_time_data)
 
-            g_iters = 5
-            gap = g_iters + 1
+            i = 0
 
-            for i in range(batch_num):
-
-                if i > 0 and i % (batch_num // 10) == 0:
-                    self.lr = self.lr * 2. / 3
+            for e_x, e_y, t_x, t_y in read_data.generate_batch(
+                    self.batch_size,
+                    input_event_data,
+                    target_event_data,
+                    input_time_data,
+                    target_time_data):
 
                 feed_dict = {
-                    self.input_e: e_x_list[i],
-                    self.inputs_t: np.maximum(np.log(t_x_list[i]), 0),
-                    self.target_t: t_y_list[i],
-                    self.targets_e: e_y_list[i],
-                    self.sample_t: np.maximum(np.log(sample_t_list[i]), 0)}
+                    self.input_e: e_x,
+                    self.inputs_t: np.maximum(np.log(t_x), 0),
+                    self.target_t: t_y,
+                    self.targets_e: e_y,
+                    self.sample_t: np.maximum(np.log(sample_t), 0)}
 
                 _, _, _, gen_e_cost, batch_precision, batch_recall = sess.run(
                         [self.g_train_op,
@@ -234,10 +231,11 @@ class T_Pred(object):
                 # if self.cell_type == 'T_LSTMCell':
                 #     sess.run(self.clip_op)
 
-                if i % (batch_num // 10) == 0:
+                if i % 100 == 0:
                     print('[epoch: %d, %d] precision: %f, recall: %f, gen_e_loss: %f' % (
-                        epoch, int(i // (batch_num // 10)), batch_precision, batch_recall, gen_e_cost))
-                    print('Precision Vars:', sess.run(self.running_precision_vars))
+                        epoch, int(i // 1000), batch_precision, batch_recall, gen_e_cost))
+                    # print('Precision Vars:', sess.run(self.running_precision_vars))
+                i += 1
 
             '''evaluation'''
 
@@ -247,38 +245,32 @@ class T_Pred(object):
 
             input_len, input_event_data, target_event_data, input_time_data, target_time_data = read_data.data_iterator(
                 self.valid_data,
-                self.event_to_id,
                 self.num_steps,
                 self.length)
 
-            batch_num, e_x_list, e_y_list, t_x_list, t_y_list = read_data.generate_batch(
-                input_len,
-                self.batch_size,
-                input_event_data,
-                target_event_data,
-                input_time_data,
-                target_time_data)
-
-            _, sample_t_list = read_data.generate_sample_t(
-                input_len,
+            sample_t = read_data.generate_sample_t(
                 self.batch_size,
                 input_time_data,
                 target_time_data)
 
             sum_iter = 0.0
+            i = 0
 
             self.lr = self.learning_rate
 
-            for i in range(batch_num):
-                feed_dict = {
-                    self.input_e: e_x_list[i],
-                    self.inputs_t: np.maximum(np.log(t_x_list[i]), 0),
-                    self.target_t: t_y_list[i],
-                    self.targets_e: e_y_list[i],
-                    self.sample_t: np.maximum(np.log(sample_t_list[i]), 0)}
+            for e_x, e_y, t_x, t_y in read_data.generate_batch(
+                    self.batch_size,
+                    input_event_data,
+                    target_event_data,
+                    input_time_data,
+                    target_time_data):
 
-                if i > 0 and i % (batch_num // 10) == 0:
-                    self.lr = self.lr * 2. / 3
+                feed_dict = {
+                    self.input_e: e_x,
+                    self.inputs_t: np.maximum(np.log(t_x), 0),
+                    self.target_t: t_y,
+                    self.targets_e: e_y,
+                    self.sample_t: np.maximum(np.log(sample_t), 0)}
 
                 _, _, gen_e_cost, batch_precision, batch_recall = sess.run(
                     [self.batch_precision_op,
@@ -289,10 +281,11 @@ class T_Pred(object):
                     feed_dict=feed_dict)
 
                 sum_iter = sum_iter + 1
+                i += 1
 
-                if i % (batch_num // 10) == 0:
+                if i % 100 == 0:
                     print('%d, precision: %f, recall: %f, gen_e_cost: %f' % (
-                        int(i // (batch_num // 10)),
+                        int(i // 1000),
                         batch_precision,
                         batch_recall,
                         gen_e_cost,
@@ -304,8 +297,8 @@ class T_Pred(object):
         if not os.path.exists(args.logdir + '/output'):
             os.makedirs(args.logdir + '/output')
 
-        if args.eval_only:
-            self.test_data = read_data.load_test_dataset(self.dataset_file)
+        # if args.eval_only:
+        #     self.test_data = read_data.load_test_dataset(self.dataset_file)
 
         if args.weights is not None:
             self.saver.restore(sess, args.weights)
@@ -315,60 +308,40 @@ class T_Pred(object):
 
         batch_size = 100
 
-        input_len, input_event_data, target_event_data, input_time_data, target_time_data = read_data.data_iterator(
+        input_event_data, target_event_data, input_time_data, target_time_data = read_data.data_iterator(
             self.test_data,
-            self.event_to_id,
             self.num_steps,
-            self.length,
-            shuffle=False)
+            self.length)
 
-        batch_num, e_x_list, e_y_list, t_x_list, t_y_list = read_data.generate_batch(
-            input_len,
-            batch_size,
-            input_event_data,
-            target_event_data,
-            input_time_data,
-            target_time_data)
-
-        _, sample_t_list = read_data.generate_sample_t(
-            input_len,
+        sample_t = read_data.generate_sample_t(
             batch_size,
             input_time_data,
             target_time_data)
 
         f = open(os.path.join(args.logdir, "output_e.txt"), 'w+')
+        i = 0
 
-        for i in range(batch_num):
-            # print(e_y_list[i])
+        for e_x, e_y, t_x, t_y in read_data.generate_batch(
+                self.batch_size,
+                input_event_data,
+                target_event_data,
+                input_time_data,
+                target_time_data):
+
             feed_dict = {
-                self.input_e: e_x_list[i],
-                self.inputs_t: np.maximum(np.log(t_x_list[i]), 0),
+                self.input_e: e_x,
+                self.inputs_t: np.maximum(np.log(t_x), 0),
                 # self.target_t : t_y_list[i],
                 # self.targets_e : e_y_list[i],
-                self.sample_t: np.maximum(np.log(sample_t_list[i]), 0)}
+                self.sample_t: np.maximum(np.log(sample_t), 0)}
 
-            if i > 0 and i % (batch_num // 10) == 0:
-                lr = lr * 2. / 3
-            # correct_pred, deviation, pred_e, pred_t, d_loss, g_loss, gen_e_cost, gen_t_cost = sess.run(
-            # 	[self.correct_pred, self.deviation, self.pred_e, self.pred_t, self.d_cost, self.g_cost,
-            # 	self.gen_e_cost, self.gen_t_cost,self.disc_cost_1, self.gradient_penalty],
-            # 	feed_dict = feed_dict)
             pred_e = sess.run(self.pred_e, feed_dict=feed_dict)
 
-            # sum_correct_pred = sum_correct_pred + correct_pred
-            # sum_iter = sum_iter + 1
-            # sum_deviation = sum_deviation + deviation
             _, pred_e_index = tf.nn.top_k(pred_e, 1, name=None)
             f.write('pred_e: ' + '\t'.join([str(v) for v in tf.reshape(tf.squeeze(pred_e_index), [-1]).eval()]))
             f.write('\n')
             f.write('targ_e: ' + '\t'.join([str(v) for v in np.array(e_y_list[i]).flatten()]))
             f.write('\n')
-
-        # if i % (iterations // 10) == 0:
-        # 	print('%f, precision: %f, deviation: %f' %(
-        # 		i // (iterations // 10),
-        # 		sum_correct_pred / (sum_iter * self.batch_size * self.length),
-        # 		sum_deviation / (sum_iter * self.batch_size * self.length)))
 
     def save_model(self, sess, logdir, counter):
         ckpt_file = '%s/model-%d.ckpt' % (logdir, counter)
@@ -405,12 +378,11 @@ def main():
     args = parser.parse_args()
 
     assert args.logdir[-1] != '/'
-    event_file = './T-pred-Dataset/RECSYS15_event.txt'
-    time_file = './T-pred-Dataset/RECSYS15_time.txt'
+    event_file = './T-pred-Dataset/lastfm-v5k_event2ID.txt'
+    time_file = './T-pred-Dataset/lastfm-v5k_time2.txt'
     model_config = get_config(args.mode)
     is_training = args.is_training
     cell_type = args.cell_type
-    print('vocab_size: ' + str(read_data.vocab_size(event_file)))
     model = T_Pred(model_config, cell_type, event_file, time_file, is_training)
 
     config = tf.ConfigProto()

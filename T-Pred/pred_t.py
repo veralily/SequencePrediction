@@ -49,7 +49,6 @@ class T_Pred(object):
         self.learning_rate = config.learning_rate
         self.lr = config.learning_rate
         self.LAMBDA = config.LAMBDA
-        self.delta = config.delta
         self.gamma = config.gamma
         self.event_to_id = read_data.build_vocab(self.event_file)
         self.train_data, self.valid_data, self.test_data = read_data.data_split(
@@ -338,28 +337,20 @@ class T_Pred(object):
             gap = g_iters + 1
 
             for i in range(batch_num):
+                feed_dict = {
+                    self.input_e: e_x_list[i],
+                    self.inputs_t: np.maximum(np.log(t_x_list[i]), 0),
+                    self.target_t: t_y_list[i],
+                    self.targets_e: e_y_list[i],
+                    self.sample_t: np.maximum(np.log(sample_t_list[i]), 0)}
 
                 if i > 0 and i % (batch_num // 10) == 0:
                     self.lr = self.lr * 2. / 3
 
                 if i % gap == 0:
-                    feed_dict = {
-                        self.input_e: e_x_list[i],
-                        self.inputs_t: np.maximum(np.log(t_x_list[i]), 0),
-                        self.target_t: t_y_list[i],
-                        self.targets_e: e_y_list[i],
-                        self.sample_t: np.maximum(np.log(sample_t_list[i]), 0)}
-
                     _, _ = sess.run([self.d_train_op, self.w_clip_op], feed_dict=feed_dict)
 
                 else:
-                    feed_dict = {
-                        self.input_e: e_x_list[i],
-                        self.inputs_t: np.maximum(np.log(t_x_list[i]), 0),
-                        self.target_t: t_y_list[i],
-                        self.targets_e: e_y_list[i],
-                        self.sample_t: np.maximum(np.log(sample_t_list[i]), 0)}
-
                     _, deviation, d_loss, gen_t_cost, huber_t_loss = sess.run(
                         [self.g_train_op, self.deviation,
                          self.d_cost, self.gen_t_cost, self.huber_t_loss], feed_dict=feed_dict)
@@ -543,8 +534,8 @@ def main():
     args = parser.parse_args()
 
     assert args.logdir[-1] != '/'
-    event_file = './T-pred-Dataset/RECSYS15_event.txt'
-    time_file = './T-pred-Dataset/RECSYS15_time.txt'
+    event_file = './T-pred-Dataset/lastfm-v5k_event.txt'
+    time_file = './T-pred-Dataset/lastfm-v5k_time.txt'
     model_config = get_config(args.mode)
     is_training = args.is_training
     cell_type = args.cell_type

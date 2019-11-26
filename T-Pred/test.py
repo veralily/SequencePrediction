@@ -1,9 +1,8 @@
 import os
 import tensorflow as tf
 import numpy as np
-# from tqdm import tqdm
+from tqdm import tqdm
 import time
-import math
 
 # with tf.name_scope('cltdevelop'):
 #     def uniform(stdev, size):
@@ -34,35 +33,18 @@ import math
 # for i in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES):
 #     print i
 
-
-''' 
-emmmmm
-'''
-
 # x = [[1,2,3],[4,5,6],[7,8,9]]
 # y = np.array(x)
 
-# a_list = list(range(20))
-# b_list = list(a_list)
-# np.random.shuffle(b_list)
+# def iterator():
+# 	for i in range(20):
+# 		yield (i,i+1)
 
-# def iterator(a_list):
-# 	for i in a_list:
-# 		yield (i+1)
-
-# g_1 = iterator(a_list)
-# # print(list(g_1))
-# g_2 = iterator(b_list)
-# # print(list(g_2))
-
-# s = 20 // 3
-# print('----------s:%d---------' % s)
-
-# for i in range(s):
+# gen = iterator()
+# for i in range(3):
 #     #print(next(gen))
-#     for i in range(3):
-#     	print('g_1:----%d' % g_1.next())
-#     print('g_2:----%d' % g_2.next())
+#     a, b = next(gen)
+#     print(a + b)
 
 # event_file = './T-pred-Dataset/IPTV_event.txt'
 # time_file = './T-pred-Dataset/IPTV_time.txt'
@@ -75,44 +57,12 @@ emmmmm
 # 		for i,(e,t) in enumerate(zip(e_lines, t_lines)):
 # 			print(str(i) + ' e: ' + str(len(e.split('\t'))) + ' t: ' + str(len(t.split('\t'))))
 
-# x = [[[0,0],[0,0],[0,0]],[[1,1],[1,1],[1,1]],[[2,2],[2,2],[2,2]]]
-# y = [[5,1,1],[5,1,1],[5,1,1]]
+x = [[[0,0],[0,0],[0,0]],[[1,1],[1,1],[1,1]],[[2,2],[2,2],[2,2]]]
+y = [[5,1,1],[5,1,1],[5,1,1]]
 
-# z = tf.concat([x, tf.expand_dims(y, 2)],2)
+z = tf.concat([x, tf.expand_dims(y, 2)],2)
 
-# print(z[:,0,:].get_shape())
+print(z[:,0,:].get_shape())
 
-# with tf.Session() as sess:
-#     print(sess.run(z[:,0,:]))
-
-''' test for dot-multiply of vectors'''
-# a = list([[[1,2],[2,3]],[[2,3],[3,4]]])
-# b = list([[[3,4],[4,5]],[[4,5],[5,6]]])
-
-# c = tf.concat([np.array(a, dtype=np.float64), np.array(b, dtype=np.float64)], 0)
-
-# d = np.array([[0.1, 0.2],[0.2, 0.2]])
-
-# print(tf.multiply(c, d))
-
-
-# sess = tf.Session()
-# print(sess.run(c))
-# print(sess.run(tf.multiply(d, c)))
-
-# time_ = time.localtime(1192.075)
-# format_time = time.strftime("%Y-%m-%d %H:%M:%S", time_)
-# print(format_time)
-
-'''test for argmax'''
-a = [[1, 10, 20],[2, 20, 3],[30, 20, 0],[1,5,8],[40,32,2]]
-b = np.array(a, dtype=np.float64)
-b_softmax = tf.nn.softmax(b, 1)
-b_argmax = tf.argmax(b_softmax, 1)
-
-sess = tf.Session()
-print(sess.run(b_softmax))
-print('lalala: ', sess.run(b_argmax))
-
-c = np.array([a for _ in range(4)], dtype=np.float64)
-print(c[0][0])
+with tf.Session() as sess:
+    print(sess.run(z[:,0,:]))

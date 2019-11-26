@@ -44,7 +44,6 @@ for file_name in file_list:
 
 '''
 for music data
-The timestamp is reverse order so the time dataset needs to be reversed after this extraction
 '''
 # def parse_ymd(s):
 #     year_s, mon_s, day_s = s.split(' ')[0].split('-')

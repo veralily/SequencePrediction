@@ -4,7 +4,7 @@ class SmallConfig(object):
   learning_rate = 0.001
   max_grad_norm = 5
   num_layers = 2
-  num_steps = 5
+  num_steps = 20
   num_gen = 6
   output_length = 5
   hidden_size = 200
@@ -15,10 +15,9 @@ class SmallConfig(object):
   res_rate = 0.3
   lr_decay = 0.5
   batch_size = 100
-  vocab_size = 52800
+  vocab_size = 5001
   label_size = 10
-  LAMBDA = 0.000001
-  delta = 1000
+  LAMBDA = 10
   gamma = 1000
 
 
