@@ -150,7 +150,7 @@ class T_Pred(object):
 
         # MRR@k
         self.batch_precision, self.batch_precision_op = tf.metrics.average_precision_at_k(
-            labels=self.targets_e, predictions=pred_e, k=20, name='precision_k')
+            labels=self.targets_e, predictions=pred_e, k=10, name='precision_k')
         # Isolate the variables stored behind the scenes by the metric operation
         self.running_precision_vars = tf.get_collection(tf.GraphKeys.LOCAL_VARIABLES, scope="precision_k")
         # Define initializer to initialize/reset running variables
@@ -158,7 +158,7 @@ class T_Pred(object):
 
         # Recall@k
         self.batch_recall, self.batch_recall_op = tf.metrics.recall_at_k(
-            labels=self.targets_e, predictions=pred_e, k=20, name='recall_k')
+            labels=self.targets_e, predictions=pred_e, k=10, name='recall_k')
         # Isolate the variables stored behind the scenes by the metric operation
         self.running_recall_vars = tf.get_collection(tf.GraphKeys.LOCAL_VARIABLES, scope="recall_k")
         # Define initializer to initialize/reset running variables
@@ -231,9 +231,9 @@ class T_Pred(object):
                 # if self.cell_type == 'T_LSTMCell':
                 #     sess.run(self.clip_op)
 
-                if i % 100 == 0:
+                if i % 500 == 0:
                     print('[epoch: %d, %d] precision: %f, recall: %f, gen_e_loss: %f' % (
-                        epoch, int(i // 1000), batch_precision, batch_recall, gen_e_cost))
+                        epoch, int(i // 500), batch_precision, batch_recall, gen_e_cost))
                     # print('Precision Vars:', sess.run(self.running_precision_vars))
                 i += 1
 
@@ -283,9 +283,9 @@ class T_Pred(object):
                 sum_iter = sum_iter + 1
                 i += 1
 
-                if i % 100 == 0:
+                if i % 500 == 0:
                     print('%d, precision: %f, recall: %f, gen_e_cost: %f' % (
-                        int(i // 1000),
+                        int(i // 500),
                         batch_precision,
                         batch_recall,
                         gen_e_cost,
