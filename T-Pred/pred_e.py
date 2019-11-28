@@ -56,8 +56,8 @@ class T_Pred(object):
         self.sample_t = tf.placeholder(tf.float32, [self.batch_size, self.num_steps + self.length])
         self.target_t = tf.placeholder(tf.float32, [self.batch_size, self.length])
         self.inputs_t = tf.placeholder(tf.float32, [self.batch_size, self.num_steps])
-        self.targets_e = tf.placeholder(tf.int64, [self.batch_size, self.length])
-        self.input_e = tf.placeholder(tf.int64, [self.batch_size, self.num_steps])
+        self.targets_e = tf.placeholder(tf.int32, [self.batch_size, self.length])
+        self.input_e = tf.placeholder(tf.int32, [self.batch_size, self.num_steps])
         self.build()
 
     def encoder_e(self, cell_type, inputs):
@@ -148,21 +148,20 @@ class T_Pred(object):
         print('targets_e shape: ')
         print(self.targets_e.get_shape())
 
-        # MRR@k
-        self.batch_precision, self.batch_precision_op = tf.metrics.average_precision_at_k(
-            labels=self.targets_e, predictions=pred_e, k=10, name='precision_k')
-        # Isolate the variables stored behind the scenes by the metric operation
-        self.running_precision_vars = tf.get_collection(tf.GraphKeys.LOCAL_VARIABLES, scope="precision_k")
-        # Define initializer to initialize/reset running variables
-        self.running_precision_vars_initializer = tf.variables_initializer(var_list=self.running_precision_vars)
+        # Hit@k, MRR@k & Recall@k
+        MRR10 = 0.0
+        Recall= 0.
+        rate_sum = 0
 
-        # Recall@k
-        self.batch_recall, self.batch_recall_op = tf.metrics.recall_at_k(
-            labels=self.targets_e, predictions=pred_e, k=10, name='recall_k')
-        # Isolate the variables stored behind the scenes by the metric operation
-        self.running_recall_vars = tf.get_collection(tf.GraphKeys.LOCAL_VARIABLES, scope="recall_k")
-        # Define initializer to initialize/reset running variables
-        self.running_recall_vars_initializer = tf.variables_initializer(var_list=self.running_recall_vars)
+        hit_matrix = tf.math.in_top_k(
+            tf.reshape(pred_e, [self.batch_size*self.length, -1]),
+            tf.reshape(self.targets_e, [self.batch_size*self.length]),
+            k=10
+        )
+        self.hit_count = tf.math.count_nonzero(hit_matrix)
+
+        '''MRR10'''
+        pred_e_top10, pred_e_top10_indice  = tf.math.top_k(pred_e, k=10, sorted=True, name=None)
 
         self.saver = tf.train.Saver(max_to_keep=None)
 
@@ -187,31 +186,20 @@ class T_Pred(object):
             if epoch > 0 and epoch % (args.iters // 5) == 0:
                 self.lr = self.lr * 2. / 3
 
-            sess.run([self.running_precision_vars_initializer, self.running_recall_vars_initializer])
             # re initialize the metric variables of metric.precision and metric.recall,
             # to calculate these metric for each epoch
             batch_precision, batch_recall = 0.0, 0.0
 
             sum_iter = 0.0
 
-            input_event_data, target_event_data, input_time_data, target_time_data = read_data.data_iterator(
-                self.train_data,
-                self.num_steps,
-                self.length)
+            i_e, t_e, i_t, t_t = read_data.data_iterator(self.train_data,self.num_steps, self.length)
 
-            sample_t = read_data.generate_sample_t(
-                self.batch_size,
-                input_time_data,
-                target_time_data)
+            sample_t = read_data.generate_sample_t(self.batch_size, i_t, t_t)
 
             i = 0
+            hit_sum = 0.0
 
-            for e_x, e_y, t_x, t_y in read_data.generate_batch(
-                    self.batch_size,
-                    input_event_data,
-                    target_event_data,
-                    input_time_data,
-                    target_time_data):
+            for e_x, e_y, t_x, t_y in read_data.generate_batch(self.batch_size, i_e, t_e, i_t, t_t):
 
                 feed_dict = {
                     self.input_e: e_x,
@@ -220,30 +208,27 @@ class T_Pred(object):
                     self.targets_e: e_y,
                     self.sample_t: np.maximum(np.log(sample_t), 0)}
 
-                _, _, _, gen_e_cost, batch_precision, batch_recall = sess.run(
-                        [self.g_train_op,
-                         self.batch_precision_op,
-                         self.batch_recall_op,
-                         self.gen_e_cost,
-                         self.batch_precision,
-                         self.batch_recall], feed_dict=feed_dict)
+                _, gen_e_cost, hit_count = sess.run([
+                    self.g_train_op,
+                    self.gen_e_cost,
+                    self.hit_count],
+                    feed_dict=feed_dict)
                 sum_iter = sum_iter + 1
+                hit_sum += hit_count
                 # if self.cell_type == 'T_LSTMCell':
                 #     sess.run(self.clip_op)
 
-                if i % 500 == 0:
-                    print('[epoch: %d, %d] precision: %f, recall: %f, gen_e_loss: %f' % (
-                        epoch, int(i // 500), batch_precision, batch_recall, gen_e_cost))
-                    # print('Precision Vars:', sess.run(self.running_precision_vars))
+                if i % 2000 == 0:
+                    print('[epoch: %d, %d] hit10: %f, gen_e_loss: %f' % (
+                        epoch, int(i // 2000), hit_sum / (sum_iter*self.batch_size*self.length), gen_e_cost))
                 i += 1
 
             '''evaluation'''
 
-            sess.run([self.running_precision_vars_initializer, self.running_recall_vars_initializer])
             # re initialize the metric variables of metric.precision and metric.recall,
             # to calculate these metric for each epoch
 
-            input_len, input_event_data, target_event_data, input_time_data, target_time_data = read_data.data_iterator(
+            input_event_data, target_event_data, input_time_data, target_time_data = read_data.data_iterator(
                 self.valid_data,
                 self.num_steps,
                 self.length)
@@ -254,6 +239,7 @@ class T_Pred(object):
                 target_time_data)
 
             sum_iter = 0.0
+            hit_sum = 0.0
             i = 0
 
             self.lr = self.learning_rate
@@ -272,25 +258,20 @@ class T_Pred(object):
                     self.targets_e: e_y,
                     self.sample_t: np.maximum(np.log(sample_t), 0)}
 
-                _, _, gen_e_cost, batch_precision, batch_recall = sess.run(
-                    [self.batch_precision_op,
-                     self.batch_recall_op,
-                     self.gen_e_cost,
-                     self.batch_precision,
-                     self.batch_recall],
+                gen_e_cost, hit_count = sess.run([
+                    self.gen_e_cost,
+                    self.hit_count],
                     feed_dict=feed_dict)
-
                 sum_iter = sum_iter + 1
+                hit_sum += hit_count
                 i += 1
 
-                if i % 500 == 0:
-                    print('%d, precision: %f, recall: %f, gen_e_cost: %f' % (
-                        int(i // 500),
-                        batch_precision,
-                        batch_recall,
+                if i % 2000 == 0:
+                    print('%d, gen_e_cost: %f, hit10: %f' % (
+                        int(i // 2000),
                         gen_e_cost,
+                        hit_sum / (sum_iter*self.batch_size*self.length)
                         ))
-                    print('Precision Vars:', sess.run(self.running_precision_vars))
         self.save_model(sess, self.logdir, args.iters)
 
     def eval(self, sess, args):
