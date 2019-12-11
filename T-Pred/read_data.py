@@ -54,8 +54,8 @@ def data_iterator(input_data, num_steps, length, overlap=True):
     print("length of traces: " + str(len(input_data)))  # 9320
 
     for event_trace, time_trace in input_data:
-        events = np.array([int(event) for event in event_trace.split('\t')], dtype=np.int32)
-        times = np.array([float(time) for time in time_trace.split('\t')], dtype=np.float32)
+        events = np.array([int(event) for event in event_trace.split('\t') if event != ''], dtype=np.int32)
+        times = np.array([float(time) for time in time_trace.split('\t') if time != ''], dtype=np.float32)
         data_len = len(events)
         time_len = len(times)
         # print('length of items in event and time sequence: ', data_len, time_len)

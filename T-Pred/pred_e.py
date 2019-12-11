@@ -9,9 +9,25 @@ import numpy as np
 import utils
 import read_data
 import model_config
+import logging
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
+# Initial logger
+FORMAT = "%(asctime)s - [line:%(lineno)s - %(funcName)10s() ] %(message)s"
+if DEBUG:
+    logging.basicConfig(filename='log/DEBUG-{}-{}-{}.log'.format(MODEL_TYPE, DATA_TYPE,str(datetime.datetime.now())),
+            level=logging.INFO, format=FORMAT)
+else:
+    logging.basicConfig(filename='log/{}-{}-{}-{}.log'.format(MODEL_TYPE, DATA_TYPE,N_HIDDEN,str(datetime.datetime.now())),
+            level=logging.INFO, format=FORMAT)
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter(FORMAT))
+logging.getLogger().addHandler(handler)
+logging.info('Start {} {}'.format(MODEL_TYPE, DATA_TYPE))
+logging.info('VOCAB_SIZE {}, MAX_LEN {}, HIDDEN {}'.format(VOCAB_SIZE, SEQ_LENGTH, N_HIDDEN))
+for k, v in locals().items():
+    logging.info('{}  {}'.format(k, v))
 
 def parse_time():
     return time.strftime("%Y.%m.%d-%H:%M:%S", time.localtime())
@@ -321,7 +337,7 @@ class T_Pred(object):
             _, pred_e_index = tf.nn.top_k(pred_e, 1, name=None)
             f.write('pred_e: ' + '\t'.join([str(v) for v in tf.reshape(tf.squeeze(pred_e_index), [-1]).eval()]))
             f.write('\n')
-            f.write('targ_e: ' + '\t'.join([str(v) for v in np.array(e_y_list[i]).flatten()]))
+            f.write('targ_e: ' + '\t'.join([str(v) for v in np.array(e_y[i]).flatten()]))
             f.write('\n')
 
     def save_model(self, sess, logdir, counter):
@@ -354,12 +370,12 @@ def main():
     parser.add_argument('--gpu', default=0, type=int)
     parser.add_argument('--eval_only', default=False, action='store_true')
     parser.add_argument('--logdir', default='log/log_kick', type=str)
-    parser.add_argument('--iters', default=30, type=int)
+    parser.add_argument('--iters', default=60, type=int)
     parser.add_argument('--cell_type', default='T_GRUCell', type=str)
     args = parser.parse_args()
 
     assert args.logdir[-1] != '/'
-    event_file = './T-pred-Dataset/lastfm-v5k_event2ID.txt'
+    event_file = './T-pred-Dataset/lastfm-v5k_event.txt'
     time_file = './T-pred-Dataset/lastfm-v5k_time2.txt'
     model_config = get_config(args.mode)
     is_training = args.is_training
