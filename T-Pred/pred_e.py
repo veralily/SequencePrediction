@@ -2,6 +2,7 @@ from __future__ import print_function
 import os
 import sys
 import time
+import datetime
 import random
 import argparse
 import tensorflow as tf
@@ -12,20 +13,22 @@ import model_config
 import logging
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
-
-# Initial logger
 FORMAT = "%(asctime)s - [line:%(lineno)s - %(funcName)10s() ] %(message)s"
-if DEBUG:
-    logging.basicConfig(filename='log/DEBUG-{}-{}-{}.log'.format(MODEL_TYPE, DATA_TYPE,str(datetime.datetime.now())),
+
+'''remember to change the vocab size '''
+
+event_file = './T-pred-Dataset/CIKM16_event.txt'
+time_file = './T-pred-Dataset/CIKM16_time.txt'
+
+logging.basicConfig(filename='log/{}-{}-{}.log'.format('Pred_e', 'CIKM16', str(datetime.datetime.now())),
             level=logging.INFO, format=FORMAT)
-else:
-    logging.basicConfig(filename='log/{}-{}-{}-{}.log'.format(MODEL_TYPE, DATA_TYPE,N_HIDDEN,str(datetime.datetime.now())),
-            level=logging.INFO, format=FORMAT)
+
 handler = logging.StreamHandler()
 handler.setFormatter(logging.Formatter(FORMAT))
 logging.getLogger().addHandler(handler)
-logging.info('Start {} {}'.format(MODEL_TYPE, DATA_TYPE))
-logging.info('VOCAB_SIZE {}, MAX_LEN {}, HIDDEN {}'.format(VOCAB_SIZE, SEQ_LENGTH, N_HIDDEN))
+logging.info('Start {}'.format('RECSYS15'))
+
+
 for k, v in locals().items():
     logging.info('{}  {}'.format(k, v))
 
@@ -60,8 +63,8 @@ class T_Pred(object):
         self.is_training = is_training
         self.keep_prob = config.keep_prob
         self.res_rate = config.res_rate
-        self.length = 1
-        self.vocab_size = config.vocab_size
+        self.length = 1 # config.length
+        self.vocab_size = 122911 # config.vocab_size
         self.learning_rate = config.learning_rate
         self.lr = config.learning_rate
         self.LAMBDA = config.LAMBDA
@@ -72,8 +75,8 @@ class T_Pred(object):
         self.sample_t = tf.placeholder(tf.float32, [self.batch_size, self.num_steps + self.length])
         self.target_t = tf.placeholder(tf.float32, [self.batch_size, self.length])
         self.inputs_t = tf.placeholder(tf.float32, [self.batch_size, self.num_steps])
-        self.targets_e = tf.placeholder(tf.int32, [self.batch_size, self.length])
-        self.input_e = tf.placeholder(tf.int32, [self.batch_size, self.num_steps])
+        self.targets_e = tf.placeholder(tf.int64, [self.batch_size, self.length])
+        self.input_e = tf.placeholder(tf.int64, [self.batch_size, self.num_steps])
         self.build()
 
     def encoder_e(self, cell_type, inputs):
@@ -141,6 +144,7 @@ class T_Pred(object):
         define the loss function
         define the optimization method
         """
+        logging.info('VOCAB_SIZE {}, MAX_LEN {}, LENGTH {}'.format(self.vocab_size, self.num_steps, self.length))
         embeddings = tf.get_variable(
             "embedding", [self.vocab_size, self.hidden_size], dtype=tf.float32)
         inputs_e = tf.nn.embedding_lookup(embeddings, self.input_e)
@@ -159,10 +163,7 @@ class T_Pred(object):
         self.gen_e_cost = gen_e_cost
         self.pred_e = pred_e
 
-        print('pred_e shape: ')
-        print(pred_e.get_shape())
-        print('targets_e shape: ')
-        print(self.targets_e.get_shape())
+        logging.info('SHAPE OF Pred_e {} targets_e {}'.format(pred_e.get_shape(), self.targets_e.get_shape()))
 
         # Hit@k, MRR@k & Recall@k
         MRR10 = 0.0
@@ -176,8 +177,21 @@ class T_Pred(object):
         )
         self.hit_count = tf.math.count_nonzero(hit_matrix)
 
-        '''MRR10'''
-        pred_e_top10, pred_e_top10_indice  = tf.math.top_k(pred_e, k=10, sorted=True, name=None)
+        # MRR@k
+        self.batch_precision, self.batch_precision_op = tf.metrics.average_precision_at_k(
+            labels=self.targets_e, predictions=pred_e, k=10, name='precision_k')
+        # Isolate the variables stored behind the scenes by the metric operation
+        self.running_precision_vars = tf.get_collection(tf.GraphKeys.LOCAL_VARIABLES, scope="precision_k")
+        # Define initializer to initialize/reset running variables
+        self.running_precision_vars_initializer = tf.variables_initializer(var_list=self.running_precision_vars)
+
+        # Recall@k
+        self.batch_recall, self.batch_recall_op = tf.metrics.recall_at_k(
+            labels=self.targets_e, predictions=pred_e, k=10, name='recall_k')
+        # Isolate the variables stored behind the scenes by the metric operation
+        self.running_recall_vars = tf.get_collection(tf.GraphKeys.LOCAL_VARIABLES, scope="recall_k")
+        # Define initializer to initialize/reset running variables
+        self.running_recall_vars_initializer = tf.variables_initializer(var_list=self.running_recall_vars)
 
         self.saver = tf.train.Saver(max_to_keep=None)
 
@@ -198,6 +212,7 @@ class T_Pred(object):
 
         for epoch in range(args.iters):
             '''training'''
+            sess.run([self.running_precision_vars_initializer, self.running_recall_vars_initializer])
 
             if epoch > 0 and epoch % (args.iters // 5) == 0:
                 self.lr = self.lr * 2. / 3
@@ -214,6 +229,8 @@ class T_Pred(object):
 
             i = 0
             hit_sum = 0.0
+            batch_num = len(list(read_data.generate_batch(self.batch_size, i_e, t_e, i_t, t_t)))
+            logging.info("Total Batch Number {}".format(batch_num))
 
             for e_x, e_y, t_x, t_y in read_data.generate_batch(self.batch_size, i_e, t_e, i_t, t_t):
 
@@ -224,19 +241,22 @@ class T_Pred(object):
                     self.targets_e: e_y,
                     self.sample_t: np.maximum(np.log(sample_t), 0)}
 
-                _, gen_e_cost, hit_count = sess.run([
+                _, gen_e_cost, hit_count, batch_precision, batch_recall, = sess.run([
                     self.g_train_op,
                     self.gen_e_cost,
-                    self.hit_count],
+                    self.hit_count,
+                    self.batch_precision_op,
+                    self.batch_recall_op],
                     feed_dict=feed_dict)
                 sum_iter = sum_iter + 1
                 hit_sum += hit_count
                 # if self.cell_type == 'T_LSTMCell':
                 #     sess.run(self.clip_op)
 
-                if i % 2000 == 0:
-                    print('[epoch: %d, %d] hit10: %f, gen_e_loss: %f' % (
-                        epoch, int(i // 2000), hit_sum / (sum_iter*self.batch_size*self.length), gen_e_cost))
+                if i % (batch_num // 10) == 0:
+                    logging.info('[epoch: {}, {}] hit10: {}, gen_e_loss: {}, precision: {}, recall: {}'.format(
+                        epoch, float(i) / batch_num, hit_sum / (sum_iter*self.batch_size*self.length),
+                        gen_e_cost, batch_precision, batch_recall))
                 i += 1
 
             '''evaluation'''
@@ -244,28 +264,25 @@ class T_Pred(object):
             # re initialize the metric variables of metric.precision and metric.recall,
             # to calculate these metric for each epoch
 
-            input_event_data, target_event_data, input_time_data, target_time_data = read_data.data_iterator(
+            i_e, t_e, i_t, t_t = read_data.data_iterator(
                 self.valid_data,
                 self.num_steps,
                 self.length)
 
             sample_t = read_data.generate_sample_t(
                 self.batch_size,
-                input_time_data,
-                target_time_data)
+                i_t,
+                t_t)
 
             sum_iter = 0.0
             hit_sum = 0.0
             i = 0
 
             self.lr = self.learning_rate
+            batch_num = len(list(read_data.generate_batch(self.batch_size,i_e,t_e,i_t,t_t)))
+            logging.info('Total Batch Number For Evaluation {}'.format(batch_num))
 
-            for e_x, e_y, t_x, t_y in read_data.generate_batch(
-                    self.batch_size,
-                    input_event_data,
-                    target_event_data,
-                    input_time_data,
-                    target_time_data):
+            for e_x, e_y, t_x, t_y in read_data.generate_batch(self.batch_size,i_e,t_e,i_t,t_t):
 
                 feed_dict = {
                     self.input_e: e_x,
@@ -274,19 +291,23 @@ class T_Pred(object):
                     self.targets_e: e_y,
                     self.sample_t: np.maximum(np.log(sample_t), 0)}
 
-                gen_e_cost, hit_count = sess.run([
+                gen_e_cost, hit_count, batch_precision, batch_recall = sess.run([
                     self.gen_e_cost,
-                    self.hit_count],
+                    self.hit_count,
+                    self.batch_precision,
+                    self.batch_recall],
                     feed_dict=feed_dict)
                 sum_iter = sum_iter + 1
                 hit_sum += hit_count
                 i += 1
 
-                if i % 2000 == 0:
-                    print('%d, gen_e_cost: %f, hit10: %f' % (
-                        int(i // 2000),
+                if i % (batch_num // 10) == 0:
+                    logging.info('{}, gen_e_cost: {}, hit10: {}, precision: {}, recall: {}'.format(
+                        float(i) / batch_num,
                         gen_e_cost,
-                        hit_sum / (sum_iter*self.batch_size*self.length)
+                        hit_sum / (sum_iter*self.batch_size*self.length),
+                        batch_precision,
+                        batch_recall
                         ))
         self.save_model(sess, self.logdir, args.iters)
 
@@ -342,7 +363,7 @@ class T_Pred(object):
 
     def save_model(self, sess, logdir, counter):
         ckpt_file = '%s/model-%d.ckpt' % (logdir, counter)
-        print('Checkpoint: %s' % ckpt_file)
+        logging.info('Checkpoint:{}'.format(ckpt_file))
         self.saver.save(sess, ckpt_file)
 
 
@@ -370,13 +391,11 @@ def main():
     parser.add_argument('--gpu', default=0, type=int)
     parser.add_argument('--eval_only', default=False, action='store_true')
     parser.add_argument('--logdir', default='log/log_kick', type=str)
-    parser.add_argument('--iters', default=60, type=int)
+    parser.add_argument('--iters', default=100, type=int)
     parser.add_argument('--cell_type', default='T_GRUCell', type=str)
     args = parser.parse_args()
 
     assert args.logdir[-1] != '/'
-    event_file = './T-pred-Dataset/lastfm-v5k_event.txt'
-    time_file = './T-pred-Dataset/lastfm-v5k_time2.txt'
     model_config = get_config(args.mode)
     is_training = args.is_training
     cell_type = args.cell_type
@@ -389,6 +408,7 @@ def main():
         if not args.eval_only:
             model.train(sess, args)
         model.eval(sess, args)
+    logging.info('Logging End!')
 
 
 if __name__ == '__main__':

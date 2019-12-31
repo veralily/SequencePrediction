@@ -35,12 +35,10 @@ def data_split(event_file=None, time_file=None, shuffle=True):
     else:
         pass
 
-    train_data = data4train[:7 * data_size]
-    valid_data = data4train[7 * data_size:-1]
+    train_data = data4train[:8 * data_size]
+    valid_data = data4train[8 * data_size:-1]
 
-    '''
-	The splited data has shape [2, num_of_traces, length]
-	'''
+    '''The splited data has shape [2, num_of_traces, length]'''
 
     return train_data, valid_data, test_data
 

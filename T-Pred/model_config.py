@@ -1,11 +1,11 @@
 class SmallConfig(object):
   """Small config."""
   init_scale = 0.1
-  learning_rate = 0.001
+  learning_rate = 0.01
   max_grad_norm = 5
   num_layers = 2
-  num_steps = 20
-  num_gen = 6
+  num_steps = 5
+  num_gen = 3
   output_length = 5
   hidden_size = 200
   g_size = 200
@@ -15,7 +15,7 @@ class SmallConfig(object):
   res_rate = 0.3
   lr_decay = 0.5
   batch_size = 100
-  vocab_size = 5001
+  vocab_size = 52740
   label_size = 10
   LAMBDA = 10
   gamma = 1000
@@ -34,7 +34,7 @@ class MediumConfig(object):
   keep_prob = 0.5
   lr_decay = 0.8
   batch_size = 20
-  vocab_size = 10000
+  vocab_size = 122911
   label_size = 20
   rnn_mode = 'block'
 

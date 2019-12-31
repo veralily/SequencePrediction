@@ -2,6 +2,7 @@ from __future__ import print_function
 import os
 import sys
 import time
+import datetime
 import random
 import argparse
 import tensorflow as tf
@@ -9,8 +10,23 @@ import numpy as np
 import utils
 import read_data
 import model_config
+import logging
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+
+'''remember to change the vocab size '''
+event_file = './T-pred-Dataset/lastfm-5k_event.txt'
+time_file = './T-pred-Dataset/lastfm-5k_time.txt'
+
+FORMAT = "%(asctime)s - [line:%(lineno)s - %(funcName)10s() ] %(message)s"
+DATA_TYPE = event_file.split('/')[-1].split('.')[0]
+logging.basicConfig(filename='log/{}-{}-{}.log'.format('T_pred', DATA_TYPE, str(datetime.datetime.now())),
+            level=logging.INFO, format=FORMAT)
+
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter(FORMAT))
+logging.getLogger().addHandler(handler)
+logging.info('Start {}'.format(DATA_TYPE))
 
 
 def parse_time():
@@ -40,12 +56,13 @@ class T_Pred(object):
         self.filter_size = config.filter_size
         self.batch_size = config.batch_size
         self.num_steps = config.num_steps
+        self.n_head, self.mh_size = 4, 50
         self.n_g = config.num_gen
         self.is_training = is_training
         self.keep_prob = config.keep_prob
         self.res_rate = config.res_rate
-        self.length = config.output_length
-        self.vocab_size = config.vocab_size
+        self.length = 1 # config.output_length
+        self.vocab_size = 5000 # config.vocab_size
         self.learning_rate = config.learning_rate
         self.lr = config.learning_rate
         self.LAMBDA = config.LAMBDA
@@ -107,7 +124,97 @@ class T_Pred(object):
             hidden_rt = tf.reshape(output_t, [-1, self.num_steps, self.filter_output_dim])
             # hidden_r = tf.concat([hidden_re, hidden_rt], 2)
             # hidden_r = tf.reshape(hidden_r, [self.batch_size, -1])
+            # add a self-attention layer
+            hidden_re = self.encoder_attention(hidden_re, 'SA4E')
+            hidden_rt = self.encoder_attention(hidden_rt, 'SA4T')
             return hidden_re, hidden_rt
+
+
+    def encoder_attention(self, representations, name):
+        """
+        :param representations: shape [batch_size, num_steps, feature_size]
+        :param num_steps: self.num_steps
+        :param name: variable name scope
+        :return: [batch_size, feature_size]
+        """
+        def Mask(inputs, seq_len, mode='mul'):
+            with tf.variable_scope('MaskLayer'):
+                if seq_len == None:
+                    return inputs
+                else:
+                    mask = tf.cast(tf.sequence_mask(seq_len), tf.float32)
+                    for _ in range(len(tf.shape(inputs))-2):
+                        mask = tf.expand_dims(mask, 2)
+                    if mode == 'mul':
+                        return inputs * mask
+                    if mode == 'add':
+                        return inputs - (1-mask) * 1e12
+
+        def Dense(inputs, output_size, bias=True, seq_len=None):
+            with tf.variable_scope('DenseLayer'):
+                input_size = int(inputs.shape[-1])
+                W = tf.Variable(tf.random_uniform([input_size, output_size], -0.05, 0.05))
+                if bias:
+                    b = tf.Variable(tf.random_uniform([output_size], -0.05, 0.05))
+                else:
+                    b = 0
+                outputs = tf.matmul(tf.reshape(inputs, (-1, input_size)), W) + b
+                outputs = tf.reshape(outputs, tf.concat([tf.shape(inputs)[:-1], [output_size]], 0))
+                if seq_len != None:
+                    outputs = Mask(outputs, seq_len, 'mul')
+                return outputs
+
+        def Attention(Q, K, V, nb_head, size_per_head, Q_len=None, V_len=None):
+            # linear affine of Q, K, V
+            Q = Dense(Q, nb_head * size_per_head, False)
+            Q = tf.reshape(Q, (-1, tf.shape(Q)[1], nb_head, size_per_head))
+            Q = tf.transpose(Q, [0, 2, 1, 3])
+            K = Dense(K, nb_head * size_per_head, False)
+            K = tf.reshape(K, (-1, tf.shape(K)[1], nb_head, size_per_head))
+            K = tf.transpose(K, [0, 2, 1, 3])
+            V = Dense(V, nb_head * size_per_head, False)
+            V = tf.reshape(V, (-1, tf.shape(V)[1], nb_head, size_per_head))
+            V = tf.transpose(V, [0, 2, 1, 3])
+            # mul-->mask-->softmax
+            # calculate the score
+            A = tf.matmul(Q, K, transpose_b=True) / tf.sqrt(float(size_per_head))
+            A = tf.transpose(A, [0, 3, 2, 1])
+            A = Mask(A, V_len, mode='add')
+            A = tf.transpose(A, [0, 3, 2, 1])
+            A = tf.nn.softmax(A)
+            # output and mask
+            O = tf.matmul(A, V)
+            O = tf.transpose(O, [0, 2, 1, 3])
+            O = tf.reshape(O, [-1, tf.shape(O)[1], nb_head * size_per_head])
+            O = Mask(O, Q_len, 'mul')
+            O = tf.reduce_mean(O, axis=1)
+            return O
+
+        def compute_qkv(inputs, k_antecedent=None, k_depth=None, v_depth=None):
+            """
+
+            :param inputs: inputs [batch_size, num_steps, feature_size]
+            :param k_antecedent: key initialize the same shape as inputs
+            :param k_depth: tha last dimension of k, relative to the attention size, ? num_steps?
+            :param v_depth: tha last dimension of v
+            :return: q,k,v
+            """
+            if k_antecedent == None:
+                k_antecedent = inputs
+            if k_depth == None:
+                k_depth = tf.shape(inputs)[-1]
+            if v_depth == None:
+                v_depth = tf.shape(inputs)[-1]
+            q = Dense(inputs, k_depth, True)
+            k = Dense(inputs, k_depth, True)
+            v = Dense(inputs, v_depth, True)
+            return q,k,v
+
+        with tf.variable_scope(name):
+            q, k, v = compute_qkv(representations)
+            outputs = Attention(q, k, v, self.n_head, self.mh_size)
+            return outputs
+
 
     def modulator(self, hidden_re, hidden_rt, name):
         """
@@ -223,8 +330,7 @@ class T_Pred(object):
             # if the output size is 2, it is a bi-classification result of D
             output = tf.nn.sigmoid(
                 utils.linear('D.Output', (self.length + self.num_steps) * self.filter_output_dim, 1, output))
-            print('The shape of output from D: ')
-            print(output.get_shape())
+            logging.info('The shape of output from D {}'.format(output.get_shape()))
             return output
 
     def res_block(self, name, inputs):
@@ -289,6 +395,7 @@ class T_Pred(object):
         '''The separate training of Generator and Discriminator'''
         gen_params = self.params_with_name('Generator')
         gen_event_params = self.params_with_name('Event')
+        gen_time_params = self.params_with_name('Time')
         disc_params = self.params_with_name('Discriminator')
 
         '''Use the Adam Optimizer to update the variables if we use gradient penalty'''
@@ -296,9 +403,14 @@ class T_Pred(object):
         # disc_train_op = tf.train.AdamOptimizer(learning_rate=1e-4, beta1=0.5, beta2=0.9).minimize(disc_cost, var_list=disc_params)
 
         '''Use the RMSProp Optimizer to update the variables if we use basic wasserstein distance'''
-        gen_train_op = tf.train.RMSPropOptimizer(learning_rate=self.learning_rate).minimize(gen_cost, var_list=gen_params)
+        gen_event_op = tf.train.RMSPropOptimizer(learning_rate=self.learning_rate).minimize(gen_e_cost,
+                                                                                            var_list=gen_event_params)
+        gen_time_op = tf.train.RMSPropOptimizer(learning_rate=self.learning_rate).minimize(huber_t_loss,
+                                                                                           var_list=gen_time_params)
+        gen_train_op = tf.train.RMSPropOptimizer(learning_rate=self.learning_rate).minimize(gen_cost,
+                                                                                            var_list=gen_params)
         disc_train_op = tf.train.RMSPropOptimizer(learning_rate=self.learning_rate).minimize(disc_cost, var_list=disc_params)
-        gen_event_op = tf.train.RMSPropOptimizer(learning_rate=self.learning_rate).minimize(gen_e_cost, var_list=gen_event_params)
+
 
         # constraint the weight of t for t1 to be negative
         if variable_content_e is not None:
@@ -318,7 +430,8 @@ class T_Pred(object):
         else:
             w_clip_op = None
 
-        return gen_train_op, disc_train_op, w_clip_op, gen_cost, disc_cost, gen_t_cost, gen_e_cost, gen_t_cost_1, huber_t_loss, gen_event_op
+        return gen_train_op, disc_train_op, w_clip_op, gen_cost, disc_cost, gen_t_cost, gen_e_cost,\
+               gen_t_cost_1, huber_t_loss, gen_event_op, gen_time_op
 
     def build(self):
         """
@@ -331,9 +444,10 @@ class T_Pred(object):
 
         hidden_t = self.encoder_e_t(self.cell_type, self.inputs_e, self.inputs_t)
         hidden_re, hidden_rt = self.encoder_RecConv(self.cell_type, self.inputs_e, self.inputs_t)
-        output_re = self.modulator(hidden_re, hidden_rt, 'modulator/Event')
-        output_rt = self.modulator(hidden_re, hidden_rt, 'modulator/Time')
 
+        output_re, output_rt = hidden_re, hidden_rt
+        # output_re = self.modulator(hidden_re, hidden_rt, 'modulator/Event')
+        # output_rt = self.modulator(hidden_re, hidden_rt, 'modulator/Time')
 
         """
         The optional form of combination of output_re and output_rt
@@ -380,7 +494,8 @@ class T_Pred(object):
                 pred_t.append(tf.expand_dims(pred_t_e, 0))
             self.pred_t = tf.concat(pred_t, 0)
 
-        gen_train_op, disc_train_op, w_clip_op, gen_cost, disc_cost, gen_t_cost, gen_e_cost, gen_t_cost_1, huber_t_loss, g_e_op = self.loss_with_wasserstein(
+        gen_train_op, disc_train_op, w_clip_op, gen_cost, disc_cost, gen_t_cost, gen_e_cost, gen_t_cost_1, huber_t_loss,\
+        g_e_op, g_t_op = self.loss_with_wasserstein(
             self.pred_e,
             self.pred_t,
             self.targets_e,
@@ -390,6 +505,8 @@ class T_Pred(object):
 
         self.g_train_op = gen_train_op
         self.d_train_op = disc_train_op
+        self.g_e_train_op = g_e_op
+        self.g_t_train_op = g_t_op
         self.w_clip_op = w_clip_op
         self.g_cost = gen_cost
         self.d_cost = disc_cost
@@ -399,14 +516,13 @@ class T_Pred(object):
         self.huber_t_loss = huber_t_loss
         self.g_e_op = g_e_op
 
-        print('pred_e shape: ')
-        print(self.pred_e.get_shape())
-        print('targets_e shape: ')
-        print(self.targets_e.get_shape())
-
+        logging.info('pred_e shape {}'.format(self.pred_e.get_shape()))
+        logging.info('targets_e shape {}'.format(self.targets_e.get_shape()))
+        Metric_k = 10
+        logging.info('Metric Base {}'.format(Metric_k))
         # MRR@k
         self.batch_precision, self.batch_precision_op = tf.metrics.average_precision_at_k(
-            labels=self.targets_e, predictions=self.pred_e, k=20, name='precision_k')
+            labels=self.targets_e, predictions=self.pred_e, k=Metric_k, name='precision_k')
         # Isolate the variables stored behind the scenes by the metric operation
         self.running_precision_vars = tf.get_collection(tf.GraphKeys.LOCAL_VARIABLES, scope="precision_k")
         # Define initializer to initialize/reset running variables
@@ -414,13 +530,13 @@ class T_Pred(object):
 
         # Recall@k
         self.batch_recall, self.batch_recall_op = tf.metrics.recall_at_k(
-            labels=self.targets_e, predictions=self.pred_e, k=20, name='recall_k')
+            labels=self.targets_e, predictions=self.pred_e, k=Metric_k, name='recall_k')
         # Isolate the variables stored behind the scenes by the metric operation
         self.running_recall_vars = tf.get_collection(tf.GraphKeys.LOCAL_VARIABLES, scope="recall_k")
         # Define initializer to initialize/reset running variables
         self.running_recall_vars_initializer = tf.variables_initializer(var_list=self.running_recall_vars)
 
-        self.deviation = tf.reduce_sum(tf.abs(tf.squeeze(tf.exp(self.pred_t) - self.targets_t)))
+        self.deviation = tf.math.reduce_mean(tf.math.abs(tf.exp(self.pred_t) - self.targets_t))
         self.saver = tf.train.Saver(max_to_keep=None)
 
     def train(self, sess, args):
@@ -456,7 +572,7 @@ class T_Pred(object):
             gap = 6
             sum_iter = 0.0
             batch_num = len(list(read_data.generate_batch(self.batch_size, i_e, t_e, i_t, t_t)))
-            print('-----batch num ----------', batch_num)
+            logging.info('Training batch num {}'.format(batch_num))
 
             for e_x, e_y, t_x, t_y in read_data.generate_batch(self.batch_size, i_e, t_e, i_t, t_t):
 
@@ -468,29 +584,35 @@ class T_Pred(object):
                     self.sample_t: np.maximum(np.log(sample_t), 0)}
 
                 if i % gap == 0:
+
                     _, _ = sess.run([self.d_train_op, self.w_clip_op], feed_dict=feed_dict)
 
                 else:
+                    # train event cross-entropy
+                    _ = sess.run(self.g_e_train_op, feed_dict=feed_dict)
+                    # train time huber-loss
+                    _ = sess.run(self.g_t_train_op, feed_dict=feed_dict)
+                    # jointly update
                     _, _, _, deviation, batch_precision, batch_recall, d_loss, g_loss, gen_e_cost, gen_t_cost, huber_t_loss = sess.run(
                         [self.g_train_op, self.batch_precision_op, self.batch_recall_op,
                          self.deviation, self.batch_precision, self.batch_recall,
                          self.d_cost, self.g_cost, self.gen_e_cost, self.gen_t_cost, self.huber_t_loss], feed_dict=feed_dict)
 
-                    sum_iter = sum_iter + 1
+                    sum_iter = sum_iter + 1.0
                     sum_deviation = sum_deviation + deviation
-                    average_deviation = sum_deviation / (sum_iter * self.batch_size * self.length)
+                    average_deviation = sum_deviation / sum_iter
 
                 # if self.cell_type == 'T_LSTMCell':
                 #     sess.run(self.clip_op)
 
                 if i % (batch_num // 10) == 0:
-                    print('[epoch: %d, %.4f] precision: %f, recall: %f, deviation: %f' % (
+                    logging.info('[epoch: {}, {}] precision: {}, recall: {}, deviation: {}'.format(
                         epoch,
-                        i / batch_num,
+                        float(i) / (batch_num // 10),
                         batch_precision,
                         batch_recall,
                         average_deviation))
-                    print('d_loss: %f, g_loss: %f, gen_e_loss: %f, gen_t_loss: %f, hunber_t_loss: %f' % (
+                    logging.info('d_loss: {}, g_loss: {}, gen_e_loss: {}, gen_t_loss: {}, hunber_t_loss: {}'.format(
                         d_loss, g_loss, gen_e_cost, gen_t_cost, huber_t_loss))
                 i += 1
 
@@ -514,6 +636,7 @@ class T_Pred(object):
             gen_cost_ratio = []
             t_cost_ratio = []
             batch_num = len(list(read_data.generate_batch(self.batch_size, i_e, t_e, i_t, t_t)))
+            logging.info('Evaluation Batch Num {}'.format(batch_num))
 
             self.lr = self.learning_rate
 
@@ -530,24 +653,24 @@ class T_Pred(object):
                      self.d_cost, self.g_cost, self.gen_e_cost, self.gen_t_cost, self.gen_t_cost_1, self.huber_t_loss],
                     feed_dict=feed_dict)
 
-                sum_iter = sum_iter + 1
+                sum_iter = sum_iter + 1.0
                 sum_deviation = sum_deviation + deviation
                 gen_cost_ratio.append(gen_t_cost / gen_e_cost)
                 t_cost_ratio.append(gen_t_cost_1 / huber_t_loss)
 
                 if i % (batch_num // 10) == 0:
-                    print('-%d-, precision: %f, recall: %f, deviation: %f, d_loss: %f, g_loss: %f, huber_t_loss:%f' % (
-                        i / batch_num,
+                    logging.info('{}, precision {}, recall {}, deviation {}, d_loss {}, g_loss {}, huber_t_loss {}'.format(
+                        float(i) / (batch_num// 10),
                         batch_precision,
                         batch_recall,
-                        sum_deviation / (sum_iter * self.batch_size * self.length),
+                        sum_deviation / sum_iter,
                         d_loss,
                         g_loss,
                         huber_t_loss))
                 i += 1
             self.alpha = tf.reduce_mean(gen_cost_ratio)
             self.gamma = tf.reduce_mean(t_cost_ratio)
-            print('alpha: %f, gamma: %f' % (sess.run(self.alpha), sess.run(self.gamma)))
+            logging.info('alpha: {}, gamma: {}'.format(sess.run(self.alpha), sess.run(self.gamma)))
 
         self.save_model(sess, self.logdir, args.iters)
 
@@ -619,7 +742,7 @@ class T_Pred(object):
 
     def save_model(self, sess, logdir, counter):
         ckpt_file = '%s/model-%d.ckpt' % (logdir, counter)
-        print('Checkpoint: %s' % ckpt_file)
+        logging.info('Checkpoint {}'.format(ckpt_file))
         self.saver.save(sess, ckpt_file)
 
 
@@ -652,8 +775,7 @@ def main():
     args = parser.parse_args()
 
     assert args.logdir[-1] != '/'
-    event_file = './T-pred-Dataset/lastfm-v5k_event.txt'
-    time_file = './T-pred-Dataset/lastfm-v5k_time2.txt'
+
     model_config = get_config(args.mode)
     is_training = args.is_training
     cell_type = args.cell_type
@@ -666,6 +788,7 @@ def main():
         if not args.eval_only:
             model.train(sess, args)
         model.eval(sess, args)
+    logging.info('Logging End!')
 
 
 if __name__ == '__main__':

@@ -9,9 +9,23 @@ import numpy as np
 import utils
 import read_data
 import model_config
+import logging
+import datetime
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '2'
 
+event_file = './T-pred-Dataset/CIKM16_event.txt'
+time_file = './T-pred-Dataset/CIKM16_time.txt'
+
+FORMAT = "%(asctime)s - [line:%(lineno)s - %(funcName)10s() ] %(message)s"
+DATA_TYPE = event_file.split('/')[-1].split('.')[0]
+logging.basicConfig(filename='log/{}-{}-{}.log'.format('Pred-GAN-t', DATA_TYPE, str(datetime.datetime.now())),
+            level=logging.INFO, format=FORMAT)
+
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter(FORMAT))
+logging.getLogger().addHandler(handler)
+logging.info('Start {}'.format(DATA_TYPE))
 
 def parse_time():
     return time.strftime("%Y.%m.%d-%H:%M:%S", time.localtime())
@@ -44,13 +58,13 @@ class T_Pred(object):
         self.is_training = is_training
         self.keep_prob = config.keep_prob
         self.res_rate = config.res_rate
-        self.length = config.output_length
+        self.length = 1 # config.output_length
         self.vocab_size = config.vocab_size
         self.learning_rate = config.learning_rate
         self.lr = config.learning_rate
         self.LAMBDA = config.LAMBDA
         self.gamma = config.gamma
-        self.event_to_id = read_data.build_vocab(self.event_file)
+        # self.event_to_id = read_data.build_vocab(self.event_file)
         self.train_data, self.valid_data, self.test_data = read_data.data_split(
             event_file, time_file, shuffle=True)
         self.embeddings = tf.get_variable(
@@ -156,8 +170,7 @@ class T_Pred(object):
             # if the output size is 2, it is a bi-classification result of D
             output = tf.nn.sigmoid(
                 utils.linear('D.Output', (self.length + self.num_steps) * self.filter_output_dim, 1, output))
-            print('The shape of output from D: ')
-            print(output.get_shape())
+            logging.info('The shape of output from D: {}'.format(output.get_shape()))
             return output
 
     def res_block(self, name, inputs):
@@ -288,7 +301,7 @@ class T_Pred(object):
         self.gen_t_cost_1 = gen_t_cost_1
         self.huber_t_loss = huber_t_loss
 
-        self.deviation = tf.reduce_sum(tf.abs(tf.squeeze(tf.exp(self.pred_t) - self.targets_t)))
+        self.deviation = tf.reduce_mean(tf.abs(tf.squeeze(tf.exp(self.pred_t) - self.targets_t)))
         self.saver = tf.train.Saver(max_to_keep=None)
 
     def train(self, sess, args):
@@ -313,36 +326,24 @@ class T_Pred(object):
             average_deviation, sum_deviation = 0.0, 0.0
             d_loss, gen_t_cost, huber_t_loss = 0.0, 0.0, 0.0
 
-            input_len, input_event_data, target_event_data, input_time_data, target_time_data = read_data.data_iterator(
-                self.train_data,
-                self.event_to_id,
-                self.num_steps,
-                self.length)
+            i_e, t_e, i_t, t_t = read_data.data_iterator(self.train_data, self.num_steps, self.length)
 
-            batch_num, e_x_list, e_y_list, t_x_list, t_y_list = read_data.generate_batch(
-                input_len,
-                self.batch_size,
-                input_event_data,
-                target_event_data,
-                input_time_data,
-                target_time_data)
-
-            _, sample_t_list = read_data.generate_sample_t(
-                input_len,
-                self.batch_size,
-                input_time_data,
-                target_time_data)
+            sample_t = read_data.generate_sample_t(self.batch_size, i_t, t_t)
+            batch_num = len(list(read_data.generate_batch(self.batch_size, i_e, t_e, i_t, t_t)))
+            logging.info('Training batch num {}'.format(batch_num))
 
             g_iters = 5
             gap = g_iters + 1
+            i = 0
 
-            for i in range(batch_num):
+            for e_x, e_y, t_x, t_y in read_data.generate_batch(self.batch_size, i_e, t_e, i_t, t_t):
+
                 feed_dict = {
-                    self.input_e: e_x_list[i],
-                    self.inputs_t: np.maximum(np.log(t_x_list[i]), 0),
-                    self.target_t: t_y_list[i],
-                    self.targets_e: e_y_list[i],
-                    self.sample_t: np.maximum(np.log(sample_t_list[i]), 0)}
+                    self.input_e: e_x,
+                    self.inputs_t: np.maximum(np.log(t_x), 0),
+                    self.target_t: t_y,
+                    self.targets_e: e_y,
+                    self.sample_t: np.maximum(np.log(sample_t), 0)}
 
                 if i > 0 and i % (batch_num // 10) == 0:
                     self.lr = self.lr * 2. / 3
@@ -357,55 +358,50 @@ class T_Pred(object):
 
                     sum_iter = sum_iter + 1
                     sum_deviation = sum_deviation + deviation
-                    average_deviation = sum_deviation / (sum_iter * self.batch_size * self.length)
+                    average_deviation = sum_deviation / sum_iter
 
                 # if self.cell_type == 'T_LSTMCell':
                 #     sess.run(self.clip_op)
 
                 if i % (batch_num // 10) == 0:
-                    print('[epoch: %d, %d] deviation: %f' % (
+                    logging.info('[epoch: {}, {}] deviation: {}'.format (
                         epoch,
                         int(i // (batch_num // 10)),
                         average_deviation))
-                    print('d_loss: %f, gen_t_loss: %f, hunber_t_loss: %f' % (
+                    logging.info('d_loss: {}, gen_t_loss: {}, hunber_t_loss: {}'.format (
                         d_loss, gen_t_cost, huber_t_loss))
+                i += 1
 
             '''evaluation'''
 
-            input_len, input_event_data, target_event_data, input_time_data, target_time_data = read_data.data_iterator(
+            i_e, t_e, i_t, t_t = read_data.data_iterator(
                 self.valid_data,
-                self.event_to_id,
                 self.num_steps,
                 self.length)
 
-            batch_num, e_x_list, e_y_list, t_x_list, t_y_list = read_data.generate_batch(
-                input_len,
+            sample_t = read_data.generate_sample_t(
                 self.batch_size,
-                input_event_data,
-                target_event_data,
-                input_time_data,
-                target_time_data)
+                i_t,
+                t_t)
 
-            _, sample_t_list = read_data.generate_sample_t(
-                input_len,
-                self.batch_size,
-                input_time_data,
-                target_time_data)
+            batch_num = len(list(read_data.generate_batch(self.batch_size, i_e, t_e, i_t, t_t)))
+            logging.info('Evaluation Batch Num {}'.format(batch_num))
 
             sum_iter = 0.0
             sum_deviation = 0.0
             gen_cost_ratio = []
             t_cost_ratio = []
+            i = 0
 
             self.lr = self.learning_rate
 
-            for i in range(batch_num):
+            for e_x, e_y, t_x, t_y in read_data.generate_batch(self.batch_size, i_e, t_e, i_t, t_t):
                 feed_dict = {
-                    self.input_e: e_x_list[i],
-                    self.inputs_t: np.maximum(np.log(t_x_list[i]), 0),
-                    self.target_t: t_y_list[i],
-                    self.targets_e: e_y_list[i],
-                    self.sample_t: np.maximum(np.log(sample_t_list[i]), 0)}
+                    self.input_e: e_x,
+                    self.inputs_t: np.maximum(np.log(t_x), 0),
+                    self.target_t: t_y,
+                    self.targets_e: e_y,
+                    self.sample_t: np.maximum(np.log(sample_t), 0)}
 
                 if i > 0 and i % (batch_num // 10) == 0:
                     self.lr = self.lr * 2. / 3
@@ -419,14 +415,15 @@ class T_Pred(object):
                 t_cost_ratio.append(gen_t_cost_1 / huber_t_loss)
 
                 if i % (batch_num // 10) == 0:
-                    print('%d, deviation: %f, d_loss: %f, g_loss: %f, huber_t_loss:%f' % (
+                    logging.info('{} deviation: {}, d_loss: {}, g_loss: {}, huber_t_loss:{}'.format (
                         int(i // (batch_num // 10)),
-                        sum_deviation / (sum_iter * self.batch_size * self.length),
+                        sum_deviation / sum_iter,
                         d_loss,
                         gen_t_cost,
                         huber_t_loss))
+                i += 1
             self.gamma = tf.reduce_mean(t_cost_ratio)
-            print('gamma: %f' % (sess.run(self.gamma)))
+            logging.info('gamma: {}'.format (sess.run(self.gamma)))
 
         self.save_model(sess, self.logdir, args.iters)
 
@@ -443,39 +440,29 @@ class T_Pred(object):
 
         lr = self.learning_rate
 
-        batch_size = 100
-
-        input_len, input_event_data, target_event_data, input_time_data, target_time_data = read_data.data_iterator(
+        i_e, t_e, i_t, t_t = read_data.data_iterator(
             self.test_data,
-            self.event_to_id,
             self.num_steps,
-            self.length,
-            shuffle=False)
+            self.length)
 
-        batch_num, e_x_list, e_y_list, t_x_list, t_y_list = read_data.generate_batch(
-            input_len,
-            batch_size,
-            input_event_data,
-            target_event_data,
-            input_time_data,
-            target_time_data)
+        sample_t = read_data.generate_sample_t(
+            self.batch_size,
+            i_t,
+            t_t)
 
-        _, sample_t_list = read_data.generate_sample_t(
-            input_len,
-            batch_size,
-            input_time_data,
-            target_time_data)
+        batch_num = len(list(read_data.generate_batch(self.batch_size, i_e, t_e, i_t, t_t)))
+        logging.info('Evaluation Batch Num {}'.format(batch_num))
 
         f = open(os.path.join(args.logdir, "output_t.txt"), 'w+')
+        i = 0
 
-        for i in range(batch_num):
-            # print(e_y_list[i])
+        for e_x, e_y, t_x, t_y in read_data.generate_batch(self.batch_size, i_e, t_e, i_t, t_t):
             feed_dict = {
-                self.input_e: e_x_list[i],
-                self.inputs_t: np.maximum(np.log(t_x_list[i]), 0),
-                # self.target_t : t_y_list[i],
-                # self.targets_e : e_y_list[i],
-                self.sample_t: np.maximum(np.log(sample_t_list[i]), 0)}
+                # self.input_e: e_x,
+                self.inputs_t: np.maximum(np.log(t_x), 0),
+                self.target_t: t_y,
+                # self.targets_e: e_y,
+                self.sample_t: np.maximum(np.log(sample_t), 0)}
 
             if i > 0 and i % (batch_num // 10) == 0:
                 lr = lr * 2. / 3
@@ -490,8 +477,10 @@ class T_Pred(object):
             # sum_deviation = sum_deviation + deviation
             f.write('pred_t: ' + '\t'.join([str(v) for v in tf.exp(pred_t).eval()]))
             f.write('\n')
-            f.write('targ_t: ' + '\t'.join([str(v) for v in np.array(t_y_list[i]).flatten()]))
+            f.write('targ_t: ' + '\t'.join([str(v) for v in np.array(t_y).flatten()]))
             f.write('\n')
+
+            i += 1
 
         # if i % (iterations // 10) == 0:
         # 	print('%f, precision: %f, deviation: %f' %(
@@ -501,7 +490,7 @@ class T_Pred(object):
 
     def save_model(self, sess, logdir, counter):
         ckpt_file = '%s/model-%d.ckpt' % (logdir, counter)
-        print('Checkpoint: %s' % ckpt_file)
+        logging.info('Checkpoint: {}'.format(ckpt_file))
         self.saver.save(sess, ckpt_file)
 
 
@@ -534,12 +523,10 @@ def main():
     args = parser.parse_args()
 
     assert args.logdir[-1] != '/'
-    event_file = './T-pred-Dataset/lastfm-v5k_event.txt'
-    time_file = './T-pred-Dataset/lastfm-v5k_time.txt'
     model_config = get_config(args.mode)
     is_training = args.is_training
     cell_type = args.cell_type
-    print('vocab_size: ' + str(read_data.vocab_size(event_file)))
+    # print('vocab_size: ' + str(read_data.vocab_size(event_file)))
     model = T_Pred(model_config, cell_type, event_file, time_file, is_training)
 
     config = tf.ConfigProto()
@@ -549,6 +536,7 @@ def main():
         if not args.eval_only:
             model.train(sess, args)
         model.eval(sess, args)
+    logging.info('Logging End!')
 
 
 if __name__ == '__main__':

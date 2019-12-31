@@ -9,9 +9,23 @@ import numpy as np
 import utils
 import read_data
 import model_config
+import logging
+import datetime
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
+event_file = './T-pred-Dataset/CIKM16_event.txt'
+time_file = './T-pred-Dataset/CIKM16_time.txt'
+
+FORMAT = "%(asctime)s - [line:%(lineno)s - %(funcName)10s() ] %(message)s"
+DATA_TYPE = event_file.split('/')[-1].split('.')[0]
+logging.basicConfig(filename='log/{}-{}-{}.log'.format('Pred-GRU-t', DATA_TYPE, str(datetime.datetime.now())),
+            level=logging.INFO, format=FORMAT)
+
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter(FORMAT))
+logging.getLogger().addHandler(handler)
+logging.info('Start {}'.format(DATA_TYPE))
 
 def parse_time():
     return time.strftime("%Y.%m.%d-%H:%M:%S", time.localtime())
@@ -44,14 +58,13 @@ class T_Pred(object):
         self.is_training = is_training
         self.keep_prob = config.keep_prob
         self.res_rate = config.res_rate
-        self.length = config.output_length
+        self.length = 1 # config.output_length
         self.vocab_size = config.vocab_size
         self.learning_rate = config.learning_rate
         self.lr = config.learning_rate
         self.LAMBDA = config.LAMBDA
-        self.delta = config.delta
         self.gamma = config.gamma
-        self.event_to_id = read_data.build_vocab(self.event_file)
+        # self.event_to_id = read_data.build_vocab(self.event_file)
         self.train_data, self.valid_data, self.test_data = read_data.data_split(
             event_file, time_file, shuffle=True)
         self.embeddings = tf.get_variable(
@@ -80,23 +93,11 @@ class T_Pred(object):
                 self.keep_prob,
                 self.is_training,
                 "Encoder_et" + cell_type)
-            hidden_r = tf.reshape(tf.concat(outputs, 1), [self.batch_size, self.num_steps, -1])
+            hidden_r = tf.concat(outputs, 1)
             return hidden_r
 
-    def encoder_RecConv(self, cell_type, inputs, t):
+    def encoder_t(self, t):
         with tf.variable_scope('Generator'):
-            outputs_e = utils.build_encoder_graph_gru(
-                inputs,
-                self.hidden_size,
-                self.num_layers,
-                self.batch_size,
-                self.num_steps,
-                self.keep_prob,
-                self.is_training,
-                "Encoder_e" + cell_type)
-            hidden_re = [tf.expand_dims(output_e, 1) for output_e in outputs_e]
-            hidden_re = tf.concat(hidden_re, 1)
-
             inputs_t = tf.expand_dims(t, 2)
             output_t = utils.conv1d('G.T.Input', 1, self.filter_output_dim, self.filter_size, inputs_t)
             output_t = self.res_block('G.T.1', output_t)
@@ -108,59 +109,7 @@ class T_Pred(object):
             hidden_rt = tf.reshape(output_t, [-1, self.num_steps, self.filter_output_dim])
             # hidden_r = tf.concat([hidden_re, hidden_rt], 2)
             # hidden_r = tf.reshape(hidden_r, [self.batch_size, -1])
-            return hidden_re, hidden_rt
-
-    def modulator(self, hidden_re, hidden_rt, name):
-        """
-        attention to modulate the event and time
-        hidden_re shape: [batch_size, num_steps, feature_size]
-        hidden_rt shape: [batch_size, num_sieps, feature_size]
-        """
-        outputs_z = []
-        variable_b = []
-        z = tf.concat(
-            [tf.multiply(tf.reshape(hidden_re, [self.batch_size, -1]), tf.reshape(hidden_rt, [self.batch_size, -1])),
-             tf.reshape(hidden_re, [self.batch_size, -1]),
-             tf.reshape(hidden_rt, [self.batch_size, -1])],
-            1)
-        with tf.variable_scope('Generator_M' + name):
-            z_w = tf.get_variable("z_w", [z.get_shape()[1], 2], dtype=tf.float32)
-            z_b = tf.get_variable("z_b", [2], dtype=tf.float32)
-            logits_z = tf.nn.xw_plus_b(z, z_w, z_b)
-            b = tf.nn.softmax(logits_z)
-            for i in range(self.num_steps):
-                re = tf.expand_dims(hidden_re[:, i, :], -1)
-                rt = tf.expand_dims(hidden_rt[:, i, :], -1)
-                input_z = tf.reshape(tf.transpose(tf.concat([re, rt], -1), [1, 0, 2]), [re.get_shape()[1], -1])
-                output_z = tf.reshape(tf.multiply(tf.reshape(b, [-1]), input_z),
-                                      [re.get_shape()[1], self.batch_size, -1])
-                output_z = tf.transpose(output_z, [1, 0, 2])
-                output_z = tf.reduce_sum(output_z, 2)
-                outputs_z.append(tf.expand_dims(output_z, 1))
-                variable_b.append(tf.expand_dims(tf.reduce_mean(b, 0), 0))
-            outputs_z = tf.concat(outputs_z, 1)
-            return outputs_z
-
-    def g_event(self, hidden_r, name=''):
-        """
-        The generative model for time and event
-        mode:
-        1. use the concatenated hidden representation for each time step
-        2. use the unfolded hidden representation separately for each time step
-        """
-
-        with tf.variable_scope("Generator_E" + name):
-            outputs = utils.build_rnn_graph_decoder1(
-                hidden_r,
-                self.num_layers,
-                self.g_size,
-                self.batch_size,
-                self.length,
-                "G_E.RNN")
-            output = tf.reshape(tf.concat(outputs, 1), [-1, self.g_size])
-            output = utils.linear('G_E.Output', self.g_size, self.vocab_size, output)
-            logits = tf.reshape(output, [self.batch_size, self.length, self.vocab_size])
-            return logits
+            return hidden_rt
 
     def g_time(self, hidden_r, name=''):
         """
@@ -182,7 +131,7 @@ class T_Pred(object):
             logits = tf.reshape(output, [self.batch_size, self.length, 1])
             return logits
 
-    def attention_g_t(self, hidden_r, num_gen):
+    def attention_g_t(self, hidden_rt, num_gen):
         """
         If there are multiple generator for time sequences,
         use this attention vector to select an output from these generators.
@@ -192,11 +141,11 @@ class T_Pred(object):
         :return: the attention vector to weight the generators
         """
         with tf.variable_scope('Generator_T/Attention'):
-            hidden_r = tf.reshape(hidden_r, [self.batch_size, -1])
-            a_w = tf.get_variable('a_w', [hidden_r.get_shape()[1], num_gen],
+            hidden_rt = tf.reshape(hidden_rt, [self.batch_size, -1])
+            a_w = tf.get_variable('a_w', [hidden_rt.get_shape()[1], num_gen],
                                   dtype=tf.float32)
             a_b = tf.get_variable('a_b', [num_gen], dtype=tf.float32)
-            logits_a = tf.nn.xw_plus_b(hidden_r, a_w, a_b)
+            logits_a = tf.nn.xw_plus_b(hidden_rt, a_w, a_b)
             attention = tf.nn.softmax(logits_a, 1)
         return attention
 
@@ -221,8 +170,7 @@ class T_Pred(object):
             # if the output size is 2, it is a bi-classification result of D
             output = tf.nn.sigmoid(
                 utils.linear('D.Output', (self.length + self.num_steps) * self.filter_output_dim, 1, output))
-            print('The shape of output from D: ')
-            print(output.get_shape())
+            logging.info('The shape of output from D: {}'.format(output.get_shape()))
             return output
 
     def res_block(self, name, inputs):
@@ -235,9 +183,12 @@ class T_Pred(object):
 
     def params_with_name(self, name):
         variables = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES)
-        return [v for v in variables if name in v.name]
+        if name == '':
+            return variables
+        else:
+            return [v for v in variables if name in v.name]
 
-    def loss_with_wasserstein(self, pred_e, pred_t, real_e, real_t, input_t, sample_t):
+    def loss_with_wasserstein(self, pred_t, real_t, input_t, sample_t):
         if self.cell_type == 'T_LSTMCell':
             variable_content_e = self.params_with_name('time_gate_t1')
         else:
@@ -252,12 +203,9 @@ class T_Pred(object):
         disc_cost = -(tf.reduce_mean(disc_real) - tf.reduce_mean(disc_fake))
         # gen_t_cost_1 = tf.reduce_mean(disc_real) - tf.reduce_mean(disc_fake)
         gen_t_cost_1 = -tf.reduce_mean(disc_fake)
-        gen_e_cost = tf.contrib.seq2seq.sequence_loss(pred_e, real_e, weights=tf.ones([self.batch_size, self.length]),
-                                                      name="SeqLoss")
 
         huber_t_loss = tf.losses.huber_loss(real_t, tf.exp(pred_t))
-        gen_t_cost = gen_t_cost_1 + self.gamma * huber_t_loss
-        gen_cost = gen_t_cost + self.alpha * gen_e_cost
+        gen_t_cost = huber_t_loss
 
         '''if the output of Discriminator is bi-classification, the losses used to train G and D is as follows'''
         # d_label_G = tf.one_hot(tf.ones([self.batch_size], dtype=tf.int32), 2)
@@ -273,16 +221,10 @@ class T_Pred(object):
         # gen_cost = gen_t_cost + self.alpha*gen_e_cost
 
         '''The separate training of Generator and Discriminator'''
-        gen_params = self.params_with_name('Generator')
-        disc_params = self.params_with_name('Discriminator')
-
-        '''Use the Adam Optimizer to update the variables'''
-        # gen_train_op = tf.train.AdamOptimizer(learning_rate=1e-4, beta1=0.5, beta2=0.9).minimize(gen_cost, var_list=gen_params)
-        # disc_train_op = tf.train.AdamOptimizer(learning_rate=1e-4, beta1=0.5, beta2=0.9).minimize(disc_cost, var_list=disc_params)
+        params = self.params_with_name('')
 
         '''Use the RMSProp Optimizer to update the variables'''
-        gen_train_op = tf.train.RMSPropOptimizer(learning_rate=self.lr).minimize(gen_cost, var_list=gen_params)
-        disc_train_op = tf.train.RMSPropOptimizer(learning_rate=self.lr).minimize(disc_cost, var_list=disc_params)
+        gen_train_op = tf.train.RMSPropOptimizer(learning_rate=self.lr).minimize(gen_t_cost, var_list=params)
 
         # constraint the weight of t for t1 to be negative
         if variable_content_e is not None:
@@ -292,16 +234,8 @@ class T_Pred(object):
         else:
             e_clip_op = None
 
-        # constraint the weight of discriminator between [-0.1, 0.1]
-        variable_content_w = self.params_with_name('Discriminator')
-        if variable_content_w is not None:
-            w_clip_op = []
-            for v in variable_content_w:
-                w_clip_op.append(tf.assign(v, tf.clip_by_value(v, -0.01, 0.01)))
-        else:
-            w_clip_op = None
 
-        return gen_train_op, disc_train_op, w_clip_op, gen_cost, disc_cost, gen_t_cost, gen_e_cost, gen_t_cost_1, huber_t_loss
+        return gen_train_op, gen_t_cost
 
     def build(self):
         """
@@ -312,20 +246,10 @@ class T_Pred(object):
         self.targets_t = tf.expand_dims(self.target_t, 2)
         self.inputs_e = tf.nn.embedding_lookup(self.embeddings, self.input_e)
 
-        hidden_t = self.encoder_e_t(self.cell_type, self.inputs_e, self.inputs_t)
-
-        hidden_re, hidden_rt = self.encoder_RecConv(self.cell_type, self.inputs_e, self.inputs_t)
-        # hidden_e = self.modulator(hidden_re, hidden_rt, 'modulator4e') # training e failed
-        hidden_e = tf.concat([hidden_re, hidden_rt], 2) # training e failed
-
-        hidden_t = tf.concat([hidden_rt, hidden_t], 2)
-
-        self.pred_e = self.g_event(tf.reshape(hidden_e, [self.batch_size, -1]))
-        # self.pred_e = self.g_event(output_re)
-        # use the extracted feature from input events and timestamps to generate the time sequence
+        hidden_rt = self.encoder_t(self.inputs_t)
 
         if self.n_g == 1:
-            self.pred_t = self.g_time(tf.reshape(hidden_t, [self.batch_size, -1]))
+            self.pred_t = self.g_time(tf.reshape(hidden_rt, [self.batch_size, -1]))
         # self.pred_t = self.g_time(output_rt)
         # use random noise to generate the time sequence
         # self.pred_t = pred_t = self.g_time(make_noise(hidden_r.get_shape()))
@@ -333,7 +257,7 @@ class T_Pred(object):
         else:
             self.pred_t_list = []
             for i in range(self.n_g):
-                pred_t = self.g_time(tf.reshape(hidden_t, [self.batch_size, -1]), name=str(i))
+                pred_t = self.g_time(tf.reshape(hidden_rt, [self.batch_size, -1]), name=str(i))
                 pred_t = tf.expand_dims(pred_t, 1)
                 self.pred_t_list.append(pred_t)
             # self.pred_t = self.g_time(output_rt)
@@ -343,56 +267,25 @@ class T_Pred(object):
             self.pred_t_list = tf.concat(self.pred_t_list, 1)
 
             '''The attention module for select the pred_t from all t-generators'''
-            attention_gt = self.attention_g_t(hidden_t, self.n_g)
+            attention_gt = self.attention_g_t(hidden_rt, self.n_g)
             k = tf.argmax(attention_gt, 1)
-            # print('k_shape: ', k.get_shape())
-            pred_t_list = []
+            # print(k.get_shape())
+            pred_t = []
             for i in range(self.batch_size):
                 pred_t_e = self.pred_t_list[i][k[i]]
-                pred_t_list.append(tf.expand_dims(pred_t_e, 0))
-            self.pred_t = tf.concat(pred_t_list, 0)
-            self.attention_for_gt = k
+                pred_t.append(tf.expand_dims(pred_t_e, 0))
+            self.pred_t = tf.concat(pred_t, 0)
 
-        gen_train_op, disc_train_op, w_clip_op, gen_cost, disc_cost, gen_t_cost, gen_e_cost, gen_t_cost_1, huber_t_loss = self.loss_with_wasserstein(
-            self.pred_e,
+        gen_train_op, gen_t_cost = self.loss_with_wasserstein(
             self.pred_t,
-            self.targets_e,
             self.targets_t,
             self.inputs_t,
             self.sample_t)
 
         self.g_train_op = gen_train_op
-        self.d_train_op = disc_train_op
-        self.w_clip_op = w_clip_op
-        self.g_cost = gen_cost
-        self.d_cost = disc_cost
-        self.gen_e_cost = gen_e_cost
         self.gen_t_cost = gen_t_cost
-        self.gen_t_cost_1 = gen_t_cost_1
-        self.huber_t_loss = huber_t_loss
 
-        print('pred_e shape: ')
-        print(self.pred_e.get_shape())
-        print('targets_e shape: ')
-        print(self.targets_e.get_shape())
-
-        # MRR@k
-        self.batch_precision, self.batch_precision_op = tf.metrics.average_precision_at_k(
-            labels=self.targets_e, predictions=self.pred_e, k=20, name='precision_k')
-        # Isolate the variables stored behind the scenes by the metric operation
-        self.running_precision_vars = tf.get_collection(tf.GraphKeys.LOCAL_VARIABLES, scope="precision_k")
-        # Define initializer to initialize/reset running variables
-        self.running_precision_vars_initializer = tf.variables_initializer(var_list=self.running_precision_vars)
-
-        # Recall@k
-        self.batch_recall, self.batch_recall_op = tf.metrics.recall_at_k(
-            labels=self.targets_e, predictions=self.pred_e, k=20, name='recall_k')
-        # Isolate the variables stored behind the scenes by the metric operation
-        self.running_recall_vars = tf.get_collection(tf.GraphKeys.LOCAL_VARIABLES, scope="recall_k")
-        # Define initializer to initialize/reset running variables
-        self.running_recall_vars_initializer = tf.variables_initializer(var_list=self.running_recall_vars)
-
-        self.deviation = tf.reduce_sum(tf.abs(tf.squeeze(tf.exp(self.pred_t) - self.targets_t)))
+        self.deviation = tf.reduce_mean(tf.abs(tf.squeeze(tf.exp(self.pred_t) - self.targets_t)))
         self.saver = tf.train.Saver(max_to_keep=None)
 
     def train(self, sess, args):
@@ -413,149 +306,97 @@ class T_Pred(object):
         for epoch in range(args.iters):
             '''training'''
 
-            sess.run([self.running_precision_vars_initializer, self.running_recall_vars_initializer])
-            # re initialize the metric variables of metric.precision and metric.recall,
-            # to calculate these metric for each epoch
-            batch_precision, batch_recall = 0.0, 0.0
-
             sum_iter = 0.0
             average_deviation, sum_deviation = 0.0, 0.0
-            d_loss, g_loss, gen_e_cost, gen_t_cost, huber_t_loss = 0.0, 0.0, 0.0, 0.0, 0.0
+            d_loss, gen_t_cost, huber_t_loss = 0.0, 0.0, 0.0
 
-            input_len, input_event_data, target_event_data, input_time_data, target_time_data = read_data.data_iterator(
-                self.train_data,
-                self.event_to_id,
-                self.num_steps,
-                self.length)
+            i_e, t_e, i_t, t_t = read_data.data_iterator(self.train_data, self.num_steps, self.length)
 
-            batch_num, e_x_list, e_y_list, t_x_list, t_y_list = read_data.generate_batch(
-                input_len,
-                self.batch_size,
-                input_event_data,
-                target_event_data,
-                input_time_data,
-                target_time_data)
-
-            _, sample_t_list = read_data.generate_sample_t(
-                input_len,
-                self.batch_size,
-                input_time_data,
-                target_time_data)
+            sample_t = read_data.generate_sample_t(self.batch_size, i_t, t_t)
+            batch_num = len(list(read_data.generate_batch(self.batch_size, i_e, t_e, i_t, t_t)))
+            logging.info('Training batch num {}'.format(batch_num))
 
             g_iters = 5
             gap = g_iters + 1
+            i = 0
 
-            for i in range(batch_num):
+            for e_x, e_y, t_x, t_y in read_data.generate_batch(self.batch_size, i_e, t_e, i_t, t_t):
+
+                feed_dict = {
+                    self.input_e: e_x,
+                    self.inputs_t: np.maximum(np.log(t_x), 0),
+                    self.target_t: t_y,
+                    self.targets_e: e_y,
+                    self.sample_t: np.maximum(np.log(sample_t), 0)}
 
                 if i > 0 and i % (batch_num // 10) == 0:
                     self.lr = self.lr * 2. / 3
 
-                if i % gap == 0:
-                    feed_dict = {
-                        self.input_e: e_x_list[i],
-                        self.inputs_t: np.maximum(np.log(t_x_list[i]), 0),
-                        self.target_t: t_y_list[i],
-                        self.targets_e: e_y_list[i],
-                        self.sample_t: np.maximum(np.log(sample_t_list[i]), 0)}
-
-                    _, _ = sess.run([self.d_train_op, self.w_clip_op], feed_dict=feed_dict)
-
-                else:
-                    feed_dict = {
-                        self.input_e: e_x_list[i],
-                        self.inputs_t: np.maximum(np.log(t_x_list[i]), 0),
-                        self.target_t: t_y_list[i],
-                        self.targets_e: e_y_list[i],
-                        self.sample_t: np.maximum(np.log(sample_t_list[i]), 0)}
-
-                    _, _, _, attention_for_gt, deviation, batch_precision, batch_recall, d_loss, g_loss, gen_e_cost, gen_t_cost, huber_t_loss = sess.run(
-                        [self.g_train_op, self.batch_precision_op, self.batch_recall_op, self.attention_for_gt,
-                         self.deviation, self.batch_precision, self.batch_recall,
-                         self.d_cost, self.g_cost, self.gen_e_cost, self.gen_t_cost, self.huber_t_loss], feed_dict=feed_dict)
+                    _, deviation, gen_t_cost = sess.run(
+                        [self.g_train_op, self.deviation, self.gen_t_cost], feed_dict=feed_dict)
 
                     sum_iter = sum_iter + 1
                     sum_deviation = sum_deviation + deviation
-                    average_deviation = sum_deviation / (sum_iter * self.batch_size * self.length)
+                    average_deviation = sum_deviation / sum_iter
 
                 # if self.cell_type == 'T_LSTMCell':
                 #     sess.run(self.clip_op)
 
                 if i % (batch_num // 10) == 0:
-                    print('[epoch: %d, %d] precision: %f, recall: %f, deviation: %f' % (
+                    logging.info('[epoch: {}, {}] deviation: {}'.format (
                         epoch,
                         int(i // (batch_num // 10)),
-                        batch_precision,
-                        batch_recall,
                         average_deviation))
-                    print('d_loss: %f, g_loss: %f, gen_e_loss: %f, gen_t_loss: %f, hunber_t_loss: %f' % (
-                        d_loss, g_loss, gen_e_cost, gen_t_cost, huber_t_loss))
-            print('attention for g_t: ', attention_for_gt)
+                    logging.info('d_loss: {}, gen_t_loss: {}, hunber_t_loss: {}'.format (
+                        d_loss, gen_t_cost, huber_t_loss))
+                i += 1
 
             '''evaluation'''
-            sess.run([self.running_precision_vars_initializer, self.running_recall_vars_initializer])
-            # re initialize the metric variables of metric.precision and metric.recall,
-            # to calculate these metric for each epoch
 
-            input_len, input_event_data, target_event_data, input_time_data, target_time_data = read_data.data_iterator(
+            i_e, t_e, i_t, t_t = read_data.data_iterator(
                 self.valid_data,
-                self.event_to_id,
                 self.num_steps,
                 self.length)
 
-            batch_num, e_x_list, e_y_list, t_x_list, t_y_list = read_data.generate_batch(
-                input_len,
+            sample_t = read_data.generate_sample_t(
                 self.batch_size,
-                input_event_data,
-                target_event_data,
-                input_time_data,
-                target_time_data)
+                i_t,
+                t_t)
 
-            _, sample_t_list = read_data.generate_sample_t(
-                input_len,
-                self.batch_size,
-                input_time_data,
-                target_time_data)
+            batch_num = len(list(read_data.generate_batch(self.batch_size, i_e, t_e, i_t, t_t)))
+            logging.info('Evaluation Batch Num {}'.format(batch_num))
 
             sum_iter = 0.0
             sum_deviation = 0.0
             gen_cost_ratio = []
             t_cost_ratio = []
+            i = 0
 
             self.lr = self.learning_rate
 
-            for i in range(batch_num):
+            for e_x, e_y, t_x, t_y in read_data.generate_batch(self.batch_size, i_e, t_e, i_t, t_t):
                 feed_dict = {
-                    self.input_e: e_x_list[i],
-                    self.inputs_t: np.maximum(np.log(t_x_list[i]), 0),
-                    self.target_t: t_y_list[i],
-                    self.targets_e: e_y_list[i],
-                    self.sample_t: np.maximum(np.log(sample_t_list[i]), 0)}
+                    self.input_e: e_x,
+                    self.inputs_t: np.maximum(np.log(t_x), 0),
+                    self.target_t: t_y,
+                    self.targets_e: e_y,
+                    self.sample_t: np.maximum(np.log(sample_t), 0)}
 
                 if i > 0 and i % (batch_num // 10) == 0:
                     self.lr = self.lr * 2. / 3
 
-                _, _, deviation, batch_precision, batch_recall, d_loss, g_loss, gen_e_cost, gen_t_cost, gen_t_cost_1, huber_t_loss = sess.run(
-                    [self.batch_precision_op, self.batch_recall_op, self.deviation, self.batch_precision, self.batch_recall,
-                     self.d_cost, self.g_cost, self.gen_e_cost, self.gen_t_cost, self.gen_t_cost_1, self.huber_t_loss],
-                    feed_dict=feed_dict)
+                deviation, gen_t_cost,  = sess.run(
+                    [self.deviation, self.gen_t_cost],feed_dict=feed_dict)
 
                 sum_iter = sum_iter + 1
                 sum_deviation = sum_deviation + deviation
-                gen_cost_ratio.append(gen_t_cost / gen_e_cost)
-                t_cost_ratio.append(gen_t_cost_1 / huber_t_loss)
 
                 if i % (batch_num // 10) == 0:
-                    print('%d, precision: %f, recall: %f, deviation: %f, d_loss: %f, g_loss: %f, huber_t_loss:%f' % (
+                    logging.info('{} deviation: {},  g_loss: {}'.format (
                         int(i // (batch_num // 10)),
-                        batch_precision,
-                        batch_recall,
-                        sum_deviation / (sum_iter * self.batch_size * self.length),
-                        d_loss,
-                        g_loss,
-                        huber_t_loss))
-            self.alpha = tf.reduce_mean(gen_cost_ratio)
-            self.gamma = tf.reduce_mean(t_cost_ratio)
-            print('alpha: %f, gamma: %f' % (sess.run(self.alpha), sess.run(self.gamma)))
+                        sum_deviation / sum_iter,
+                        gen_t_cost))
+                i += 1
 
         self.save_model(sess, self.logdir, args.iters)
 
@@ -572,39 +413,29 @@ class T_Pred(object):
 
         lr = self.learning_rate
 
-        batch_size = 100
-
-        input_len, input_event_data, target_event_data, input_time_data, target_time_data = read_data.data_iterator(
+        i_e, t_e, i_t, t_t = read_data.data_iterator(
             self.test_data,
-            self.event_to_id,
             self.num_steps,
-            self.length,
-            shuffle=False)
+            self.length)
 
-        batch_num, e_x_list, e_y_list, t_x_list, t_y_list = read_data.generate_batch(
-            input_len,
-            batch_size,
-            input_event_data,
-            target_event_data,
-            input_time_data,
-            target_time_data)
+        sample_t = read_data.generate_sample_t(
+            self.batch_size,
+            i_t,
+            t_t)
 
-        _, sample_t_list = read_data.generate_sample_t(
-            input_len,
-            batch_size,
-            input_time_data,
-            target_time_data)
+        batch_num = len(list(read_data.generate_batch(self.batch_size, i_e, t_e, i_t, t_t)))
+        logging.info('Evaluation Batch Num {}'.format(batch_num))
 
-        f = open(os.path.join(args.logdir, "output_t_gru.txt"), 'w+')
+        f = open(os.path.join(args.logdir, "output_t.txt"), 'w+')
+        i = 0
 
-        for i in range(batch_num):
-            # print(e_y_list[i])
+        for e_x, e_y, t_x, t_y in read_data.generate_batch(self.batch_size, i_e, t_e, i_t, t_t):
             feed_dict = {
-                self.input_e: e_x_list[i],
-                self.inputs_t: np.maximum(np.log(t_x_list[i]), 0),
-                # self.target_t : t_y_list[i],
-                # self.targets_e : e_y_list[i],
-                self.sample_t: np.maximum(np.log(sample_t_list[i]), 0)}
+                # self.input_e: e_x,
+                self.inputs_t: np.maximum(np.log(t_x), 0),
+                self.target_t: t_y,
+                # self.targets_e: e_y,
+                self.sample_t: np.maximum(np.log(sample_t), 0)}
 
             if i > 0 and i % (batch_num // 10) == 0:
                 lr = lr * 2. / 3
@@ -612,20 +443,17 @@ class T_Pred(object):
             # 	[self.correct_pred, self.deviation, self.pred_e, self.pred_t, self.d_cost, self.g_cost,
             # 	self.gen_e_cost, self.gen_t_cost,self.disc_cost_1, self.gradient_penalty],
             # 	feed_dict = feed_dict)
-            pred_e, pred_t, = sess.run([self.pred_e, self.pred_t], feed_dict=feed_dict)
+            pred_t = sess.run(self.pred_t, feed_dict=feed_dict)
 
             # sum_correct_pred = sum_correct_pred + correct_pred
             # sum_iter = sum_iter + 1
             # sum_deviation = sum_deviation + deviation
-            _, pred_e_index = tf.nn.top_k(pred_e, 1, name=None)
-            f.write('pred_e: ' + '\t'.join([str(v) for v in tf.reshape(tf.squeeze(pred_e_index), [-1]).eval()]))
-            f.write('\n')
-            f.write('targ_e: ' + '\t'.join([str(v) for v in np.array(e_y_list[i]).flatten()]))
-            f.write('\n')
             f.write('pred_t: ' + '\t'.join([str(v) for v in tf.exp(pred_t).eval()]))
             f.write('\n')
             f.write('targ_t: ' + '\t'.join([str(v) for v in np.array(t_y_list[i]).flatten()]))
             f.write('\n')
+
+            i += 1
 
         # if i % (iterations // 10) == 0:
         # 	print('%f, precision: %f, deviation: %f' %(
@@ -635,7 +463,7 @@ class T_Pred(object):
 
     def save_model(self, sess, logdir, counter):
         ckpt_file = '%s/model-%d.ckpt' % (logdir, counter)
-        print('Checkpoint: %s' % ckpt_file)
+        logging.info('Checkpoint: {}'.format(ckpt_file))
         self.saver.save(sess, ckpt_file)
 
 
@@ -663,17 +491,15 @@ def main():
     parser.add_argument('--gpu', default=0, type=int)
     parser.add_argument('--eval_only', default=False, action='store_true')
     parser.add_argument('--logdir', default='log/log_kick', type=str)
-    parser.add_argument('--iters', default=25, type=int)
+    parser.add_argument('--iters', default=30, type=int)
     parser.add_argument('--cell_type', default='T_GRUCell', type=str)
     args = parser.parse_args()
 
     assert args.logdir[-1] != '/'
-    event_file = './T-pred-Dataset/RECSYS15_event.txt'
-    time_file = './T-pred-Dataset/RECSYS15_time.txt'
     model_config = get_config(args.mode)
     is_training = args.is_training
     cell_type = args.cell_type
-    print('vocab_size: ' + str(read_data.vocab_size(event_file)))
+    # print('vocab_size: ' + str(read_data.vocab_size(event_file)))
     model = T_Pred(model_config, cell_type, event_file, time_file, is_training)
 
     config = tf.ConfigProto()
@@ -683,6 +509,7 @@ def main():
         if not args.eval_only:
             model.train(sess, args)
         model.eval(sess, args)
+    logging.info('Logging End!')
 
 
 if __name__ == '__main__':
