@@ -15,8 +15,8 @@ import logging
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 '''remember to change the vocab size '''
-event_file = './T-pred-Dataset/lastfm-5k_event.txt'
-time_file = './T-pred-Dataset/lastfm-5k_time.txt'
+event_file = './T-pred-Dataset/lastfm_event_f.txt'
+time_file = './T-pred-Dataset/lastfm_time_f.txt'
 
 FORMAT = "%(asctime)s - [line:%(lineno)s - %(funcName)10s() ] %(message)s"
 DATA_TYPE = event_file.split('/')[-1].split('.')[0]
@@ -57,12 +57,12 @@ class T_Pred(object):
         self.batch_size = config.batch_size
         self.num_steps = config.num_steps
         self.n_head, self.mh_size = 4, 50
-        self.n_g = config.num_gen
+        self.n_g = 3 # config.num_gen
         self.is_training = is_training
         self.keep_prob = config.keep_prob
         self.res_rate = config.res_rate
         self.length = 1 # config.output_length
-        self.vocab_size = 5000 # config.vocab_size
+        self.vocab_size = 1264466 # config.vocab_size
         self.learning_rate = config.learning_rate
         self.lr = config.learning_rate
         self.LAMBDA = config.LAMBDA
@@ -266,7 +266,8 @@ class T_Pred(object):
                 self.length,
                 "G_E.RNN")
             output = tf.reshape(tf.concat(outputs, 1), [-1, self.g_size])
-            output = utils.linear('G_E.Output', self.g_size, self.vocab_size, output)
+            output = utils.linear('G_E.Subsample', self.g_size, self.g_size/self.num_steps, output)
+            output = utils.linear('G_E.Output', self.g_size/self.num_steps, self.vocab_size, output)
             logits = tf.reshape(output, [self.batch_size, self.length, self.vocab_size])
             return logits
 
@@ -462,7 +463,7 @@ class T_Pred(object):
         # use the extracted feature from input events and timestamps to generate the time sequence
 
         # take the prediction of events as input information for t_generators
-        pred_e4t = utils.linear('Generator/pred_e4t.Iutput', self.vocab_size, self.g_size, self.pred_e)
+        pred_e4t = utils.linear('Generator/pred_e4t.Iutput', self.vocab_size, self.g_size/self.num_steps, self.pred_e)
         output_rt = tf.concat([tf.reshape(output_rt, [self.batch_size, -1]),
                                tf.reshape(pred_e4t, [self.batch_size, -1])], -1)
 
@@ -520,6 +521,7 @@ class T_Pred(object):
         logging.info('targets_e shape {}'.format(self.targets_e.get_shape()))
         Metric_k = 10
         logging.info('Metric Base {}'.format(Metric_k))
+        logging.info('Num of Generators {}'.format(self.n_g))
         # MRR@k
         self.batch_precision, self.batch_precision_op = tf.metrics.average_precision_at_k(
             labels=self.targets_e, predictions=self.pred_e, k=Metric_k, name='precision_k')

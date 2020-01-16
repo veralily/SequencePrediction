@@ -2,6 +2,12 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 import math
+from matplotlib.ticker import FormatStrFormatter
+
+
+font1 = {'family' : 'Times New Roman',
+'weight' : 'normal',
+'size'   : 16,}
 
 def plot_realvalue(pred, target):
     x = range(len(pred))
@@ -18,21 +24,32 @@ def plot_realvalue(pred, target):
 
 def plot_distribution(pred, target):
     fig, ax = plt.subplots()
+    fig.set_size_inches(10,8,forward=True)
+    pred = [float(p) for p in pred]
+    target = [float(t) for t in target]
 
-    plt.xlabel('Value of b')
-    plt.ylabel('Probability')
+    plt.xlabel('Value of t',fontdict=font1)
+    plt.ylabel('Probability', fontdict=font1)
     # plt.title(r'Distribution of Modulator b for Predicting Next Attribute on BPIC12')
-    n, bins, patches1 = ax.hist(pred, bins=50, density=True, label='pred', facecolor='lightseagreen',
-                                edgecolor="black")
+    n, bins, patches1 = ax.hist(pred, bins=10, density=True, label='pred', facecolor='lightseagreen',
+                                edgecolor="grey")
     sns.kdeplot(pred, shade=True, color='lightseagreen')
     n, bins, patches2 = ax.hist(target, bins=50, density=True, label='target', facecolor='lightcoral',
                                 edgecolor="black",
                                 alpha=0.75)
     sns.kdeplot(target, shade=True, color='lightcoral')
+
     formatter = FuncFormatter(to_percent)
     plt.gca().yaxis.set_major_formatter(formatter)
 
-    legend = ax.legend(loc='upper center', fontsize='x-large')
+    ax.yaxis.set_major_formatter(FormatStrFormatter('%.3f'))
+
+    # set the font and size for label in aixses
+    plt.tick_params(labelsize=16)
+    labels = ax.get_xticklabels() + ax.get_yticklabels()
+    [label.set_fontname('Times New Roman') for label in labels]
+
+    legend = ax.legend(loc='upper right', prop=font1)
 
     # plt.legend(handles = [ax1, ax2], labels = ['b_e', 'b_a'], fontsize = 'xx-large', loc = 'upper right')
     plt.show()
@@ -81,10 +98,10 @@ def to_percent(y, position):
 
 # style set
 sns.set_palette('deep', desat=.6)
-sns.set_context(rc={'figure.figsize': (8, 5)})
+sns.set_context(rc={'figure.figsize': (8, 4)})
 
-filename = 'output-1011-RECSYS15.txt'
-# filename = 'output-CIKM16-0716.txt'
+# filename = 'output-1011-RECSYS15.txt'
+filename = 'output_t_gru-1013.txt'
 
 with open(filename) as f:
     lines = f.readlines()
@@ -104,7 +121,7 @@ with open(filename) as f:
             content = line.replace('\n', '').split(': ')[1].split('\t')
             target_t = content
             print('Accuracy: %f' % (accuracy(pred_e, target_e)))
-            plot_realvalue(pred_t, target_t)
+            # plot_realvalue(pred_t, target_t)
             plot_distribution(pred_t, target_t)
             # print(pred_t)
             mean_abs_error.append(mae(pred_t, target_t))

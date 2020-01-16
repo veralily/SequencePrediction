@@ -4,7 +4,7 @@ class SmallConfig(object):
   learning_rate = 0.01
   max_grad_norm = 5
   num_layers = 2
-  num_steps = 5
+  num_steps = 20
   num_gen = 3
   output_length = 5
   hidden_size = 200

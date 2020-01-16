@@ -15,8 +15,8 @@ import logging
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 '''remember to change the vocab size '''
-event_file = './T-pred-Dataset/lastfm-1k_event.txt'
-time_file = './T-pred-Dataset/lastfm-1k_time.txt'
+event_file = './T-pred-Dataset/RECSYS15_event.txt'
+time_file = './T-pred-Dataset/RECSYS15_time.txt'
 
 FORMAT = "%(asctime)s - [line:%(lineno)s - %(funcName)10s() ] %(message)s"
 DATA_TYPE = event_file.split('/')[-1].split('.')[0]
@@ -57,12 +57,12 @@ class T_Pred(object):
         self.batch_size = config.batch_size
         self.num_steps = config.num_steps
         self.n_head, self.mh_size = 4, 50
-        self.n_g = config.num_gen
+        self.n_g = 3 # config.num_gen
         self.is_training = is_training
         self.keep_prob = config.keep_prob
         self.res_rate = config.res_rate
-        self.length = 1 # config.output_length
-        self.vocab_size = 1000 # config.vocab_size
+        self.length = 20 # config.output_length
+        self.vocab_size = 52739 # config.vocab_size
         self.learning_rate = config.learning_rate
         self.lr = config.learning_rate
         self.LAMBDA = config.LAMBDA
@@ -520,6 +520,9 @@ class T_Pred(object):
         logging.info('targets_e shape {}'.format(self.targets_e.get_shape()))
         Metric_k = 10
         logging.info('Metric Base {}'.format(Metric_k))
+        logging.info('Num of Generators {}'.format(self.n_g))
+        logging.info('Num steps {}'.format(self.num_steps))
+        logging.info('Num length {}'.format(self.length))
         # MRR@k
         self.batch_precision, self.batch_precision_op = tf.metrics.average_precision_at_k(
             labels=self.targets_e, predictions=self.pred_e, k=Metric_k, name='precision_k')

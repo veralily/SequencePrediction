@@ -1,0 +1,987 @@
+----read words----
+time: 12
+----build words----
+time: 15
+event_dict length: 52741
+vocab_size: 52741
+----read words----
+time: 12
+----build words----
+time: 14
+event_dict length: 52741
+The shape of output from D: 
+(100, 1)
+The shape of output from D: 
+(100, 1)
+pred_e shape: 
+(100, 5, 52800)
+targets_e shape: 
+(100, 5)
+length_traces: 6474804
+[epoch: 0, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 0, 1] precision: 0.006535, recall: 0.026380, deviation: 87.749406
+d_loss: 0.000000, g_loss: 61236.578125, gen_e_loss: 10.514150, gen_t_loss: 61226.062500, hunber_t_loss: 61.227062
+[epoch: 0, 2] precision: 0.007118, recall: 0.029019, deviation: 86.139640
+d_loss: -0.000000, g_loss: 87023.226562, gen_e_loss: 8.913852, gen_t_loss: 87014.312500, hunber_t_loss: 87.015312
+[epoch: 0, 3] precision: 0.007577, recall: 0.030570, deviation: 85.749268
+d_loss: -0.000000, g_loss: 117007.460938, gen_e_loss: 9.054427, gen_t_loss: 116998.406250, hunber_t_loss: 116.999405
+[epoch: 0, 4] precision: 0.008299, recall: 0.033195, deviation: 85.241202
+d_loss: -0.000000, g_loss: 73930.914062, gen_e_loss: 8.036140, gen_t_loss: 73922.875000, hunber_t_loss: 73.923874
+[epoch: 0, 5] precision: 0.009446, recall: 0.036560, deviation: 85.189387
+d_loss: -0.000000, g_loss: 85873.234375, gen_e_loss: 9.986032, gen_t_loss: 85863.250000, hunber_t_loss: 85.864250
+[epoch: 0, 6] precision: 0.010594, recall: 0.040230, deviation: 85.437794
+d_loss: -0.000000, g_loss: 20150.578125, gen_e_loss: 8.083431, gen_t_loss: 20142.494141, hunber_t_loss: 20.143494
+[epoch: 0, 7] precision: 0.011876, recall: 0.044282, deviation: 85.380494
+d_loss: -0.000000, g_loss: 101258.984375, gen_e_loss: 7.971417, gen_t_loss: 101251.015625, hunber_t_loss: 101.252014
+[epoch: 0, 8] precision: 0.013017, recall: 0.047978, deviation: 85.346052
+d_loss: -0.000000, g_loss: 111327.734375, gen_e_loss: 9.573143, gen_t_loss: 111318.164062, hunber_t_loss: 111.319160
+[epoch: 0, 9] precision: 0.013993, recall: 0.051226, deviation: 85.048830
+d_loss: -0.000000, g_loss: 96950.726562, gen_e_loss: 9.614326, gen_t_loss: 96941.109375, hunber_t_loss: 96.942108
+[epoch: 0, 10] precision: 0.014962, recall: 0.054490, deviation: 84.998278
+d_loss: -0.000000, g_loss: 44107.398438, gen_e_loss: 8.956549, gen_t_loss: 44098.441406, hunber_t_loss: 44.099442
+attention for g_t:  [2 2 2 2 2 2 1 1 1 1 1 1 1 1 2 1 1 2 2 1 2 1 2 2 2 2 2 1 1 1 1 1 1 1 2 2 2
+ 1 1 1 1 2 1 1 1 2 2 1 1 2 2 1 2 1 1 2 1 1 1 1 2 2 2 2 2 2 2 2 2 2 1 2 1 1
+ 2 2 2 2 2 2 1 1 1 2 2 2 1 2 1 1 1 1 1 2 1 1 2 1 2 2]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 84.795328, d_loss: -0.000000, g_loss: 84307.828125, huber_t_loss:84.300507
+1, precision: 0.025794, recall: 0.085565, deviation: 82.616182, d_loss: -0.000000, g_loss: 86267.500000, huber_t_loss:86.259041
+2, precision: 0.024059, recall: 0.084881, deviation: 82.877247, d_loss: -0.000000, g_loss: 117638.476562, huber_t_loss:117.630013
+3, precision: 0.024435, recall: 0.085209, deviation: 84.440959, d_loss: -0.000000, g_loss: 96430.929688, huber_t_loss:96.423012
+4, precision: 0.024553, recall: 0.085145, deviation: 84.271221, d_loss: -0.000000, g_loss: 84783.273438, huber_t_loss:84.775414
+5, precision: 0.024546, recall: 0.085395, deviation: 84.599728, d_loss: -0.000000, g_loss: 70773.046875, huber_t_loss:70.764832
+6, precision: 0.024522, recall: 0.085683, deviation: 84.878541, d_loss: -0.000000, g_loss: 118556.359375, huber_t_loss:118.547379
+7, precision: 0.024509, recall: 0.085344, deviation: 84.932305, d_loss: -0.000000, g_loss: 40044.011719, huber_t_loss:40.035385
+8, precision: 0.024397, recall: 0.085052, deviation: 84.863376, d_loss: -0.000000, g_loss: 51292.195312, huber_t_loss:51.285061
+9, precision: 0.024289, recall: 0.084854, deviation: 84.888501, d_loss: -0.000000, g_loss: 109705.906250, huber_t_loss:109.697960
+10, precision: 0.024241, recall: 0.084639, deviation: 84.787926, d_loss: -0.000000, g_loss: 121827.882812, huber_t_loss:121.820656
+alpha: 9423.741211, gamma: -0.014175
+length_traces: 6474804
+[epoch: 1, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 1, 1] precision: 0.024898, recall: 0.089062, deviation: 85.086600
+d_loss: -0.000000, g_loss: 115386.085938, gen_e_loss: 9.404651, gen_t_loss: 115376.679688, hunber_t_loss: 115.377678
+[epoch: 1, 2] precision: 0.025832, recall: 0.092035, deviation: 84.629091
+d_loss: -0.000000, g_loss: 52213.367188, gen_e_loss: 9.258083, gen_t_loss: 52204.109375, hunber_t_loss: 52.205109
+[epoch: 1, 3] precision: 0.026334, recall: 0.093605, deviation: 84.501091
+d_loss: -0.000000, g_loss: 80048.234375, gen_e_loss: 9.437881, gen_t_loss: 80038.796875, hunber_t_loss: 80.039795
+[epoch: 1, 4] precision: 0.027200, recall: 0.095930, deviation: 84.440719
+d_loss: -0.000000, g_loss: 59604.968750, gen_e_loss: 9.129367, gen_t_loss: 59595.839844, hunber_t_loss: 59.596840
+[epoch: 1, 5] precision: 0.028001, recall: 0.098332, deviation: 84.732243
+d_loss: -0.000000, g_loss: 74119.296875, gen_e_loss: 8.768503, gen_t_loss: 74110.531250, hunber_t_loss: 74.111534
+[epoch: 1, 6] precision: 0.028857, recall: 0.100870, deviation: 84.769606
+d_loss: -0.000000, g_loss: 46912.371094, gen_e_loss: 8.049164, gen_t_loss: 46904.320312, hunber_t_loss: 46.905319
+[epoch: 1, 7] precision: 0.029266, recall: 0.102207, deviation: 84.726816
+d_loss: -0.000000, g_loss: 69835.390625, gen_e_loss: 6.525023, gen_t_loss: 69828.867188, hunber_t_loss: 69.829865
+[epoch: 1, 8] precision: 0.029779, recall: 0.103942, deviation: 84.570873
+d_loss: -0.000000, g_loss: 94393.546875, gen_e_loss: 8.542436, gen_t_loss: 94385.007812, hunber_t_loss: 94.386009
+[epoch: 1, 9] precision: 0.030394, recall: 0.105820, deviation: 84.419429
+d_loss: -0.000000, g_loss: 72940.023438, gen_e_loss: 9.041804, gen_t_loss: 72930.984375, hunber_t_loss: 72.931984
+[epoch: 1, 10] precision: 0.031064, recall: 0.107859, deviation: 84.453206
+d_loss: -0.000000, g_loss: 60670.742188, gen_e_loss: 9.534828, gen_t_loss: 60661.207031, hunber_t_loss: 60.662209
+attention for g_t:  [2 0 2 2 2 2 2 2 2 2 2 2 2 1 2 0 2 2 1 2 0 1 2 0 2 1 2 2 2 2 2 2 2 2 2 2 2
+ 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 1 2 1 2 2 2 2 2 2 2 2 2 2 2 2
+ 2 2 2 2 2 2 2 2 2 2 2 2 2 2 0 2 2 2 0 2 2 2 1 2 2 2]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 44.398281, d_loss: -0.000000, g_loss: 43908.597656, huber_t_loss:43.901955
+1, precision: 0.034286, recall: 0.120207, deviation: 82.851782, d_loss: -0.000000, g_loss: 67192.812500, huber_t_loss:67.184784
+2, precision: 0.035870, recall: 0.123483, deviation: 83.523047, d_loss: -0.000000, g_loss: 35481.546875, huber_t_loss:35.474380
+3, precision: 0.036334, recall: 0.124324, deviation: 84.077448, d_loss: -0.000000, g_loss: 103077.007812, huber_t_loss:103.070076
+4, precision: 0.036485, recall: 0.125484, deviation: 83.984839, d_loss: -0.000000, g_loss: 80883.875000, huber_t_loss:80.876450
+5, precision: 0.036984, recall: 0.125418, deviation: 84.838448, d_loss: -0.000000, g_loss: 107732.375000, huber_t_loss:107.725037
+6, precision: 0.037053, recall: 0.125382, deviation: 85.130227, d_loss: -0.000000, g_loss: 61482.386719, huber_t_loss:61.474155
+7, precision: 0.036566, recall: 0.124426, deviation: 84.829769, d_loss: -0.000000, g_loss: 61037.019531, huber_t_loss:61.028965
+8, precision: 0.036712, recall: 0.124961, deviation: 84.765227, d_loss: -0.000000, g_loss: 118381.453125, huber_t_loss:118.373589
+9, precision: 0.036916, recall: 0.125470, deviation: 84.801667, d_loss: -0.000000, g_loss: 88071.515625, huber_t_loss:88.063416
+10, precision: 0.036909, recall: 0.125510, deviation: 84.758301, d_loss: -0.000000, g_loss: 38459.230469, huber_t_loss:38.452366
+alpha: 9734.192383, gamma: -0.014580
+length_traces: 6474804
+[epoch: 2, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 2, 1] precision: 0.036641, recall: 0.125216, deviation: 83.253524
+d_loss: -0.000000, g_loss: 43852.335938, gen_e_loss: 9.736794, gen_t_loss: 43842.597656, hunber_t_loss: 43.843597
+[epoch: 2, 2] precision: 0.036418, recall: 0.126057, deviation: 84.185502
+d_loss: -0.000000, g_loss: 73154.851562, gen_e_loss: 9.573419, gen_t_loss: 73145.281250, hunber_t_loss: 73.146278
+[epoch: 2, 3] precision: 0.036930, recall: 0.127070, deviation: 84.273679
+d_loss: -0.000000, g_loss: 83423.406250, gen_e_loss: 8.793862, gen_t_loss: 83414.609375, hunber_t_loss: 83.415611
+[epoch: 2, 4] precision: 0.037447, recall: 0.127641, deviation: 84.694085
+d_loss: -0.000000, g_loss: 67272.601562, gen_e_loss: 7.757759, gen_t_loss: 67264.843750, hunber_t_loss: 67.265846
+[epoch: 2, 5] precision: 0.037651, recall: 0.128366, deviation: 84.844076
+d_loss: -0.000000, g_loss: 197330.796875, gen_e_loss: 9.385491, gen_t_loss: 197321.406250, hunber_t_loss: 197.322403
+[epoch: 2, 6] precision: 0.038348, recall: 0.129934, deviation: 84.673226
+d_loss: -0.000000, g_loss: 61298.296875, gen_e_loss: 8.525791, gen_t_loss: 61289.769531, hunber_t_loss: 61.290768
+[epoch: 2, 7] precision: 0.038583, recall: 0.130534, deviation: 84.510494
+d_loss: -0.000000, g_loss: 91407.906250, gen_e_loss: 7.812495, gen_t_loss: 91400.093750, hunber_t_loss: 91.401093
+[epoch: 2, 8] precision: 0.038930, recall: 0.131719, deviation: 84.401970
+d_loss: -0.000000, g_loss: 74893.843750, gen_e_loss: 8.790274, gen_t_loss: 74885.054688, hunber_t_loss: 74.886055
+[epoch: 2, 9] precision: 0.039279, recall: 0.132636, deviation: 84.463339
+d_loss: -0.000000, g_loss: 117007.046875, gen_e_loss: 8.525766, gen_t_loss: 116998.523438, hunber_t_loss: 116.999527
+[epoch: 2, 10] precision: 0.039823, recall: 0.133793, deviation: 84.494818
+d_loss: -0.000000, g_loss: 60581.066406, gen_e_loss: 9.018371, gen_t_loss: 60572.046875, hunber_t_loss: 60.573048
+attention for g_t:  [1 0 2 1 2 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 1 2 0 1 1 1 1 1 1 1 1 1 1 1 1 1
+ 1 1 1 1 1 2 1 1 1 2 2 2 0 2 2 2 2 2 1 1 2 2 2 2 1 1 2 1 1 1 0 2 1 1 0 1 2
+ 2 2 2 2 2 0 2 2 2 2 2 2 2 2 2 2 2 1 1 1 1 1 0 1 1 2]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 66.617211, d_loss: -0.000000, g_loss: 66127.507812, huber_t_loss:66.119026
+1, precision: 0.044007, recall: 0.147704, deviation: 88.036118, d_loss: -0.000000, g_loss: 78917.000000, huber_t_loss:78.909325
+2, precision: 0.043791, recall: 0.145910, deviation: 86.244211, d_loss: -0.000000, g_loss: 90564.773438, huber_t_loss:90.557831
+3, precision: 0.044077, recall: 0.144111, deviation: 85.566036, d_loss: -0.000000, g_loss: 63955.460938, huber_t_loss:63.946095
+4, precision: 0.043913, recall: 0.144707, deviation: 85.560369, d_loss: -0.000000, g_loss: 88327.203125, huber_t_loss:88.319962
+5, precision: 0.043455, recall: 0.144049, deviation: 84.840660, d_loss: -0.000000, g_loss: 63002.222656, huber_t_loss:62.995045
+6, precision: 0.043721, recall: 0.144344, deviation: 84.638329, d_loss: -0.000000, g_loss: 60459.546875, huber_t_loss:60.453228
+7, precision: 0.043508, recall: 0.143816, deviation: 84.597116, d_loss: -0.000000, g_loss: 92122.210938, huber_t_loss:92.114128
+8, precision: 0.043202, recall: 0.142965, deviation: 84.700922, d_loss: -0.000000, g_loss: 83391.351562, huber_t_loss:83.384171
+9, precision: 0.043315, recall: 0.143188, deviation: 84.580594, d_loss: -0.000000, g_loss: 78305.109375, huber_t_loss:78.296753
+10, precision: 0.043259, recall: 0.143228, deviation: 84.679475, d_loss: -0.000000, g_loss: 47684.503906, huber_t_loss:47.677261
+alpha: 9816.389648, gamma: -0.014756
+length_traces: 6474804
+[epoch: 3, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 3, 1] precision: 0.044865, recall: 0.144798, deviation: 83.825842
+d_loss: -0.000000, g_loss: 65142.460938, gen_e_loss: 8.466480, gen_t_loss: 65133.996094, hunber_t_loss: 65.134995
+[epoch: 3, 2] precision: 0.044499, recall: 0.144186, deviation: 84.514099
+d_loss: -0.000000, g_loss: 207212.953125, gen_e_loss: 9.760674, gen_t_loss: 207203.187500, hunber_t_loss: 207.204193
+[epoch: 3, 3] precision: 0.044536, recall: 0.145410, deviation: 84.408056
+d_loss: -0.000000, g_loss: 84472.179688, gen_e_loss: 8.347418, gen_t_loss: 84463.835938, hunber_t_loss: 84.464836
+[epoch: 3, 4] precision: 0.044580, recall: 0.146388, deviation: 84.300234
+d_loss: -0.000000, g_loss: 88570.921875, gen_e_loss: 6.922124, gen_t_loss: 88564.000000, hunber_t_loss: 88.565002
+[epoch: 3, 5] precision: 0.044597, recall: 0.146934, deviation: 84.665156
+d_loss: -0.000000, g_loss: 95041.132812, gen_e_loss: 7.882509, gen_t_loss: 95033.250000, hunber_t_loss: 95.034248
+[epoch: 3, 6] precision: 0.044866, recall: 0.147802, deviation: 84.460262
+d_loss: -0.000000, g_loss: 79701.257812, gen_e_loss: 8.108809, gen_t_loss: 79693.148438, hunber_t_loss: 79.694145
+[epoch: 3, 7] precision: 0.044981, recall: 0.148170, deviation: 84.426112
+d_loss: -0.000000, g_loss: 82485.632812, gen_e_loss: 8.435731, gen_t_loss: 82477.195312, hunber_t_loss: 82.478195
+[epoch: 3, 8] precision: 0.045318, recall: 0.149376, deviation: 84.464791
+d_loss: -0.000000, g_loss: 87343.289062, gen_e_loss: 8.742451, gen_t_loss: 87334.546875, hunber_t_loss: 87.335548
+[epoch: 3, 9] precision: 0.045466, recall: 0.150006, deviation: 84.557155
+d_loss: -0.000000, g_loss: 106460.960938, gen_e_loss: 9.162234, gen_t_loss: 106451.796875, hunber_t_loss: 106.452797
+[epoch: 3, 10] precision: 0.045783, recall: 0.150994, deviation: 84.594743
+d_loss: -0.000000, g_loss: 93978.500000, gen_e_loss: 8.470543, gen_t_loss: 93970.031250, hunber_t_loss: 93.971031
+attention for g_t:  [2 2 2 2 2 2 2 2 2 0 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 0 0 0 2 2 2 0 0 0 1 2
+ 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 0 2 2 2 2 2 0 2 2 2 2
+ 2 2 0 2 2 2 2 2 2 2 0 2 2 2 0 2 2 2 2 1 2 2 2 2 2 2]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 153.298609, d_loss: -0.000000, g_loss: 152811.140625, huber_t_loss:152.803345
+1, precision: 0.045709, recall: 0.153898, deviation: 83.823275, d_loss: -0.000000, g_loss: 92337.289062, huber_t_loss:92.328407
+2, precision: 0.046920, recall: 0.156692, deviation: 83.382095, d_loss: -0.000000, g_loss: 41204.179688, huber_t_loss:41.197735
+3, precision: 0.046847, recall: 0.155961, deviation: 83.636300, d_loss: -0.000000, g_loss: 52970.117188, huber_t_loss:52.963173
+4, precision: 0.047044, recall: 0.155730, deviation: 83.540342, d_loss: -0.000000, g_loss: 112135.562500, huber_t_loss:112.128059
+5, precision: 0.047298, recall: 0.156703, deviation: 83.476491, d_loss: -0.000000, g_loss: 71081.351562, huber_t_loss:71.073349
+6, precision: 0.046931, recall: 0.156259, deviation: 83.811808, d_loss: -0.000000, g_loss: 108845.625000, huber_t_loss:108.838631
+7, precision: 0.047039, recall: 0.156335, deviation: 84.060994, d_loss: -0.000000, g_loss: 52829.468750, huber_t_loss:52.824123
+8, precision: 0.047160, recall: 0.155997, deviation: 84.186623, d_loss: -0.000000, g_loss: 61336.808594, huber_t_loss:61.327644
+9, precision: 0.046841, recall: 0.155541, deviation: 84.637542, d_loss: -0.000000, g_loss: 80689.500000, huber_t_loss:80.682701
+10, precision: 0.046898, recall: 0.155731, deviation: 84.696826, d_loss: -0.000000, g_loss: 56387.000000, huber_t_loss:56.379868
+alpha: 9838.937500, gamma: -0.014422
+length_traces: 6474804
+[epoch: 4, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 4, 1] precision: 0.047957, recall: 0.157325, deviation: 84.525325
+d_loss: -0.000000, g_loss: 39915.367188, gen_e_loss: 9.510590, gen_t_loss: 39905.855469, hunber_t_loss: 39.906857
+[epoch: 4, 2] precision: 0.048322, recall: 0.159186, deviation: 83.999173
+d_loss: -0.000000, g_loss: 102447.140625, gen_e_loss: 8.056180, gen_t_loss: 102439.085938, hunber_t_loss: 102.440086
+[epoch: 4, 3] precision: 0.048827, recall: 0.160335, deviation: 83.883025
+d_loss: -0.000000, g_loss: 279690.750000, gen_e_loss: 10.288370, gen_t_loss: 279680.468750, hunber_t_loss: 279.681458
+[epoch: 4, 4] precision: 0.049080, recall: 0.160424, deviation: 83.903430
+d_loss: -0.000000, g_loss: 111580.101562, gen_e_loss: 7.815135, gen_t_loss: 111572.289062, hunber_t_loss: 111.573288
+[epoch: 4, 5] precision: 0.049414, recall: 0.160908, deviation: 83.779677
+d_loss: -0.000000, g_loss: 29886.509766, gen_e_loss: 8.740783, gen_t_loss: 29877.769531, hunber_t_loss: 29.878769
+[epoch: 4, 6] precision: 0.049332, recall: 0.161057, deviation: 83.809267
+d_loss: -0.000000, g_loss: 83545.609375, gen_e_loss: 9.597036, gen_t_loss: 83536.015625, hunber_t_loss: 83.537018
+[epoch: 4, 7] precision: 0.049336, recall: 0.160910, deviation: 84.229680
+d_loss: -0.000000, g_loss: 164115.484375, gen_e_loss: 9.104549, gen_t_loss: 164106.375000, hunber_t_loss: 164.107376
+[epoch: 4, 8] precision: 0.049212, recall: 0.160910, deviation: 84.268779
+d_loss: -0.000000, g_loss: 52154.515625, gen_e_loss: 7.984318, gen_t_loss: 52146.531250, hunber_t_loss: 52.147530
+[epoch: 4, 9] precision: 0.049191, recall: 0.161407, deviation: 84.302009
+d_loss: -0.000000, g_loss: 76353.843750, gen_e_loss: 8.969650, gen_t_loss: 76344.875000, hunber_t_loss: 76.345879
+[epoch: 4, 10] precision: 0.049351, recall: 0.161758, deviation: 84.349398
+d_loss: -0.000000, g_loss: 58209.800781, gen_e_loss: 8.289133, gen_t_loss: 58201.511719, hunber_t_loss: 58.202511
+attention for g_t:  [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 0 2 2 2 2 2 2 2 2 0 2 2 2 2 2 0 0 0 0 0
+ 2 1 1 0 2 2 2 2 2 0 2 2 0 2 1 1 1 1 1 0 0 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+ 2 2 2 2 2 2 2 2 2 0 2 2 2 2 2 2 2 2 0 0 2 0 0 2 0 2]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 86.759680, d_loss: -0.000000, g_loss: 86272.812500, huber_t_loss:86.264725
+1, precision: 0.047462, recall: 0.163514, deviation: 83.802587, d_loss: -0.000000, g_loss: 92613.335938, huber_t_loss:92.605980
+2, precision: 0.049279, recall: 0.166861, deviation: 84.269321, d_loss: -0.000000, g_loss: 84787.414062, huber_t_loss:84.779755
+3, precision: 0.049519, recall: 0.166363, deviation: 84.400774, d_loss: -0.000000, g_loss: 54022.996094, huber_t_loss:54.016350
+4, precision: 0.049568, recall: 0.166373, deviation: 84.141556, d_loss: -0.000000, g_loss: 78696.687500, huber_t_loss:78.688698
+5, precision: 0.049650, recall: 0.165227, deviation: 84.514863, d_loss: -0.000000, g_loss: 66870.937500, huber_t_loss:66.863670
+6, precision: 0.050130, recall: 0.165707, deviation: 84.323514, d_loss: -0.000000, g_loss: 94818.421875, huber_t_loss:94.811424
+7, precision: 0.049867, recall: 0.165200, deviation: 84.304608, d_loss: -0.000000, g_loss: 127166.554688, huber_t_loss:127.158081
+8, precision: 0.049972, recall: 0.164903, deviation: 84.577931, d_loss: -0.000000, g_loss: 125153.039062, huber_t_loss:125.144302
+9, precision: 0.050280, recall: 0.164739, deviation: 84.604687, d_loss: -0.000000, g_loss: 86349.054688, huber_t_loss:86.340469
+10, precision: 0.050215, recall: 0.164735, deviation: 84.522202, d_loss: -0.000000, g_loss: 103810.046875, huber_t_loss:103.802185
+alpha: 9971.066406, gamma: -0.014424
+length_traces: 6474804
+[epoch: 5, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 5, 1] precision: 0.052314, recall: 0.169727, deviation: 84.833561
+d_loss: -0.000000, g_loss: 82393.914062, gen_e_loss: 7.847540, gen_t_loss: 82386.070312, hunber_t_loss: 82.387070
+[epoch: 5, 2] precision: 0.051683, recall: 0.169440, deviation: 85.122189
+d_loss: -0.000000, g_loss: 114166.203125, gen_e_loss: 8.681615, gen_t_loss: 114157.523438, hunber_t_loss: 114.158524
+[epoch: 5, 3] precision: 0.051953, recall: 0.169240, deviation: 84.933267
+d_loss: -0.000000, g_loss: 92151.062500, gen_e_loss: 7.506925, gen_t_loss: 92143.554688, hunber_t_loss: 92.144554
+[epoch: 5, 4] precision: 0.051588, recall: 0.168584, deviation: 84.665318
+d_loss: -0.000000, g_loss: 76836.398438, gen_e_loss: 8.063289, gen_t_loss: 76828.335938, hunber_t_loss: 76.829338
+[epoch: 5, 5] precision: 0.051800, recall: 0.169569, deviation: 84.293388
+d_loss: -0.000000, g_loss: 75652.117188, gen_e_loss: 8.269952, gen_t_loss: 75643.843750, hunber_t_loss: 75.644844
+[epoch: 5, 6] precision: 0.051669, recall: 0.169507, deviation: 84.350569
+d_loss: -0.000000, g_loss: 48497.972656, gen_e_loss: 9.265629, gen_t_loss: 48488.707031, hunber_t_loss: 48.489708
+[epoch: 5, 7] precision: 0.051842, recall: 0.170191, deviation: 84.304980
+d_loss: -0.000000, g_loss: 133632.718750, gen_e_loss: 8.653779, gen_t_loss: 133624.062500, hunber_t_loss: 133.625061
+[epoch: 5, 8] precision: 0.051953, recall: 0.170860, deviation: 84.536994
+d_loss: -0.000000, g_loss: 120243.054688, gen_e_loss: 9.096802, gen_t_loss: 120233.960938, hunber_t_loss: 120.234962
+[epoch: 5, 9] precision: 0.052088, recall: 0.171195, deviation: 84.475118
+d_loss: -0.000000, g_loss: 96124.375000, gen_e_loss: 8.970355, gen_t_loss: 96115.406250, hunber_t_loss: 96.116409
+[epoch: 5, 10] precision: 0.051978, recall: 0.171186, deviation: 84.544407
+d_loss: -0.000000, g_loss: 92025.835938, gen_e_loss: 8.968706, gen_t_loss: 92016.867188, hunber_t_loss: 92.017868
+attention for g_t:  [2 2 1 0 2 1 2 2 0 2 2 2 2 2 2 2 2 2 2 2 2 2 0 1 2 2 2 2 2 2 2 2 2 2 2 2 2
+ 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 0 2 2 2 2 2 2 2 0 2 1 2 2 2 2 2 2 0 2 0
+ 2 2 2 2 2 0 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 125.948469, d_loss: -0.000000, g_loss: 125462.773438, huber_t_loss:125.454071
+1, precision: 0.053841, recall: 0.177361, deviation: 83.912447, d_loss: -0.000000, g_loss: 68535.343750, huber_t_loss:68.527992
+2, precision: 0.053270, recall: 0.176337, deviation: 84.323630, d_loss: -0.000000, g_loss: 76480.179688, huber_t_loss:76.473503
+3, precision: 0.052618, recall: 0.174071, deviation: 84.635080, d_loss: -0.000000, g_loss: 90838.914062, huber_t_loss:90.831215
+4, precision: 0.052222, recall: 0.172548, deviation: 84.845561, d_loss: -0.000000, g_loss: 113846.687500, huber_t_loss:113.838707
+5, precision: 0.051671, recall: 0.171419, deviation: 84.949822, d_loss: -0.000000, g_loss: 94926.156250, huber_t_loss:94.918335
+6, precision: 0.051511, recall: 0.171397, deviation: 84.737175, d_loss: -0.000000, g_loss: 47432.234375, huber_t_loss:47.424088
+7, precision: 0.051680, recall: 0.171932, deviation: 84.743279, d_loss: -0.000000, g_loss: 61118.523438, huber_t_loss:61.112579
+8, precision: 0.051562, recall: 0.172090, deviation: 84.952053, d_loss: -0.000000, g_loss: 45515.355469, huber_t_loss:45.508389
+9, precision: 0.051597, recall: 0.171858, deviation: 84.774077, d_loss: -0.000000, g_loss: 60223.976562, huber_t_loss:60.216148
+10, precision: 0.051607, recall: 0.171915, deviation: 84.661682, d_loss: -0.000000, g_loss: 36620.593750, huber_t_loss:36.612576
+alpha: 10019.793945, gamma: -0.014457
+length_traces: 6474804
+[epoch: 6, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 6, 1] precision: 0.053875, recall: 0.179497, deviation: 84.618155
+d_loss: -0.000000, g_loss: 112962.671875, gen_e_loss: 9.486934, gen_t_loss: 112953.187500, hunber_t_loss: 112.954185
+[epoch: 6, 2] precision: 0.053590, recall: 0.178419, deviation: 84.140925
+d_loss: -0.000000, g_loss: 57368.402344, gen_e_loss: 8.079368, gen_t_loss: 57360.324219, hunber_t_loss: 57.361324
+[epoch: 6, 3] precision: 0.053478, recall: 0.177621, deviation: 84.319339
+d_loss: -0.000000, g_loss: 38705.832031, gen_e_loss: 8.333383, gen_t_loss: 38697.500000, hunber_t_loss: 38.698502
+[epoch: 6, 4] precision: 0.053543, recall: 0.178187, deviation: 84.960803
+d_loss: -0.000000, g_loss: 75058.250000, gen_e_loss: 9.205448, gen_t_loss: 75049.046875, hunber_t_loss: 75.050049
+[epoch: 6, 5] precision: 0.053350, recall: 0.177978, deviation: 84.524272
+d_loss: -0.000000, g_loss: 60514.687500, gen_e_loss: 7.974025, gen_t_loss: 60506.714844, hunber_t_loss: 60.507713
+[epoch: 6, 6] precision: 0.053376, recall: 0.178204, deviation: 84.634203
+d_loss: -0.000000, g_loss: 111571.726562, gen_e_loss: 8.521230, gen_t_loss: 111563.203125, hunber_t_loss: 111.564201
+[epoch: 6, 7] precision: 0.053619, recall: 0.178995, deviation: 84.648748
+d_loss: -0.000000, g_loss: 73769.898438, gen_e_loss: 7.879108, gen_t_loss: 73762.015625, hunber_t_loss: 73.763016
+[epoch: 6, 8] precision: 0.053479, recall: 0.179005, deviation: 84.392083
+d_loss: -0.000000, g_loss: 57696.960938, gen_e_loss: 8.014350, gen_t_loss: 57688.945312, hunber_t_loss: 57.689945
+[epoch: 6, 9] precision: 0.053492, recall: 0.179123, deviation: 84.404190
+d_loss: -0.000000, g_loss: 92378.953125, gen_e_loss: 9.401329, gen_t_loss: 92369.554688, hunber_t_loss: 92.370552
+[epoch: 6, 10] precision: 0.053967, recall: 0.180338, deviation: 84.442821
+d_loss: -0.000000, g_loss: 65319.773438, gen_e_loss: 7.792733, gen_t_loss: 65311.980469, hunber_t_loss: 65.312981
+attention for g_t:  [0 0 0 0 0 2 2 2 1 1 1 0 1 2 2 1 2 1 1 2 2 2 2 2 2 2 2 2 2 2 2 1 2 0 1 0 0
+ 0 0 0 0 0 0 0 1 1 0 0 0 0 0 1 0 0 1 0 0 0 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+ 1 2 2 2 2 2 2 2 1 1 2 2 2 2 2 2 2 1 1 0 0 0 0 0 0 1]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 80.647469, d_loss: -0.000000, g_loss: 80158.203125, huber_t_loss:80.151932
+1, precision: 0.054041, recall: 0.185636, deviation: 83.687214, d_loss: -0.000000, g_loss: 35421.535156, huber_t_loss:35.414330
+2, precision: 0.056451, recall: 0.188306, deviation: 85.379394, d_loss: -0.000000, g_loss: 123359.210938, huber_t_loss:123.351677
+3, precision: 0.055746, recall: 0.186980, deviation: 85.335882, d_loss: -0.000000, g_loss: 58447.023438, huber_t_loss:58.439503
+4, precision: 0.055665, recall: 0.186129, deviation: 84.674323, d_loss: -0.000000, g_loss: 65934.367188, huber_t_loss:65.928215
+5, precision: 0.055342, recall: 0.185235, deviation: 84.814214, d_loss: -0.000000, g_loss: 68647.765625, huber_t_loss:68.639412
+6, precision: 0.054870, recall: 0.184793, deviation: 84.512656, d_loss: -0.000000, g_loss: 140848.046875, huber_t_loss:140.840439
+7, precision: 0.054718, recall: 0.184108, deviation: 84.379769, d_loss: -0.000000, g_loss: 255084.609375, huber_t_loss:255.076920
+8, precision: 0.054782, recall: 0.184417, deviation: 84.453977, d_loss: -0.000000, g_loss: 86504.984375, huber_t_loss:86.497246
+9, precision: 0.054701, recall: 0.184017, deviation: 84.634477, d_loss: -0.000000, g_loss: 116493.414062, huber_t_loss:116.486618
+10, precision: 0.055050, recall: 0.185010, deviation: 84.711741, d_loss: -0.000000, g_loss: 131916.250000, huber_t_loss:131.909409
+alpha: 10216.068359, gamma: -0.014461
+length_traces: 6474804
+[epoch: 7, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 7, 1] precision: 0.055512, recall: 0.185074, deviation: 86.286493
+d_loss: -0.000000, g_loss: 103159.898438, gen_e_loss: 8.737204, gen_t_loss: 103151.164062, hunber_t_loss: 103.152161
+[epoch: 7, 2] precision: 0.056077, recall: 0.187578, deviation: 85.315087
+d_loss: -0.000000, g_loss: 55522.136719, gen_e_loss: 7.206188, gen_t_loss: 55514.929688, hunber_t_loss: 55.515930
+[epoch: 7, 3] precision: 0.056055, recall: 0.188139, deviation: 85.259705
+d_loss: -0.000000, g_loss: 78800.875000, gen_e_loss: 7.637945, gen_t_loss: 78793.234375, hunber_t_loss: 78.794235
+[epoch: 7, 4] precision: 0.056033, recall: 0.188450, deviation: 84.601787
+d_loss: -0.000000, g_loss: 62047.625000, gen_e_loss: 8.102590, gen_t_loss: 62039.523438, hunber_t_loss: 62.040524
+[epoch: 7, 5] precision: 0.055868, recall: 0.188067, deviation: 84.665539
+d_loss: -0.000000, g_loss: 50282.425781, gen_e_loss: 8.097616, gen_t_loss: 50274.328125, hunber_t_loss: 50.275330
+[epoch: 7, 6] precision: 0.056137, recall: 0.188385, deviation: 84.440339
+d_loss: -0.000000, g_loss: 197748.468750, gen_e_loss: 8.899543, gen_t_loss: 197739.562500, hunber_t_loss: 197.740570
+[epoch: 7, 7] precision: 0.056112, recall: 0.188471, deviation: 84.296723
+d_loss: -0.000000, g_loss: 53654.191406, gen_e_loss: 8.749930, gen_t_loss: 53645.441406, hunber_t_loss: 53.646442
+[epoch: 7, 8] precision: 0.055919, recall: 0.188328, deviation: 84.520377
+d_loss: -0.000000, g_loss: 100335.093750, gen_e_loss: 9.112142, gen_t_loss: 100325.984375, hunber_t_loss: 100.326981
+[epoch: 7, 9] precision: 0.055824, recall: 0.187991, deviation: 84.489938
+d_loss: -0.000000, g_loss: 78519.718750, gen_e_loss: 9.078107, gen_t_loss: 78510.640625, hunber_t_loss: 78.511642
+[epoch: 7, 10] precision: 0.055802, recall: 0.188066, deviation: 84.515119
+d_loss: -0.000000, g_loss: 74985.046875, gen_e_loss: 9.260053, gen_t_loss: 74975.789062, hunber_t_loss: 74.976791
+attention for g_t:  [2 2 0 0 0 0 0 0 0 1 1 0 2 0 0 0 0 0 0 0 0 2 1 1 2 0 2 0 0 0 2 2 2 2 2 0 2
+ 2 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 2 0 2 2 2 2 2 2 2 1 1 0 0 0 0 0 2 0 2 2
+ 2 0 0 2 2 2 2 0 0 0 0 0 0 0 0 0 1 0 0 1 0 1 1 0 1 1]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 89.043750, d_loss: -0.000000, g_loss: 88553.265625, huber_t_loss:88.545776
+1, precision: 0.055343, recall: 0.188381, deviation: 82.596702, d_loss: -0.000000, g_loss: 65381.726562, huber_t_loss:65.375328
+2, precision: 0.057027, recall: 0.188961, deviation: 84.475818, d_loss: -0.000000, g_loss: 128066.257812, huber_t_loss:128.057831
+3, precision: 0.056509, recall: 0.188425, deviation: 85.250783, d_loss: -0.000000, g_loss: 72569.773438, huber_t_loss:72.562355
+4, precision: 0.055948, recall: 0.187256, deviation: 85.168537, d_loss: -0.000000, g_loss: 93780.445312, huber_t_loss:93.773277
+5, precision: 0.056427, recall: 0.189555, deviation: 85.577010, d_loss: -0.000000, g_loss: 106394.992188, huber_t_loss:106.387619
+6, precision: 0.056134, recall: 0.189389, deviation: 85.406054, d_loss: -0.000000, g_loss: 92947.164062, huber_t_loss:92.941208
+7, precision: 0.055669, recall: 0.188510, deviation: 85.332268, d_loss: -0.000000, g_loss: 68552.070312, huber_t_loss:68.541985
+8, precision: 0.055474, recall: 0.188043, deviation: 85.271405, d_loss: -0.000000, g_loss: 131493.296875, huber_t_loss:131.487274
+9, precision: 0.055281, recall: 0.187958, deviation: 84.899635, d_loss: -0.000000, g_loss: 81678.359375, huber_t_loss:81.669777
+10, precision: 0.055103, recall: 0.187646, deviation: 84.824291, d_loss: -0.000000, g_loss: 59116.972656, huber_t_loss:59.109390
+alpha: 10313.735352, gamma: -0.014518
+length_traces: 6474804
+[epoch: 8, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 8, 1] precision: 0.057659, recall: 0.194151, deviation: 83.546390
+d_loss: -0.000000, g_loss: 98083.898438, gen_e_loss: 6.567571, gen_t_loss: 98077.328125, hunber_t_loss: 98.078331
+[epoch: 8, 2] precision: 0.056535, recall: 0.191481, deviation: 84.606152
+d_loss: -0.000000, g_loss: 90069.781250, gen_e_loss: 8.733779, gen_t_loss: 90061.046875, hunber_t_loss: 90.062050
+[epoch: 8, 3] precision: 0.056529, recall: 0.191564, deviation: 84.952338
+d_loss: -0.000000, g_loss: 70673.835938, gen_e_loss: 7.991999, gen_t_loss: 70665.843750, hunber_t_loss: 70.666847
+[epoch: 8, 4] precision: 0.057142, recall: 0.192224, deviation: 84.362491
+d_loss: -0.000000, g_loss: 94101.875000, gen_e_loss: 8.347420, gen_t_loss: 94093.531250, hunber_t_loss: 94.094528
+[epoch: 8, 5] precision: 0.056969, recall: 0.191887, deviation: 84.376485
+d_loss: -0.000000, g_loss: 54504.281250, gen_e_loss: 8.561379, gen_t_loss: 54495.718750, hunber_t_loss: 54.496719
+[epoch: 8, 6] precision: 0.056987, recall: 0.191867, deviation: 84.426380
+d_loss: -0.000000, g_loss: 41775.332031, gen_e_loss: 8.252435, gen_t_loss: 41767.078125, hunber_t_loss: 41.768078
+[epoch: 8, 7] precision: 0.056946, recall: 0.191878, deviation: 84.518841
+d_loss: -0.000000, g_loss: 44175.921875, gen_e_loss: 8.798653, gen_t_loss: 44167.125000, hunber_t_loss: 44.168125
+[epoch: 8, 8] precision: 0.056655, recall: 0.191192, deviation: 84.519727
+d_loss: -0.000000, g_loss: 90785.507812, gen_e_loss: 7.973083, gen_t_loss: 90777.531250, hunber_t_loss: 90.778534
+[epoch: 8, 9] precision: 0.056561, recall: 0.190961, deviation: 84.497819
+d_loss: -0.000000, g_loss: 57160.738281, gen_e_loss: 7.574822, gen_t_loss: 57153.164062, hunber_t_loss: 57.154163
+[epoch: 8, 10] precision: 0.056253, recall: 0.190400, deviation: 84.396193
+d_loss: -0.000000, g_loss: 116153.820312, gen_e_loss: 8.135541, gen_t_loss: 116145.687500, hunber_t_loss: 116.146690
+attention for g_t:  [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+ 2 2 1 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+ 2 2 2 2 2 2 2 2 2 2 2 2 2 1 2 2 2 2 2 2 2 2 2 2 2 2]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 98.385711, d_loss: -0.000000, g_loss: 97896.718750, huber_t_loss:97.888191
+1, precision: 0.056103, recall: 0.192201, deviation: 85.792974, d_loss: -0.000000, g_loss: 78459.273438, huber_t_loss:78.451660
+2, precision: 0.054908, recall: 0.188575, deviation: 85.239403, d_loss: -0.000000, g_loss: 59668.355469, huber_t_loss:59.659832
+3, precision: 0.055153, recall: 0.188259, deviation: 85.212599, d_loss: -0.000000, g_loss: 145791.140625, huber_t_loss:145.784042
+4, precision: 0.056774, recall: 0.191616, deviation: 85.394568, d_loss: -0.000000, g_loss: 81883.812500, huber_t_loss:81.875496
+5, precision: 0.055997, recall: 0.190565, deviation: 85.167079, d_loss: -0.000000, g_loss: 59621.269531, huber_t_loss:59.615181
+6, precision: 0.056033, recall: 0.190451, deviation: 85.227457, d_loss: -0.000000, g_loss: 66839.500000, huber_t_loss:66.831909
+7, precision: 0.056219, recall: 0.191106, deviation: 85.125501, d_loss: -0.000000, g_loss: 60827.949219, huber_t_loss:60.821102
+8, precision: 0.056172, recall: 0.191264, deviation: 84.979873, d_loss: -0.000000, g_loss: 85217.382812, huber_t_loss:85.210121
+9, precision: 0.055895, recall: 0.190729, deviation: 84.913639, d_loss: -0.000000, g_loss: 95499.117188, huber_t_loss:95.490082
+10, precision: 0.056158, recall: 0.191628, deviation: 84.886191, d_loss: -0.000000, g_loss: 91753.609375, huber_t_loss:91.747261
+alpha: 10353.822266, gamma: -0.014315
+length_traces: 6474804
+[epoch: 9, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 9, 1] precision: 0.055948, recall: 0.194019, deviation: 82.424004
+d_loss: -0.000000, g_loss: 92842.148438, gen_e_loss: 8.148636, gen_t_loss: 92834.000000, hunber_t_loss: 92.834999
+[epoch: 9, 2] precision: 0.057832, recall: 0.197735, deviation: 83.952631
+d_loss: -0.000000, g_loss: 104082.687500, gen_e_loss: 6.829229, gen_t_loss: 104075.859375, hunber_t_loss: 104.076859
+[epoch: 9, 3] precision: 0.057332, recall: 0.195132, deviation: 84.601994
+d_loss: -0.000000, g_loss: 85393.867188, gen_e_loss: 8.170979, gen_t_loss: 85385.695312, hunber_t_loss: 85.386696
+[epoch: 9, 4] precision: 0.057413, recall: 0.194833, deviation: 84.481292
+d_loss: -0.000000, g_loss: 62726.199219, gen_e_loss: 7.482032, gen_t_loss: 62718.718750, hunber_t_loss: 62.719719
+[epoch: 9, 5] precision: 0.057666, recall: 0.195393, deviation: 84.435426
+d_loss: -0.000000, g_loss: 55314.949219, gen_e_loss: 8.033760, gen_t_loss: 55306.914062, hunber_t_loss: 55.307915
+[epoch: 9, 6] precision: 0.057551, recall: 0.195443, deviation: 84.534386
+d_loss: -0.000000, g_loss: 75102.507812, gen_e_loss: 7.109438, gen_t_loss: 75095.398438, hunber_t_loss: 75.096397
+[epoch: 9, 7] precision: 0.057436, recall: 0.194958, deviation: 84.508794
+d_loss: -0.000000, g_loss: 36251.929688, gen_e_loss: 7.751257, gen_t_loss: 36244.179688, hunber_t_loss: 36.245178
+[epoch: 9, 8] precision: 0.057247, recall: 0.194673, deviation: 84.444888
+d_loss: -0.000000, g_loss: 80416.789062, gen_e_loss: 8.385992, gen_t_loss: 80408.406250, hunber_t_loss: 80.409409
+[epoch: 9, 9] precision: 0.057358, recall: 0.195046, deviation: 84.254562
+d_loss: -0.000000, g_loss: 69303.039062, gen_e_loss: 8.022344, gen_t_loss: 69295.015625, hunber_t_loss: 69.296013
+[epoch: 9, 10] precision: 0.057403, recall: 0.195026, deviation: 84.405299
+d_loss: -0.000000, g_loss: 61256.722656, gen_e_loss: 9.820035, gen_t_loss: 61246.902344, hunber_t_loss: 61.247902
+attention for g_t:  [2 0 2 2 2 2 2 2 0 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+ 2 2 0 2 2 2 1 2 1 1 1 1 1 2 1 2 1 1 2 0 2 0 0 0 0 2 2 2 2 2 2 2 2 0 2 0 0
+ 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 0 1 1 1 1 1 2]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 132.007844, d_loss: -0.000000, g_loss: 131516.625000, huber_t_loss:131.509018
+1, precision: 0.057151, recall: 0.191265, deviation: 84.313001, d_loss: -0.000000, g_loss: 83289.656250, huber_t_loss:83.281601
+2, precision: 0.056460, recall: 0.192650, deviation: 83.533264, d_loss: -0.000000, g_loss: 73601.890625, huber_t_loss:73.593796
+3, precision: 0.057188, recall: 0.193314, deviation: 84.091210, d_loss: -0.000000, g_loss: 84260.632812, huber_t_loss:84.253387
+4, precision: 0.057366, recall: 0.194087, deviation: 84.203126, d_loss: -0.000000, g_loss: 66686.687500, huber_t_loss:66.679245
+5, precision: 0.057518, recall: 0.193825, deviation: 84.520330, d_loss: -0.000000, g_loss: 179870.984375, huber_t_loss:179.865341
+6, precision: 0.057508, recall: 0.193896, deviation: 84.701223, d_loss: -0.000000, g_loss: 77728.914062, huber_t_loss:77.720932
+7, precision: 0.057279, recall: 0.193284, deviation: 84.698760, d_loss: -0.000000, g_loss: 86606.484375, huber_t_loss:86.600082
+8, precision: 0.057170, recall: 0.192670, deviation: 84.435858, d_loss: -0.000000, g_loss: 60362.656250, huber_t_loss:60.355759
+9, precision: 0.057613, recall: 0.193090, deviation: 84.778383, d_loss: -0.000000, g_loss: 108508.515625, huber_t_loss:108.500664
+10, precision: 0.057477, recall: 0.192992, deviation: 84.571403, d_loss: -0.000000, g_loss: 163039.828125, huber_t_loss:163.033554
+alpha: 10375.492188, gamma: -0.014377
+length_traces: 6474804
+[epoch: 10, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 10, 1] precision: 0.058521, recall: 0.200958, deviation: 84.235001
+d_loss: -0.000000, g_loss: 130526.125000, gen_e_loss: 7.286700, gen_t_loss: 130518.835938, hunber_t_loss: 130.519836
+[epoch: 10, 2] precision: 0.058121, recall: 0.199223, deviation: 83.923831
+d_loss: -0.000000, g_loss: 61625.589844, gen_e_loss: 8.269943, gen_t_loss: 61617.320312, hunber_t_loss: 61.618320
+[epoch: 10, 3] precision: 0.057930, recall: 0.198696, deviation: 84.090020
+d_loss: -0.000000, g_loss: 73388.187500, gen_e_loss: 8.195700, gen_t_loss: 73379.992188, hunber_t_loss: 73.380989
+[epoch: 10, 4] precision: 0.058044, recall: 0.198144, deviation: 84.337512
+d_loss: -0.000000, g_loss: 75928.546875, gen_e_loss: 7.213617, gen_t_loss: 75921.335938, hunber_t_loss: 75.922333
+[epoch: 10, 5] precision: 0.058394, recall: 0.198364, deviation: 84.623766
+d_loss: -0.000000, g_loss: 106659.460938, gen_e_loss: 9.359195, gen_t_loss: 106650.101562, hunber_t_loss: 106.651100
+[epoch: 10, 6] precision: 0.058236, recall: 0.198308, deviation: 84.222400
+d_loss: -0.000000, g_loss: 141929.265625, gen_e_loss: 8.857137, gen_t_loss: 141920.406250, hunber_t_loss: 141.921402
+[epoch: 10, 7] precision: 0.057827, recall: 0.197200, deviation: 84.303515
+d_loss: -0.000000, g_loss: 68074.382812, gen_e_loss: 8.577431, gen_t_loss: 68065.804688, hunber_t_loss: 68.066803
+[epoch: 10, 8] precision: 0.057330, recall: 0.195812, deviation: 84.274068
+d_loss: -0.000000, g_loss: 96797.539062, gen_e_loss: 8.897840, gen_t_loss: 96788.640625, hunber_t_loss: 96.789642
+[epoch: 10, 9] precision: 0.057153, recall: 0.195204, deviation: 84.311095
+d_loss: -0.000000, g_loss: 105541.781250, gen_e_loss: 9.955297, gen_t_loss: 105531.828125, hunber_t_loss: 105.532829
+[epoch: 10, 10] precision: 0.056821, recall: 0.194151, deviation: 84.290143
+d_loss: -0.000000, g_loss: 41896.035156, gen_e_loss: 8.383771, gen_t_loss: 41887.652344, hunber_t_loss: 41.888653
+attention for g_t:  [2 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 2 0 0
+ 0 0 0 0 2 0 2 0 2 0 1 0 1 2 1 1 1 1 2 0 2 0 2 0 1 2 2 2 2 0 1 2 1 0 2 0 2
+ 2 0 0 0 0 0 2 2 2 2 0 0 0 2 2 1 1 0 1 1 1 1 1 1 1 2]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 102.309273, d_loss: -0.000000, g_loss: 101821.968750, huber_t_loss:101.814568
+1, precision: 0.056337, recall: 0.189707, deviation: 85.040987, d_loss: -0.000000, g_loss: 53900.652344, huber_t_loss:53.892868
+2, precision: 0.054540, recall: 0.186821, deviation: 85.258469, d_loss: -0.000000, g_loss: 46535.117188, huber_t_loss:46.528587
+3, precision: 0.053911, recall: 0.185939, deviation: 85.257034, d_loss: -0.000000, g_loss: 130559.648438, huber_t_loss:130.551804
+4, precision: 0.053963, recall: 0.186944, deviation: 84.895942, d_loss: -0.000000, g_loss: 79613.609375, huber_t_loss:79.605186
+5, precision: 0.054471, recall: 0.187931, deviation: 85.290702, d_loss: -0.000000, g_loss: 100489.718750, huber_t_loss:100.481544
+6, precision: 0.054562, recall: 0.188644, deviation: 84.998880, d_loss: -0.000000, g_loss: 60888.316406, huber_t_loss:60.881924
+7, precision: 0.054894, recall: 0.189475, deviation: 85.229121, d_loss: -0.000000, g_loss: 104619.929688, huber_t_loss:104.612938
+8, precision: 0.054721, recall: 0.189045, deviation: 85.089502, d_loss: -0.000000, g_loss: 74396.484375, huber_t_loss:74.390068
+9, precision: 0.054504, recall: 0.188762, deviation: 84.843166, d_loss: -0.000000, g_loss: 127047.257812, huber_t_loss:127.040070
+10, precision: 0.054524, recall: 0.188805, deviation: 84.905895, d_loss: -0.000000, g_loss: 31491.164062, huber_t_loss:31.481333
+alpha: 10383.239258, gamma: -0.014462
+length_traces: 6474804
+[epoch: 11, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 11, 1] precision: 0.058544, recall: 0.199914, deviation: 84.888085
+d_loss: -0.000000, g_loss: 95773.453125, gen_e_loss: 8.389231, gen_t_loss: 95765.062500, hunber_t_loss: 95.766060
+[epoch: 11, 2] precision: 0.057963, recall: 0.196884, deviation: 84.442276
+d_loss: -0.000000, g_loss: 84611.453125, gen_e_loss: 8.113975, gen_t_loss: 84603.335938, hunber_t_loss: 84.604340
+[epoch: 11, 3] precision: 0.056858, recall: 0.193472, deviation: 84.088999
+d_loss: -0.000000, g_loss: 44019.109375, gen_e_loss: 9.139990, gen_t_loss: 44009.968750, hunber_t_loss: 44.010967
+[epoch: 11, 4] precision: 0.055035, recall: 0.188825, deviation: 84.524580
+d_loss: -0.000000, g_loss: 57969.976562, gen_e_loss: 7.819610, gen_t_loss: 57962.156250, hunber_t_loss: 57.963158
+[epoch: 11, 5] precision: 0.054690, recall: 0.187802, deviation: 84.515571
+d_loss: -0.000000, g_loss: 73430.953125, gen_e_loss: 7.666119, gen_t_loss: 73423.289062, hunber_t_loss: 73.424286
+[epoch: 11, 6] precision: 0.054687, recall: 0.187836, deviation: 84.404247
+d_loss: -0.000000, g_loss: 60745.511719, gen_e_loss: 8.840559, gen_t_loss: 60736.671875, hunber_t_loss: 60.737671
+[epoch: 11, 7] precision: 0.054781, recall: 0.188131, deviation: 84.520650
+d_loss: -0.000000, g_loss: 71279.234375, gen_e_loss: 8.125648, gen_t_loss: 71271.109375, hunber_t_loss: 71.272110
+[epoch: 11, 8] precision: 0.054889, recall: 0.188578, deviation: 84.433403
+d_loss: -0.000000, g_loss: 85725.062500, gen_e_loss: 7.372706, gen_t_loss: 85717.687500, hunber_t_loss: 85.718689
+[epoch: 11, 9] precision: 0.055075, recall: 0.189398, deviation: 84.439712
+d_loss: -0.000000, g_loss: 57964.023438, gen_e_loss: 7.915198, gen_t_loss: 57956.109375, hunber_t_loss: 57.957108
+[epoch: 11, 10] precision: 0.055189, recall: 0.189551, deviation: 84.425049
+d_loss: -0.000000, g_loss: 72295.492188, gen_e_loss: 9.304297, gen_t_loss: 72286.187500, hunber_t_loss: 72.287186
+attention for g_t:  [1 1 1 1 1 0 2 2 2 2 2 2 2 2 2 2 2 1 2 0 2 2 1 1 0 0 2 2 2 2 2 2 2 2 2 2 2
+ 1 2 0 0 2 2 2 2 2 0 0 0 2 0 0 0 0 2 2 0 0 2 2 2 2 2 2 2 2 2 2 2 2 1 2 2 2
+ 2 2 2 2 0 2 2 2 2 0 1 1 0 2 2 2 2 2 2 2 2 2 2 2 2 2]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 51.692203, d_loss: -0.000000, g_loss: 51204.566406, huber_t_loss:51.198589
+1, precision: 0.054679, recall: 0.189190, deviation: 83.561074, d_loss: -0.000000, g_loss: 51185.511719, huber_t_loss:51.180260
+2, precision: 0.054678, recall: 0.190554, deviation: 84.578583, d_loss: -0.000000, g_loss: 66192.304688, huber_t_loss:66.185753
+3, precision: 0.055543, recall: 0.192189, deviation: 84.085234, d_loss: -0.000000, g_loss: 115264.742188, huber_t_loss:115.257385
+4, precision: 0.055466, recall: 0.191091, deviation: 84.222657, d_loss: -0.000000, g_loss: 64500.343750, huber_t_loss:64.492279
+5, precision: 0.055171, recall: 0.190166, deviation: 84.144137, d_loss: -0.000000, g_loss: 68299.843750, huber_t_loss:68.292984
+6, precision: 0.055496, recall: 0.191160, deviation: 84.619619, d_loss: -0.000000, g_loss: 79524.390625, huber_t_loss:79.517212
+7, precision: 0.056032, recall: 0.192036, deviation: 84.821575, d_loss: -0.000000, g_loss: 72651.664062, huber_t_loss:72.643677
+8, precision: 0.055856, recall: 0.192013, deviation: 84.973206, d_loss: -0.000000, g_loss: 81173.078125, huber_t_loss:81.165779
+9, precision: 0.055899, recall: 0.191725, deviation: 85.000793, d_loss: -0.000000, g_loss: 78522.875000, huber_t_loss:78.518257
+10, precision: 0.055911, recall: 0.191370, deviation: 84.747143, d_loss: -0.000000, g_loss: 97896.265625, huber_t_loss:97.890022
+alpha: 10362.729492, gamma: -0.014290
+length_traces: 6474804
+[epoch: 12, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 12, 1] precision: 0.058318, recall: 0.197559, deviation: 85.106526
+d_loss: -0.000000, g_loss: 113779.187500, gen_e_loss: 8.442814, gen_t_loss: 113770.742188, hunber_t_loss: 113.771744
+[epoch: 12, 2] precision: 0.056953, recall: 0.195218, deviation: 85.590669
+d_loss: -0.000000, g_loss: 37231.980469, gen_e_loss: 7.860498, gen_t_loss: 37224.121094, hunber_t_loss: 37.225121
+[epoch: 12, 3] precision: 0.056461, recall: 0.193703, deviation: 85.341679
+d_loss: -0.000000, g_loss: 65316.789062, gen_e_loss: 8.251461, gen_t_loss: 65308.539062, hunber_t_loss: 65.309540
+[epoch: 12, 4] precision: 0.056379, recall: 0.192776, deviation: 85.299869
+d_loss: -0.000000, g_loss: 81274.429688, gen_e_loss: 9.443111, gen_t_loss: 81264.984375, hunber_t_loss: 81.265984
+[epoch: 12, 5] precision: 0.056334, recall: 0.192487, deviation: 84.870972
+d_loss: -0.000000, g_loss: 21842.861328, gen_e_loss: 7.026938, gen_t_loss: 21835.833984, hunber_t_loss: 21.836834
+[epoch: 12, 6] precision: 0.055561, recall: 0.189871, deviation: 84.834231
+d_loss: -0.000000, g_loss: 55385.460938, gen_e_loss: 9.013054, gen_t_loss: 55376.449219, hunber_t_loss: 55.377449
+[epoch: 12, 7] precision: 0.055386, recall: 0.189635, deviation: 84.853326
+d_loss: -0.000000, g_loss: 69337.125000, gen_e_loss: 7.383251, gen_t_loss: 69329.742188, hunber_t_loss: 69.330742
+[epoch: 12, 8] precision: 0.055304, recall: 0.189623, deviation: 84.602338
+d_loss: -0.000000, g_loss: 42810.789062, gen_e_loss: 8.162616, gen_t_loss: 42802.625000, hunber_t_loss: 42.803623
+[epoch: 12, 9] precision: 0.055069, recall: 0.189171, deviation: 84.445055
+d_loss: -0.000000, g_loss: 60540.835938, gen_e_loss: 8.376088, gen_t_loss: 60532.460938, hunber_t_loss: 60.533463
+[epoch: 12, 10] precision: 0.055212, recall: 0.189716, deviation: 84.525362
+d_loss: -0.000000, g_loss: 57176.261719, gen_e_loss: 8.252247, gen_t_loss: 57168.007812, hunber_t_loss: 57.169006
+attention for g_t:  [2 2 1 2 1 1 1 0 0 1 1 2 1 2 1 1 1 1 1 2 2 2 2 1 1 0 0 1 1 1 1 1 1 1 2 2 2
+ 0 2 2 0 2 2 0 2 2 2 2 1 2 2 2 1 1 2 2 2 2 2 2 2 1 2 2 2 2 2 0 2 2 2 1 1 2
+ 0 2 1 2 1 2 1 2 2 2 2 2 1 0 0 0 2 2 2 2 2 2 2 2 2 2]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 76.449273, d_loss: -0.000000, g_loss: 75959.781250, huber_t_loss:75.951981
+1, precision: 0.055851, recall: 0.192786, deviation: 83.814193, d_loss: -0.000000, g_loss: 59994.859375, huber_t_loss:59.986820
+2, precision: 0.054609, recall: 0.190580, deviation: 83.212563, d_loss: -0.000000, g_loss: 76707.187500, huber_t_loss:76.700371
+3, precision: 0.055110, recall: 0.191756, deviation: 83.470626, d_loss: -0.000000, g_loss: 69506.171875, huber_t_loss:69.498924
+4, precision: 0.055226, recall: 0.192030, deviation: 83.968636, d_loss: -0.000000, g_loss: 148273.796875, huber_t_loss:148.266418
+5, precision: 0.054805, recall: 0.190496, deviation: 84.263521, d_loss: -0.000000, g_loss: 75059.835938, huber_t_loss:75.053017
+6, precision: 0.054679, recall: 0.189765, deviation: 84.011621, d_loss: -0.000000, g_loss: 114136.796875, huber_t_loss:114.128883
+7, precision: 0.054605, recall: 0.189328, deviation: 84.060770, d_loss: -0.000000, g_loss: 94315.640625, huber_t_loss:94.308334
+8, precision: 0.054438, recall: 0.188864, deviation: 84.286707, d_loss: -0.000000, g_loss: 86040.312500, huber_t_loss:86.033371
+9, precision: 0.054724, recall: 0.189260, deviation: 84.485652, d_loss: -0.000000, g_loss: 89052.171875, huber_t_loss:89.044136
+10, precision: 0.054841, recall: 0.189423, deviation: 84.646350, d_loss: -0.000000, g_loss: 59017.859375, huber_t_loss:59.011009
+alpha: 10292.712891, gamma: -0.014400
+length_traces: 6474804
+[epoch: 13, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 13, 1] precision: 0.055930, recall: 0.192891, deviation: 84.563867
+d_loss: -0.000000, g_loss: 67038.875000, gen_e_loss: 7.660827, gen_t_loss: 67031.210938, hunber_t_loss: 67.032211
+[epoch: 13, 2] precision: 0.056659, recall: 0.194631, deviation: 85.058960
+d_loss: -0.000000, g_loss: 116952.484375, gen_e_loss: 8.220342, gen_t_loss: 116944.265625, hunber_t_loss: 116.945267
+[epoch: 13, 3] precision: 0.056393, recall: 0.193434, deviation: 84.911945
+d_loss: -0.000000, g_loss: 100932.312500, gen_e_loss: 7.546559, gen_t_loss: 100924.765625, hunber_t_loss: 100.925766
+[epoch: 13, 4] precision: 0.055592, recall: 0.191693, deviation: 84.789291
+d_loss: -0.000000, g_loss: 60674.976562, gen_e_loss: 7.556546, gen_t_loss: 60667.421875, hunber_t_loss: 60.668423
+[epoch: 13, 5] precision: 0.055072, recall: 0.190032, deviation: 84.709943
+d_loss: -0.000000, g_loss: 59902.929688, gen_e_loss: 8.006793, gen_t_loss: 59894.921875, hunber_t_loss: 59.895924
+[epoch: 13, 6] precision: 0.054950, recall: 0.190020, deviation: 84.607936
+d_loss: -0.000000, g_loss: 87307.539062, gen_e_loss: 7.212856, gen_t_loss: 87300.328125, hunber_t_loss: 87.301331
+[epoch: 13, 7] precision: 0.054968, recall: 0.190153, deviation: 84.349151
+d_loss: -0.000000, g_loss: 116751.687500, gen_e_loss: 7.541956, gen_t_loss: 116744.148438, hunber_t_loss: 116.745148
+[epoch: 13, 8] precision: 0.055020, recall: 0.190729, deviation: 84.469287
+d_loss: -0.000000, g_loss: 101510.968750, gen_e_loss: 8.659925, gen_t_loss: 101502.312500, hunber_t_loss: 101.503311
+[epoch: 13, 9] precision: 0.054910, recall: 0.190269, deviation: 84.553930
+d_loss: -0.000000, g_loss: 85123.664062, gen_e_loss: 7.376922, gen_t_loss: 85116.289062, hunber_t_loss: 85.117287
+[epoch: 13, 10] precision: 0.054632, recall: 0.189538, deviation: 84.432269
+d_loss: -0.000000, g_loss: 61136.898438, gen_e_loss: 9.144176, gen_t_loss: 61127.753906, hunber_t_loss: 61.128754
+attention for g_t:  [2 0 1 0 2 1 2 0 1 0 2 1 2 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+ 2 2 2 2 2 2 2 2 2 1 2 2 2 2 2 2 2 2 2 2 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+ 2 2 2 2 2 2 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 74.593031, d_loss: -0.000000, g_loss: 74104.367188, huber_t_loss:74.097176
+1, precision: 0.054006, recall: 0.190810, deviation: 84.488062, d_loss: -0.000000, g_loss: 79888.265625, huber_t_loss:79.880058
+2, precision: 0.054081, recall: 0.189185, deviation: 84.959933, d_loss: -0.000000, g_loss: 102213.640625, huber_t_loss:102.206459
+3, precision: 0.054331, recall: 0.189811, deviation: 84.695051, d_loss: -0.000000, g_loss: 92108.984375, huber_t_loss:92.101639
+4, precision: 0.054717, recall: 0.190393, deviation: 85.398393, d_loss: -0.000000, g_loss: 147143.437500, huber_t_loss:147.135361
+5, precision: 0.054633, recall: 0.190453, deviation: 85.409686, d_loss: -0.000000, g_loss: 61737.320312, huber_t_loss:61.729729
+6, precision: 0.054224, recall: 0.190169, deviation: 84.992401, d_loss: -0.000000, g_loss: 99582.914062, huber_t_loss:99.574547
+7, precision: 0.054655, recall: 0.190385, deviation: 84.710424, d_loss: -0.000000, g_loss: 118745.156250, huber_t_loss:118.737381
+8, precision: 0.054497, recall: 0.190311, deviation: 84.696189, d_loss: -0.000000, g_loss: 66426.195312, huber_t_loss:66.417755
+9, precision: 0.054337, recall: 0.190059, deviation: 84.730487, d_loss: -0.000000, g_loss: 80206.859375, huber_t_loss:80.200333
+10, precision: 0.054083, recall: 0.189529, deviation: 84.617011, d_loss: -0.000000, g_loss: 49482.519531, huber_t_loss:49.476265
+alpha: 10349.410156, gamma: -0.014458
+length_traces: 6474804
+[epoch: 14, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 14, 1] precision: 0.053091, recall: 0.185230, deviation: 85.303415
+d_loss: -0.000000, g_loss: 9813.796875, gen_e_loss: 10.966794, gen_t_loss: 9802.830078, hunber_t_loss: 9.803830
+[epoch: 14, 2] precision: 0.042435, recall: 0.153695, deviation: 85.362077
+d_loss: -0.000000, g_loss: 72368.070312, gen_e_loss: 8.560735, gen_t_loss: 72359.507812, hunber_t_loss: 72.360504
+[epoch: 14, 3] precision: 0.034803, recall: 0.129017, deviation: 84.974224
+d_loss: -0.000000, g_loss: 74706.843750, gen_e_loss: 7.877129, gen_t_loss: 74698.968750, hunber_t_loss: 74.699966
+[epoch: 14, 4] precision: 0.032690, recall: 0.122703, deviation: 85.230478
+d_loss: -0.000000, g_loss: 68495.515625, gen_e_loss: 6.702894, gen_t_loss: 68488.812500, hunber_t_loss: 68.489815
+[epoch: 14, 5] precision: 0.034196, recall: 0.127183, deviation: 85.175178
+d_loss: -0.000000, g_loss: 111402.304688, gen_e_loss: 9.544592, gen_t_loss: 111392.757812, hunber_t_loss: 111.393761
+[epoch: 14, 6] precision: 0.035365, recall: 0.131177, deviation: 84.962575
+d_loss: -0.000000, g_loss: 153673.125000, gen_e_loss: 8.284699, gen_t_loss: 153664.843750, hunber_t_loss: 153.665848
+[epoch: 14, 7] precision: 0.034955, recall: 0.129988, deviation: 84.950599
+d_loss: -0.000000, g_loss: 79984.718750, gen_e_loss: 9.198291, gen_t_loss: 79975.523438, hunber_t_loss: 79.976524
+[epoch: 14, 8] precision: 0.033341, recall: 0.124343, deviation: 85.093737
+d_loss: -0.000000, g_loss: 39437.898438, gen_e_loss: 9.320846, gen_t_loss: 39428.578125, hunber_t_loss: 39.429577
+[epoch: 14, 9] precision: 0.031763, recall: 0.118886, deviation: 85.151102
+d_loss: -0.000000, g_loss: 93495.554688, gen_e_loss: 8.877471, gen_t_loss: 93486.679688, hunber_t_loss: 93.487679
+[epoch: 14, 10] precision: 0.031807, recall: 0.119541, deviation: 85.003734
+d_loss: -0.000000, g_loss: 75004.515625, gen_e_loss: 8.910015, gen_t_loss: 74995.609375, hunber_t_loss: 74.996613
+attention for g_t:  [1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+ 1 1 1 1 1 0 1 1 1 0 1 1 1 1 2 1 1 1 0 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 0 0 1
+ 1 1 1 1 0 1 0 1 1 1 1 1 0 0 1 1 0 1 1 0 1 1 1 1 0 1]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 52.440660, d_loss: -0.000000, g_loss: 51956.574219, huber_t_loss:51.947403
+1, precision: 0.036157, recall: 0.134000, deviation: 84.652984, d_loss: -0.000000, g_loss: 58133.464844, huber_t_loss:58.125443
+2, precision: 0.035748, recall: 0.133388, deviation: 85.891807, d_loss: -0.000000, g_loss: 107366.406250, huber_t_loss:107.358780
+3, precision: 0.035855, recall: 0.133989, deviation: 85.225426, d_loss: -0.000000, g_loss: 70571.281250, huber_t_loss:70.562019
+4, precision: 0.035756, recall: 0.134111, deviation: 85.072483, d_loss: -0.000000, g_loss: 88332.132812, huber_t_loss:88.323807
+5, precision: 0.035816, recall: 0.134284, deviation: 85.463406, d_loss: -0.000000, g_loss: 80415.218750, huber_t_loss:80.407600
+6, precision: 0.035693, recall: 0.134294, deviation: 85.231036, d_loss: -0.000000, g_loss: 121338.695312, huber_t_loss:121.331879
+7, precision: 0.035479, recall: 0.133988, deviation: 84.859767, d_loss: -0.000000, g_loss: 71555.710938, huber_t_loss:71.548653
+8, precision: 0.035569, recall: 0.134353, deviation: 85.016714, d_loss: -0.000000, g_loss: 60713.105469, huber_t_loss:60.704815
+9, precision: 0.035676, recall: 0.134742, deviation: 84.977068, d_loss: -0.000000, g_loss: 77862.117188, huber_t_loss:77.855629
+10, precision: 0.035679, recall: 0.134829, deviation: 84.967030, d_loss: -0.000000, g_loss: 72383.375000, huber_t_loss:72.375366
+alpha: 9880.281250, gamma: -0.014331
+length_traces: 6474804
+[epoch: 15, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 15, 1] precision: 0.039363, recall: 0.148607, deviation: 85.505038
+d_loss: -0.000000, g_loss: 75396.148438, gen_e_loss: 8.613216, gen_t_loss: 75387.539062, hunber_t_loss: 75.388542
+[epoch: 15, 2] precision: 0.037362, recall: 0.141094, deviation: 85.043877
+d_loss: -0.000000, g_loss: 47251.390625, gen_e_loss: 6.734125, gen_t_loss: 47244.656250, hunber_t_loss: 47.245655
+[epoch: 15, 3] precision: 0.030953, recall: 0.118307, deviation: 85.049303
+d_loss: -0.000000, g_loss: 81620.203125, gen_e_loss: 9.348213, gen_t_loss: 81610.851562, hunber_t_loss: 81.611855
+[epoch: 15, 4] precision: 0.025264, recall: 0.097671, deviation: 85.468565
+d_loss: -0.000000, g_loss: 50093.406250, gen_e_loss: 10.167627, gen_t_loss: 50083.238281, hunber_t_loss: 50.084240
+[epoch: 15, 5] precision: 0.022234, recall: 0.086691, deviation: 85.726806
+d_loss: -0.000000, g_loss: 73707.171875, gen_e_loss: 9.768020, gen_t_loss: 73697.406250, hunber_t_loss: 73.698410
+[epoch: 15, 6] precision: 0.020072, recall: 0.078944, deviation: 85.655122
+d_loss: -0.000000, g_loss: 110071.796875, gen_e_loss: 9.048180, gen_t_loss: 110062.750000, hunber_t_loss: 110.063751
+[epoch: 15, 7] precision: 0.018807, recall: 0.074755, deviation: 85.688766
+d_loss: -0.000000, g_loss: 142953.296875, gen_e_loss: 9.448071, gen_t_loss: 142943.843750, hunber_t_loss: 142.944839
+[epoch: 15, 8] precision: 0.017581, recall: 0.070445, deviation: 85.618947
+d_loss: -0.000000, g_loss: 62043.105469, gen_e_loss: 8.657396, gen_t_loss: 62034.449219, hunber_t_loss: 62.035450
+[epoch: 15, 9] precision: 0.017333, recall: 0.069655, deviation: 85.524187
+d_loss: -0.000000, g_loss: 86688.765625, gen_e_loss: 8.779574, gen_t_loss: 86679.984375, hunber_t_loss: 86.680984
+[epoch: 15, 10] precision: 0.018122, recall: 0.072571, deviation: 85.413923
+d_loss: -0.000000, g_loss: 142265.890625, gen_e_loss: 9.001435, gen_t_loss: 142256.890625, hunber_t_loss: 142.257889
+attention for g_t:  [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 2 2 1 0 0 0
+ 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 110.881789, d_loss: -0.000000, g_loss: 110396.484375, huber_t_loss:110.388123
+1, precision: 0.027951, recall: 0.106697, deviation: 84.006126, d_loss: -0.000000, g_loss: 50632.484375, huber_t_loss:50.624352
+2, precision: 0.028085, recall: 0.105973, deviation: 84.409571, d_loss: -0.000000, g_loss: 54349.199219, huber_t_loss:54.340855
+3, precision: 0.028286, recall: 0.105391, deviation: 84.426735, d_loss: -0.000000, g_loss: 104264.585938, huber_t_loss:104.256767
+4, precision: 0.028600, recall: 0.105695, deviation: 85.121658, d_loss: -0.000000, g_loss: 88330.953125, huber_t_loss:88.323204
+5, precision: 0.028339, recall: 0.105646, deviation: 85.658368, d_loss: -0.000000, g_loss: 162213.750000, huber_t_loss:162.205536
+6, precision: 0.028101, recall: 0.104856, deviation: 85.582423, d_loss: -0.000000, g_loss: 104787.078125, huber_t_loss:104.779373
+7, precision: 0.027982, recall: 0.104755, deviation: 85.359796, d_loss: -0.000000, g_loss: 58081.144531, huber_t_loss:58.073853
+8, precision: 0.027909, recall: 0.104636, deviation: 85.341033, d_loss: -0.000000, g_loss: 41088.613281, huber_t_loss:41.081955
+9, precision: 0.028069, recall: 0.105299, deviation: 85.235850, d_loss: -0.000000, g_loss: 55552.289062, huber_t_loss:55.544327
+10, precision: 0.027973, recall: 0.104871, deviation: 85.265297, d_loss: -0.000000, g_loss: 65292.761719, huber_t_loss:65.285271
+alpha: 9774.021484, gamma: -0.014362
+length_traces: 6474804
+[epoch: 16, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 16, 1] precision: 0.028823, recall: 0.110138, deviation: 84.169508
+d_loss: -0.000000, g_loss: 55702.578125, gen_e_loss: 9.475974, gen_t_loss: 55693.101562, hunber_t_loss: 55.694103
+[epoch: 16, 2] precision: 0.027700, recall: 0.105232, deviation: 84.268735
+d_loss: -0.000000, g_loss: 83559.515625, gen_e_loss: 10.275562, gen_t_loss: 83549.242188, hunber_t_loss: 83.550240
+[epoch: 16, 3] precision: 0.025370, recall: 0.097405, deviation: 84.582021
+d_loss: -0.000000, g_loss: 46135.761719, gen_e_loss: 10.312381, gen_t_loss: 46125.449219, hunber_t_loss: 46.126450
+[epoch: 16, 4] precision: 0.022929, recall: 0.089085, deviation: 84.900747
+d_loss: -0.000000, g_loss: 52919.976562, gen_e_loss: 7.857917, gen_t_loss: 52912.117188, hunber_t_loss: 52.913116
+[epoch: 16, 5] precision: 0.022418, recall: 0.087729, deviation: 85.107139
+d_loss: -0.000000, g_loss: 61969.851562, gen_e_loss: 9.689983, gen_t_loss: 61960.160156, hunber_t_loss: 61.961159
+[epoch: 16, 6] precision: 0.022859, recall: 0.089501, deviation: 85.092938
+d_loss: -0.000000, g_loss: 79331.039062, gen_e_loss: 8.999907, gen_t_loss: 79322.039062, hunber_t_loss: 79.323036
+[epoch: 16, 7] precision: 0.023344, recall: 0.091197, deviation: 85.138029
+d_loss: -0.000000, g_loss: 102088.273438, gen_e_loss: 10.004350, gen_t_loss: 102078.265625, hunber_t_loss: 102.079269
+[epoch: 16, 8] precision: 0.023723, recall: 0.092851, deviation: 85.106426
+d_loss: -0.000000, g_loss: 65949.273438, gen_e_loss: 9.037579, gen_t_loss: 65940.234375, hunber_t_loss: 65.941231
+[epoch: 16, 9] precision: 0.024069, recall: 0.094326, deviation: 85.246396
+d_loss: -0.000000, g_loss: 74120.289062, gen_e_loss: 7.746837, gen_t_loss: 74112.539062, hunber_t_loss: 74.113541
+[epoch: 16, 10] precision: 0.024696, recall: 0.096624, deviation: 85.162121
+d_loss: -0.000000, g_loss: 45220.125000, gen_e_loss: 10.456385, gen_t_loss: 45209.667969, hunber_t_loss: 45.210667
+attention for g_t:  [2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 1 0 0 2 2 1 2 2 2 2 1 1 1 0 0 1 2 1 1
+ 0 1 1 0 1 1 0 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1
+ 1 1 1 1 1 1 1 1 0 2 2 1 0 1 1 0 1 1 0 1 1 1 1 1 1 0]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 58.903008, d_loss: -0.000000, g_loss: 58416.363281, huber_t_loss:58.407784
+1, precision: 0.026935, recall: 0.106218, deviation: 84.671945, d_loss: -0.000000, g_loss: 66069.804688, huber_t_loss:66.061546
+2, precision: 0.027423, recall: 0.109267, deviation: 86.444971, d_loss: -0.000000, g_loss: 119314.164062, huber_t_loss:119.305443
+3, precision: 0.027711, recall: 0.109022, deviation: 84.917688, d_loss: -0.000000, g_loss: 53283.839844, huber_t_loss:53.275352
+4, precision: 0.027622, recall: 0.108813, deviation: 85.136844, d_loss: -0.000000, g_loss: 95425.523438, huber_t_loss:95.417801
+5, precision: 0.027910, recall: 0.109051, deviation: 84.738578, d_loss: -0.000000, g_loss: 60241.945312, huber_t_loss:60.233974
+6, precision: 0.027988, recall: 0.109503, deviation: 85.102739, d_loss: -0.000000, g_loss: 98941.726562, huber_t_loss:98.934006
+7, precision: 0.028006, recall: 0.109535, deviation: 84.974484, d_loss: -0.000000, g_loss: 152919.640625, huber_t_loss:152.912628
+8, precision: 0.027923, recall: 0.109166, deviation: 85.044484, d_loss: -0.000000, g_loss: 70512.093750, huber_t_loss:70.503311
+9, precision: 0.027946, recall: 0.109154, deviation: 85.194827, d_loss: -0.000000, g_loss: 77652.148438, huber_t_loss:77.643906
+10, precision: 0.028023, recall: 0.109196, deviation: 85.108933, d_loss: -0.000000, g_loss: 35748.656250, huber_t_loss:35.739853
+alpha: 9630.239258, gamma: -0.014211
+length_traces: 6474804
+[epoch: 17, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 17, 1] precision: 0.029302, recall: 0.115681, deviation: 85.721775
+d_loss: -0.000000, g_loss: 63911.175781, gen_e_loss: 8.903349, gen_t_loss: 63902.273438, hunber_t_loss: 63.903275
+[epoch: 17, 2] precision: 0.029402, recall: 0.114047, deviation: 86.020849
+d_loss: -0.000000, g_loss: 125696.914062, gen_e_loss: 8.780487, gen_t_loss: 125688.132812, hunber_t_loss: 125.689133
+[epoch: 17, 3] precision: 0.029051, recall: 0.112713, deviation: 85.877716
+d_loss: -0.000000, g_loss: 92378.570312, gen_e_loss: 8.027227, gen_t_loss: 92370.546875, hunber_t_loss: 92.371544
+[epoch: 17, 4] precision: 0.029497, recall: 0.113583, deviation: 85.721831
+d_loss: -0.000000, g_loss: 76868.703125, gen_e_loss: 10.046029, gen_t_loss: 76858.656250, hunber_t_loss: 76.859657
+[epoch: 17, 5] precision: 0.029997, recall: 0.114876, deviation: 85.371922
+d_loss: -0.000000, g_loss: 42155.894531, gen_e_loss: 8.264332, gen_t_loss: 42147.628906, hunber_t_loss: 42.148628
+[epoch: 17, 6] precision: 0.028983, recall: 0.111690, deviation: 85.321604
+d_loss: -0.000000, g_loss: 118277.304688, gen_e_loss: 8.285821, gen_t_loss: 118269.015625, hunber_t_loss: 118.270012
+[epoch: 17, 7] precision: 0.029121, recall: 0.111941, deviation: 85.338377
+d_loss: -0.000000, g_loss: 159331.718750, gen_e_loss: 9.381683, gen_t_loss: 159322.343750, hunber_t_loss: 159.323349
+[epoch: 17, 8] precision: 0.028400, recall: 0.109104, deviation: 85.179150
+d_loss: -0.000000, g_loss: 62664.433594, gen_e_loss: 9.371618, gen_t_loss: 62655.062500, hunber_t_loss: 62.656063
+[epoch: 17, 9] precision: 0.027124, recall: 0.104707, deviation: 84.990517
+d_loss: -0.000000, g_loss: 123548.671875, gen_e_loss: 8.762746, gen_t_loss: 123539.906250, hunber_t_loss: 123.540909
+[epoch: 17, 10] precision: 0.026702, recall: 0.103535, deviation: 85.013834
+d_loss: -0.000000, g_loss: 116342.242188, gen_e_loss: 10.097267, gen_t_loss: 116332.148438, hunber_t_loss: 116.333145
+attention for g_t:  [1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 1 1 2 1 1 2 2 2 2 2 2
+ 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 1 1 1
+ 1 1 2 2 2 2 2 2 2 2 2 1 1 2 2 2 2 2 2 2 2 2 2 2 2 2]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 40.932406, d_loss: -0.000000, g_loss: 40440.878906, huber_t_loss:40.433365
+1, precision: 0.017104, recall: 0.072139, deviation: 82.936309, d_loss: -0.000000, g_loss: 109048.476562, huber_t_loss:109.040894
+2, precision: 0.016666, recall: 0.070833, deviation: 83.266279, d_loss: -0.000000, g_loss: 152244.093750, huber_t_loss:152.236481
+3, precision: 0.016978, recall: 0.072373, deviation: 83.608474, d_loss: -0.000000, g_loss: 47856.585938, huber_t_loss:47.848198
+4, precision: 0.017118, recall: 0.072356, deviation: 83.616630, d_loss: -0.000000, g_loss: 67179.640625, huber_t_loss:67.172333
+5, precision: 0.017197, recall: 0.072271, deviation: 84.643840, d_loss: -0.000000, g_loss: 102971.492188, huber_t_loss:102.963577
+6, precision: 0.017073, recall: 0.071885, deviation: 84.626367, d_loss: -0.000000, g_loss: 59315.457031, huber_t_loss:59.307064
+7, precision: 0.017011, recall: 0.071654, deviation: 84.683504, d_loss: -0.000000, g_loss: 98332.554688, huber_t_loss:98.323883
+8, precision: 0.017088, recall: 0.071859, deviation: 84.924190, d_loss: -0.000000, g_loss: 202388.687500, huber_t_loss:202.380051
+9, precision: 0.017177, recall: 0.072109, deviation: 85.250243, d_loss: -0.000000, g_loss: 20639.701172, huber_t_loss:20.631361
+10, precision: 0.017143, recall: 0.071949, deviation: 85.228731, d_loss: -0.000000, g_loss: 44813.996094, huber_t_loss:44.804298
+alpha: 9313.521484, gamma: -0.014454
+length_traces: 6474804
+[epoch: 18, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 18, 1] precision: 0.020775, recall: 0.082356, deviation: 85.321635
+d_loss: -0.000000, g_loss: 47176.093750, gen_e_loss: 7.568703, gen_t_loss: 47168.523438, hunber_t_loss: 47.169525
+[epoch: 18, 2] precision: 0.023583, recall: 0.091934, deviation: 84.701545
+d_loss: -0.000000, g_loss: 70857.460938, gen_e_loss: 8.464675, gen_t_loss: 70849.000000, hunber_t_loss: 70.849998
+[epoch: 18, 3] precision: 0.024648, recall: 0.096041, deviation: 84.980393
+d_loss: -0.000000, g_loss: 16601.742188, gen_e_loss: 8.462282, gen_t_loss: 16593.279297, hunber_t_loss: 16.594280
+[epoch: 18, 4] precision: 0.025849, recall: 0.100068, deviation: 85.047409
+d_loss: -0.000000, g_loss: 101742.968750, gen_e_loss: 9.510571, gen_t_loss: 101733.460938, hunber_t_loss: 101.734459
+[epoch: 18, 5] precision: 0.025046, recall: 0.097433, deviation: 84.870968
+d_loss: -0.000000, g_loss: 123236.578125, gen_e_loss: 9.225896, gen_t_loss: 123227.351562, hunber_t_loss: 123.228348
+[epoch: 18, 6] precision: 0.022368, recall: 0.087909, deviation: 85.071153
+d_loss: -0.000000, g_loss: 47695.675781, gen_e_loss: 9.411444, gen_t_loss: 47686.265625, hunber_t_loss: 47.687267
+[epoch: 18, 7] precision: 0.021323, recall: 0.084586, deviation: 84.984136
+d_loss: -0.000000, g_loss: 100118.351562, gen_e_loss: 8.901345, gen_t_loss: 100109.453125, hunber_t_loss: 100.110451
+[epoch: 18, 8] precision: 0.021450, recall: 0.085284, deviation: 84.994941
+d_loss: -0.000000, g_loss: 85045.312500, gen_e_loss: 8.407357, gen_t_loss: 85036.906250, hunber_t_loss: 85.037903
+[epoch: 18, 9] precision: 0.021588, recall: 0.086156, deviation: 85.158800
+d_loss: -0.000000, g_loss: 56404.027344, gen_e_loss: 8.966264, gen_t_loss: 56395.062500, hunber_t_loss: 56.396061
+[epoch: 18, 10] precision: 0.021648, recall: 0.086656, deviation: 85.128848
+d_loss: -0.000000, g_loss: 127276.140625, gen_e_loss: 9.340706, gen_t_loss: 127266.796875, hunber_t_loss: 127.267799
+attention for g_t:  [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 1 2 1 1 1 1 0 0 1 1 1 1 0 0 0 2 2 2 2 2
+ 0 2 2 2 2 0 1 1 1 1 0 0 0 0 0 0 0 1 1 0 0 0 2 0 0 0 0 0 0 0 0 1 0 0 0 0 0
+ 1 1 0 0 2 0 1 1 1 1 1 0 0 0 0 2 1 1 1 1 0 0 0 0 0 0]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 62.998508, d_loss: -0.000000, g_loss: 62505.425781, huber_t_loss:62.498955
+1, precision: 0.020742, recall: 0.087361, deviation: 84.521460, d_loss: -0.000000, g_loss: 71356.781250, huber_t_loss:71.350121
+2, precision: 0.021433, recall: 0.087529, deviation: 83.203687, d_loss: -0.000000, g_loss: 75972.539062, huber_t_loss:75.965240
+3, precision: 0.021518, recall: 0.088981, deviation: 82.939021, d_loss: -0.000000, g_loss: 127750.656250, huber_t_loss:127.741722
+4, precision: 0.021343, recall: 0.089007, deviation: 83.257738, d_loss: -0.000000, g_loss: 67660.296875, huber_t_loss:67.652351
+5, precision: 0.021101, recall: 0.088401, deviation: 84.235123, d_loss: -0.000000, g_loss: 80796.000000, huber_t_loss:80.789597
+6, precision: 0.021153, recall: 0.088401, deviation: 84.278346, d_loss: -0.000000, g_loss: 121921.937500, huber_t_loss:121.913712
+7, precision: 0.021114, recall: 0.088224, deviation: 84.541991, d_loss: -0.000000, g_loss: 102029.054688, huber_t_loss:102.021599
+8, precision: 0.021183, recall: 0.088331, deviation: 84.448039, d_loss: -0.000000, g_loss: 30930.345703, huber_t_loss:30.921612
+9, precision: 0.021125, recall: 0.088127, deviation: 84.742491, d_loss: -0.000000, g_loss: 46796.535156, huber_t_loss:46.789799
+10, precision: 0.021150, recall: 0.088169, deviation: 84.977305, d_loss: -0.000000, g_loss: 65082.175781, huber_t_loss:65.073555
+alpha: 9663.952148, gamma: -0.014653
+length_traces: 6474804
+[epoch: 19, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 19, 1] precision: 0.024248, recall: 0.097759, deviation: 86.446775
+d_loss: -0.000000, g_loss: 116067.593750, gen_e_loss: 8.619680, gen_t_loss: 116058.976562, hunber_t_loss: 116.059975
+[epoch: 19, 2] precision: 0.023516, recall: 0.094553, deviation: 86.159068
+d_loss: -0.000000, g_loss: 70590.773438, gen_e_loss: 9.886496, gen_t_loss: 70580.890625, hunber_t_loss: 70.581894
+[epoch: 19, 3] precision: 0.024219, recall: 0.096724, deviation: 85.904820
+d_loss: -0.000000, g_loss: 41871.156250, gen_e_loss: 9.279508, gen_t_loss: 41861.875000, hunber_t_loss: 41.862877
+[epoch: 19, 4] precision: 0.024565, recall: 0.098039, deviation: 85.821910
+d_loss: -0.000000, g_loss: 56047.722656, gen_e_loss: 7.734229, gen_t_loss: 56039.988281, hunber_t_loss: 56.040989
+[epoch: 19, 5] precision: 0.024726, recall: 0.098268, deviation: 85.399032
+d_loss: -0.000000, g_loss: 45158.593750, gen_e_loss: 9.591523, gen_t_loss: 45149.003906, hunber_t_loss: 45.150005
+[epoch: 19, 6] precision: 0.025206, recall: 0.099357, deviation: 85.278946
+d_loss: -0.000000, g_loss: 82030.320312, gen_e_loss: 7.879581, gen_t_loss: 82022.437500, hunber_t_loss: 82.023438
+[epoch: 19, 7] precision: 0.023494, recall: 0.093242, deviation: 85.107457
+d_loss: -0.000000, g_loss: 131747.218750, gen_e_loss: 7.857143, gen_t_loss: 131739.359375, hunber_t_loss: 131.740356
+[epoch: 19, 8] precision: 0.021599, recall: 0.086204, deviation: 85.113000
+d_loss: -0.000000, g_loss: 54015.304688, gen_e_loss: 9.476326, gen_t_loss: 54005.828125, hunber_t_loss: 54.006828
+[epoch: 19, 9] precision: 0.020176, recall: 0.080916, deviation: 85.147541
+d_loss: -0.000000, g_loss: 147902.687500, gen_e_loss: 9.730187, gen_t_loss: 147892.953125, hunber_t_loss: 147.893951
+[epoch: 19, 10] precision: 0.019241, recall: 0.077282, deviation: 85.095950
+d_loss: -0.000000, g_loss: 87022.187500, gen_e_loss: 8.925858, gen_t_loss: 87013.257812, hunber_t_loss: 87.014259
+attention for g_t:  [2 2 2 2 2 2 2 2 2 2 2 2 1 2 2 1 1 2 2 2 2 2 2 2 2 2 2 2 1 1 2 2 2 2 1 2 1
+ 2 2 2 2 2 2 2 2 2 2 2 1 2 2 2 2 1 2 2 2 2 2 2 2 2 2 2 2 1 2 1 1 1 1 1 1 2
+ 2 2 2 2 2 2 1 2 2 2 2 2 2 2 2 2 2 2 1 1 1 2 2 2 2 2]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 86.684492, d_loss: -0.000000, g_loss: 86195.078125, huber_t_loss:86.187157
+1, precision: 0.011047, recall: 0.049190, deviation: 88.152728, d_loss: -0.000000, g_loss: 138445.062500, huber_t_loss:138.436844
+2, precision: 0.010888, recall: 0.048488, deviation: 86.357407, d_loss: -0.000000, g_loss: 81451.945312, huber_t_loss:81.443443
+3, precision: 0.010877, recall: 0.048451, deviation: 85.887692, d_loss: -0.000000, g_loss: 107147.273438, huber_t_loss:107.139542
+4, precision: 0.010760, recall: 0.048090, deviation: 85.544789, d_loss: -0.000000, g_loss: 90786.648438, huber_t_loss:90.778725
+5, precision: 0.010735, recall: 0.048314, deviation: 85.475259, d_loss: -0.000000, g_loss: 156668.406250, huber_t_loss:156.661194
+6, precision: 0.010770, recall: 0.048460, deviation: 85.561557, d_loss: -0.000000, g_loss: 82255.867188, huber_t_loss:82.247421
+7, precision: 0.010880, recall: 0.048778, deviation: 85.357130, d_loss: -0.000000, g_loss: 74139.140625, huber_t_loss:74.131760
+8, precision: 0.010919, recall: 0.049070, deviation: 85.196445, d_loss: -0.000000, g_loss: 57330.121094, huber_t_loss:57.322010
+9, precision: 0.010993, recall: 0.049259, deviation: 85.032589, d_loss: -0.000000, g_loss: 92163.562500, huber_t_loss:92.155602
+10, precision: 0.010964, recall: 0.049253, deviation: 85.271288, d_loss: -0.000000, g_loss: 61687.640625, huber_t_loss:61.680035
+alpha: 9350.454102, gamma: -0.014119
+length_traces: 6474804
+[epoch: 20, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 20, 1] precision: 0.009237, recall: 0.040019, deviation: 86.029958
+d_loss: -0.000000, g_loss: 105707.390625, gen_e_loss: 8.434300, gen_t_loss: 105698.953125, hunber_t_loss: 105.699951
+[epoch: 20, 2] precision: 0.009889, recall: 0.042274, deviation: 85.366567
+d_loss: -0.000000, g_loss: 80126.554688, gen_e_loss: 9.037604, gen_t_loss: 80117.515625, hunber_t_loss: 80.118515
+[epoch: 20, 3] precision: 0.011336, recall: 0.047769, deviation: 85.546041
+d_loss: -0.000000, g_loss: 51035.726562, gen_e_loss: 8.824203, gen_t_loss: 51026.902344, hunber_t_loss: 51.027901
+[epoch: 20, 4] precision: 0.012078, recall: 0.050605, deviation: 85.483254
+d_loss: -0.000000, g_loss: 82405.023438, gen_e_loss: 8.398873, gen_t_loss: 82396.625000, hunber_t_loss: 82.397629
+[epoch: 20, 5] precision: 0.013161, recall: 0.054211, deviation: 85.265785
+d_loss: -0.000000, g_loss: 65429.195312, gen_e_loss: 8.353011, gen_t_loss: 65420.843750, hunber_t_loss: 65.421844
+[epoch: 20, 6] precision: 0.013977, recall: 0.057275, deviation: 85.123743
+d_loss: -0.000000, g_loss: 76342.125000, gen_e_loss: 9.678706, gen_t_loss: 76332.445312, hunber_t_loss: 76.333443
+[epoch: 20, 7] precision: 0.014773, recall: 0.059815, deviation: 84.920704
+d_loss: -0.000000, g_loss: 95988.820312, gen_e_loss: 8.973232, gen_t_loss: 95979.843750, hunber_t_loss: 95.980843
+[epoch: 20, 8] precision: 0.015392, recall: 0.061957, deviation: 84.853298
+d_loss: -0.000000, g_loss: 90993.648438, gen_e_loss: 9.161860, gen_t_loss: 90984.484375, hunber_t_loss: 90.985481
+[epoch: 20, 9] precision: 0.015701, recall: 0.063275, deviation: 84.784508
+d_loss: -0.000000, g_loss: 63592.093750, gen_e_loss: 9.579191, gen_t_loss: 63582.515625, hunber_t_loss: 63.583515
+[epoch: 20, 10] precision: 0.016149, recall: 0.064970, deviation: 84.897555
+d_loss: -0.000000, g_loss: 49117.472656, gen_e_loss: 8.558778, gen_t_loss: 49108.914062, hunber_t_loss: 49.109913
+attention for g_t:  [0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 1 1 1
+ 0 0 0 0 0 0 0 1 0 1 1 1 0 0 0 1 2 2 2 2 2 2 0 0 0 0 0 0 0 1 0 0 1 0 0 2 2
+ 0 0 1 2 2 1 1 0 0 1 0 1 1 0 0 1 0 0 0 0 1 1 1 1 1 0]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 110.077984, d_loss: -0.000000, g_loss: 109588.195312, huber_t_loss:109.581688
+1, precision: 0.018806, recall: 0.077527, deviation: 84.745590, d_loss: -0.000000, g_loss: 52835.046875, huber_t_loss:52.828194
+2, precision: 0.019288, recall: 0.078602, deviation: 85.335313, d_loss: -0.000000, g_loss: 140296.515625, huber_t_loss:140.288788
+3, precision: 0.019399, recall: 0.079853, deviation: 85.703233, d_loss: -0.000000, g_loss: 107015.906250, huber_t_loss:107.008286
+4, precision: 0.020136, recall: 0.080749, deviation: 85.772359, d_loss: -0.000000, g_loss: 90790.062500, huber_t_loss:90.781433
+5, precision: 0.020133, recall: 0.080693, deviation: 85.246439, d_loss: -0.000000, g_loss: 70194.828125, huber_t_loss:70.187645
+6, precision: 0.020246, recall: 0.081068, deviation: 85.555336, d_loss: -0.000000, g_loss: 68240.781250, huber_t_loss:68.232933
+7, precision: 0.020231, recall: 0.080695, deviation: 85.581485, d_loss: -0.000000, g_loss: 41503.507812, huber_t_loss:41.495178
+8, precision: 0.020397, recall: 0.081408, deviation: 85.452525, d_loss: -0.000000, g_loss: 93800.742188, huber_t_loss:93.792534
+9, precision: 0.020254, recall: 0.081213, deviation: 84.998418, d_loss: -0.000000, g_loss: 57582.167969, huber_t_loss:57.574768
+10, precision: 0.020246, recall: 0.081101, deviation: 84.879482, d_loss: -0.000000, g_loss: 66170.476562, huber_t_loss:66.162888
+alpha: 9612.009766, gamma: -0.014380
+length_traces: 6474804
+[epoch: 21, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 21, 1] precision: 0.021085, recall: 0.082345, deviation: 85.508991
+d_loss: -0.000000, g_loss: 65654.070312, gen_e_loss: 9.033197, gen_t_loss: 65645.039062, hunber_t_loss: 65.646042
+[epoch: 21, 2] precision: 0.021698, recall: 0.083654, deviation: 85.920032
+d_loss: -0.000000, g_loss: 61292.011719, gen_e_loss: 9.128590, gen_t_loss: 61282.882812, hunber_t_loss: 61.283882
+[epoch: 21, 3] precision: 0.020819, recall: 0.081625, deviation: 85.400441
+d_loss: -0.000000, g_loss: 70152.343750, gen_e_loss: 8.783440, gen_t_loss: 70143.562500, hunber_t_loss: 70.144562
+[epoch: 21, 4] precision: 0.020685, recall: 0.081499, deviation: 84.699360
+d_loss: -0.000000, g_loss: 88675.796875, gen_e_loss: 8.988675, gen_t_loss: 88666.804688, hunber_t_loss: 88.667801
+[epoch: 21, 5] precision: 0.020999, recall: 0.082044, deviation: 84.884943
+d_loss: -0.000000, g_loss: 82551.820312, gen_e_loss: 7.927997, gen_t_loss: 82543.890625, hunber_t_loss: 82.544891
+[epoch: 21, 6] precision: 0.021332, recall: 0.082948, deviation: 84.923115
+d_loss: -0.000000, g_loss: 72584.484375, gen_e_loss: 9.396649, gen_t_loss: 72575.085938, hunber_t_loss: 72.576088
+[epoch: 21, 7] precision: 0.021514, recall: 0.083612, deviation: 85.148499
+d_loss: -0.000000, g_loss: 69287.953125, gen_e_loss: 8.196237, gen_t_loss: 69279.757812, hunber_t_loss: 69.280754
+[epoch: 21, 8] precision: 0.021749, recall: 0.084823, deviation: 85.099060
+d_loss: -0.000000, g_loss: 61813.960938, gen_e_loss: 8.260790, gen_t_loss: 61805.699219, hunber_t_loss: 61.806698
+[epoch: 21, 9] precision: 0.021842, recall: 0.085246, deviation: 85.051847
+d_loss: -0.000000, g_loss: 48692.003906, gen_e_loss: 9.907544, gen_t_loss: 48682.097656, hunber_t_loss: 48.683098
+[epoch: 21, 10] precision: 0.021624, recall: 0.084366, deviation: 84.823132
+d_loss: -0.000000, g_loss: 53329.648438, gen_e_loss: 9.272971, gen_t_loss: 53320.375000, hunber_t_loss: 53.321377
+attention for g_t:  [0 0 0 0 1 0 1 2 2 2 0 2 1 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 2 0 0
+ 2 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 2 0
+ 2 2 0 0 0 2 0 2 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 86.267523, d_loss: -0.000000, g_loss: 85780.617188, huber_t_loss:85.772522
+1, precision: 0.017482, recall: 0.068609, deviation: 87.155548, d_loss: -0.000000, g_loss: 336373.875000, huber_t_loss:336.365479
+2, precision: 0.017749, recall: 0.069395, deviation: 86.895105, d_loss: -0.000000, g_loss: 72802.656250, huber_t_loss:72.793549
+3, precision: 0.016747, recall: 0.066896, deviation: 86.476770, d_loss: -0.000000, g_loss: 55536.542969, huber_t_loss:55.528587
+4, precision: 0.016832, recall: 0.067423, deviation: 86.280812, d_loss: -0.000000, g_loss: 64087.203125, huber_t_loss:64.078743
+5, precision: 0.016618, recall: 0.067256, deviation: 86.029925, d_loss: -0.000000, g_loss: 79844.914062, huber_t_loss:79.835274
+6, precision: 0.016822, recall: 0.067473, deviation: 85.869323, d_loss: -0.000000, g_loss: 101030.257812, huber_t_loss:101.021614
+7, precision: 0.016875, recall: 0.067577, deviation: 85.777303, d_loss: -0.000000, g_loss: 81313.359375, huber_t_loss:81.305161
+8, precision: 0.017236, recall: 0.067884, deviation: 85.568206, d_loss: -0.000000, g_loss: 57695.015625, huber_t_loss:57.687035
+9, precision: 0.017266, recall: 0.067912, deviation: 85.456790, d_loss: -0.000000, g_loss: 87408.968750, huber_t_loss:87.401115
+10, precision: 0.017434, recall: 0.068208, deviation: 85.066923, d_loss: -0.000000, g_loss: 83223.773438, huber_t_loss:83.216682
+alpha: 9537.934570, gamma: -0.014844
+length_traces: 6474804
+[epoch: 22, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 22, 1] precision: 0.013380, recall: 0.056459, deviation: 85.919100
+d_loss: -0.000000, g_loss: 119388.203125, gen_e_loss: 9.484914, gen_t_loss: 119378.718750, hunber_t_loss: 119.379715
+[epoch: 22, 2] precision: 0.010880, recall: 0.046412, deviation: 86.428883
+d_loss: -0.000000, g_loss: 86291.484375, gen_e_loss: 10.543760, gen_t_loss: 86280.937500, hunber_t_loss: 86.281937
+[epoch: 22, 3] precision: 0.009060, recall: 0.039199, deviation: 86.436369
+d_loss: -0.000000, g_loss: 87696.382812, gen_e_loss: 8.856295, gen_t_loss: 87687.523438, hunber_t_loss: 87.688522
+[epoch: 22, 4] precision: 0.008333, recall: 0.036111, deviation: 86.389318
+d_loss: -0.000000, g_loss: 95971.460938, gen_e_loss: 9.320288, gen_t_loss: 95962.140625, hunber_t_loss: 95.963142
+[epoch: 22, 5] precision: 0.008138, recall: 0.035113, deviation: 85.973704
+d_loss: -0.000000, g_loss: 65022.222656, gen_e_loss: 9.152762, gen_t_loss: 65013.070312, hunber_t_loss: 65.014069
+[epoch: 22, 6] precision: 0.008714, recall: 0.037116, deviation: 85.625065
+d_loss: -0.000000, g_loss: 68823.773438, gen_e_loss: 9.072485, gen_t_loss: 68814.703125, hunber_t_loss: 68.815704
+[epoch: 22, 7] precision: 0.009206, recall: 0.038905, deviation: 85.466575
+d_loss: -0.000000, g_loss: 34838.382812, gen_e_loss: 8.398763, gen_t_loss: 34829.984375, hunber_t_loss: 34.830986
+[epoch: 22, 8] precision: 0.009605, recall: 0.040391, deviation: 85.489177
+d_loss: -0.000000, g_loss: 139125.484375, gen_e_loss: 9.469270, gen_t_loss: 139116.015625, hunber_t_loss: 139.117020
+[epoch: 22, 9] precision: 0.009846, recall: 0.041370, deviation: 85.377461
+d_loss: -0.000000, g_loss: 50583.878906, gen_e_loss: 10.348627, gen_t_loss: 50573.531250, hunber_t_loss: 50.574532
+[epoch: 22, 10] precision: 0.009661, recall: 0.040789, deviation: 85.302729
+d_loss: -0.000000, g_loss: 105914.031250, gen_e_loss: 9.342135, gen_t_loss: 105904.687500, hunber_t_loss: 105.905685
+attention for g_t:  [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+ 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+ 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 44.209922, d_loss: -0.000000, g_loss: 43719.582031, huber_t_loss:43.711830
+1, precision: 0.005430, recall: 0.025099, deviation: 85.978085, d_loss: -0.000000, g_loss: 61008.550781, huber_t_loss:60.998634
+2, precision: 0.005465, recall: 0.024804, deviation: 86.589974, d_loss: -0.000000, g_loss: 92104.929688, huber_t_loss:92.096947
+3, precision: 0.005599, recall: 0.025505, deviation: 86.060115, d_loss: -0.000000, g_loss: 81475.429688, huber_t_loss:81.467003
+4, precision: 0.005772, recall: 0.025888, deviation: 86.178122, d_loss: -0.000000, g_loss: 95724.695312, huber_t_loss:95.715836
+5, precision: 0.005892, recall: 0.026114, deviation: 86.341780, d_loss: -0.000000, g_loss: 129262.078125, huber_t_loss:129.253510
+6, precision: 0.006030, recall: 0.026630, deviation: 86.083165, d_loss: -0.000000, g_loss: 93872.023438, huber_t_loss:93.863594
+7, precision: 0.006179, recall: 0.026953, deviation: 86.272436, d_loss: -0.000000, g_loss: 197248.953125, huber_t_loss:197.241302
+8, precision: 0.006201, recall: 0.026963, deviation: 86.188012, d_loss: -0.000000, g_loss: 67805.078125, huber_t_loss:67.795769
+9, precision: 0.006250, recall: 0.027156, deviation: 86.285102, d_loss: -0.000000, g_loss: 114685.203125, huber_t_loss:114.676949
+10, precision: 0.006136, recall: 0.026798, deviation: 86.356365, d_loss: -0.000000, g_loss: 134395.687500, huber_t_loss:134.386658
+alpha: 9015.690430, gamma: -0.013978
+length_traces: 6474804
+[epoch: 23, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 23, 1] precision: 0.006127, recall: 0.026815, deviation: 86.164500
+d_loss: -0.000000, g_loss: 142085.515625, gen_e_loss: 8.381221, gen_t_loss: 142077.140625, hunber_t_loss: 142.078140
+[epoch: 23, 2] precision: 0.006165, recall: 0.027187, deviation: 85.659326
+d_loss: -0.000000, g_loss: 74040.578125, gen_e_loss: 9.005104, gen_t_loss: 74031.570312, hunber_t_loss: 74.032570
+[epoch: 23, 3] precision: 0.006107, recall: 0.026734, deviation: 85.561198
+d_loss: -0.000000, g_loss: 62443.296875, gen_e_loss: 8.457463, gen_t_loss: 62434.839844, hunber_t_loss: 62.435841
+[epoch: 23, 4] precision: 0.005944, recall: 0.026470, deviation: 85.732227
+d_loss: -0.000000, g_loss: 142112.625000, gen_e_loss: 9.267633, gen_t_loss: 142103.359375, hunber_t_loss: 142.104355
+[epoch: 23, 5] precision: 0.005882, recall: 0.026154, deviation: 85.504881
+d_loss: -0.000000, g_loss: 69265.539062, gen_e_loss: 9.486361, gen_t_loss: 69256.054688, hunber_t_loss: 69.257057
+[epoch: 23, 6] precision: 0.005813, recall: 0.025884, deviation: 85.419262
+d_loss: -0.000000, g_loss: 108350.414062, gen_e_loss: 10.435966, gen_t_loss: 108339.976562, hunber_t_loss: 108.340973
+[epoch: 23, 7] precision: 0.005946, recall: 0.026082, deviation: 85.869301
+d_loss: -0.000000, g_loss: 155422.937500, gen_e_loss: 9.748213, gen_t_loss: 155413.187500, hunber_t_loss: 155.414185
+[epoch: 23, 8] precision: 0.005945, recall: 0.026130, deviation: 85.856977
+d_loss: -0.000000, g_loss: 101183.593750, gen_e_loss: 9.488547, gen_t_loss: 101174.101562, hunber_t_loss: 101.175102
+[epoch: 23, 9] precision: 0.005937, recall: 0.026147, deviation: 85.871758
+d_loss: -0.000000, g_loss: 48040.753906, gen_e_loss: 9.516092, gen_t_loss: 48031.238281, hunber_t_loss: 48.032238
+[epoch: 23, 10] precision: 0.005949, recall: 0.026167, deviation: 85.870157
+d_loss: -0.000000, g_loss: 26786.058594, gen_e_loss: 10.337832, gen_t_loss: 26775.720703, hunber_t_loss: 26.776720
+attention for g_t:  [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+ 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+ 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 208.797250, d_loss: -0.000000, g_loss: 208307.156250, huber_t_loss:208.298325
+1, precision: 0.004621, recall: 0.022391, deviation: 87.997878, d_loss: -0.000000, g_loss: 197478.656250, huber_t_loss:197.470123
+2, precision: 0.004673, recall: 0.022136, deviation: 86.908070, d_loss: -0.000000, g_loss: 66575.773438, huber_t_loss:66.565384
+3, precision: 0.004661, recall: 0.022219, deviation: 85.729644, d_loss: -0.000000, g_loss: 46127.511719, huber_t_loss:46.119396
+4, precision: 0.004719, recall: 0.022468, deviation: 85.886497, d_loss: -0.000000, g_loss: 29272.568359, huber_t_loss:29.263788
+5, precision: 0.004734, recall: 0.022756, deviation: 85.732423, d_loss: -0.000000, g_loss: 89701.593750, huber_t_loss:89.693146
+6, precision: 0.004799, recall: 0.023127, deviation: 85.882948, d_loss: -0.000000, g_loss: 66352.460938, huber_t_loss:66.343941
+7, precision: 0.004814, recall: 0.023263, deviation: 85.885018, d_loss: -0.000000, g_loss: 113270.039062, huber_t_loss:113.262718
+8, precision: 0.004842, recall: 0.023349, deviation: 85.926096, d_loss: -0.000000, g_loss: 45204.402344, huber_t_loss:45.195625
+9, precision: 0.004838, recall: 0.023294, deviation: 85.817857, d_loss: -0.000000, g_loss: 85797.296875, huber_t_loss:85.788437
+10, precision: 0.004879, recall: 0.023388, deviation: 85.745438, d_loss: -0.000000, g_loss: 72087.968750, huber_t_loss:72.078941
+alpha: 8798.506836, gamma: -0.014421
+length_traces: 6474804
+[epoch: 24, 0] precision: 0.000000, recall: 0.000000, deviation: 0.000000
+d_loss: 0.000000, g_loss: 0.000000, gen_e_loss: 0.000000, gen_t_loss: 0.000000, hunber_t_loss: 0.000000
+[epoch: 24, 1] precision: 0.006110, recall: 0.027672, deviation: 86.474525
+d_loss: -0.000000, g_loss: 88908.289062, gen_e_loss: 9.908186, gen_t_loss: 88898.382812, hunber_t_loss: 88.899384
+[epoch: 24, 2] precision: 0.006008, recall: 0.026725, deviation: 86.341063
+d_loss: -0.000000, g_loss: 95202.273438, gen_e_loss: 9.449236, gen_t_loss: 95192.820312, hunber_t_loss: 95.193817
+[epoch: 24, 3] precision: 0.005953, recall: 0.026521, deviation: 86.533385
+d_loss: -0.000000, g_loss: 121568.851562, gen_e_loss: 9.544530, gen_t_loss: 121559.304688, hunber_t_loss: 121.560303
+[epoch: 24, 4] precision: 0.005977, recall: 0.026586, deviation: 85.789386
+d_loss: -0.000000, g_loss: 107627.187500, gen_e_loss: 9.442854, gen_t_loss: 107617.742188, hunber_t_loss: 107.618744
+[epoch: 24, 5] precision: 0.005909, recall: 0.026382, deviation: 85.495673
+d_loss: -0.000000, g_loss: 80150.742188, gen_e_loss: 8.920500, gen_t_loss: 80141.820312, hunber_t_loss: 80.142822
+[epoch: 24, 6] precision: 0.006040, recall: 0.026877, deviation: 85.472857
+d_loss: -0.000000, g_loss: 132987.500000, gen_e_loss: 9.199336, gen_t_loss: 132978.296875, hunber_t_loss: 132.979294
+[epoch: 24, 7] precision: 0.006084, recall: 0.026957, deviation: 85.293262
+d_loss: -0.000000, g_loss: 199894.000000, gen_e_loss: 9.339406, gen_t_loss: 199884.656250, hunber_t_loss: 199.885651
+[epoch: 24, 8] precision: 0.006049, recall: 0.026912, deviation: 85.463255
+d_loss: -0.000000, g_loss: 65501.707031, gen_e_loss: 8.743964, gen_t_loss: 65492.964844, hunber_t_loss: 65.493965
+[epoch: 24, 9] precision: 0.006022, recall: 0.026813, deviation: 85.516842
+d_loss: -0.000000, g_loss: 63975.414062, gen_e_loss: 9.505249, gen_t_loss: 63965.910156, hunber_t_loss: 63.966911
+[epoch: 24, 10] precision: 0.005993, recall: 0.026713, deviation: 85.636250
+d_loss: -0.000000, g_loss: 72413.835938, gen_e_loss: 8.861383, gen_t_loss: 72404.976562, hunber_t_loss: 72.405975
+attention for g_t:  [1 1 0 0 1 0 1 0 0 0 0 0 0 0 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 1
+ 1 0 1 1 0 1 0 1 0 1 1 0 1 1 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+length_traces: 1849944
+0, precision: 0.000000, recall: nan, deviation: 79.008875, d_loss: -0.000000, g_loss: 78519.890625, huber_t_loss:78.511093
+1, precision: 0.005711, recall: 0.026405, deviation: 84.694763, d_loss: -0.000000, g_loss: 71039.492188, huber_t_loss:71.031898
+2, precision: 0.005579, recall: 0.026145, deviation: 84.466723, d_loss: -0.000000, g_loss: 102552.609375, huber_t_loss:102.544144
+3, precision: 0.005838, recall: 0.026914, deviation: 85.672312, d_loss: -0.000000, g_loss: 123844.937500, huber_t_loss:123.837379
+4, precision: 0.005673, recall: 0.026468, deviation: 86.127166, d_loss: -0.000000,

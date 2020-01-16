@@ -1,0 +1,5 @@
+28-26-2019 09:26:03 root:DEBUG:This is a debug message
+28-26-2019 09:26:03 root:INFO:This is an info message
+28-26-2019 09:26:03 root:WARNING:This is a warning message
+28-26-2019 09:26:03 root:ERROR:This is an error message
+28-26-2019 09:26:03 root:CRITICAL:This is a critical message
