@@ -1,6 +1,6 @@
-import read_data
-import numpy as np
-import tensorflow as tf
+
+from modules import *
+import numpy
 # event_file = './T-pred-Dataset/lastfm-v5k_event.txt'
 # time_file = './T-pred-Dataset/lastfm-v5k_time2.txt'
 #
@@ -18,15 +18,20 @@ for a_i, b_i in zip(a,b):
     c.append(c_i)
 c = tf.reduce_sum(c, axis= 1)
 
-with tf.Session() as sess:
-    print(sess.run(c))
-
-print(tf.__version__)
-
 a = np.array([1,1,1,2,2,2,3,3,3,4],dtype=float)
 b = np.array([2,2,2,2,2,2,2,2,2,2],dtype=float)
 
+input_shape = (4*64, 5, 50)
+x = tf.random.normal(input_shape)
+y = tf.split(x,4,axis=0)
+y = tf.concat(y, axis=2)
+print(y)
+
 with tf.Session() as sess:
-    print(sess.run(tf.math.abs(100*a-100*b)))
-    print(sess.run(tf.reduce_mean(tf.math.abs(100*a-100*b))))
-    print(sess.run(tf.losses.huber_loss(100*a,100*b,delta=10.0)))
+    #print(sess.run(tf.math.abs(100*a-100*b)))
+    #print(sess.run(tf.reduce_mean(tf.math.abs(100*a-100*b))))
+    #print(sess.run(tf.losses.huber_loss(100*a,100*b,delta=10.0)))
+    # print(sess.run(tf.sign(tf.cast(tf.sequence_mask(3), tf.float32))))
+    # print(sess.run(tf.sign([1,1,0])))
+    # print(sess.run(gumbel_softmax(tf.constant([20,1,-4], dtype=tf.float32),tau=1)))
+    print(sess.run(tf.one_hot([[1,1,1],[2,2,2],[3,3,3]],depth=4)))

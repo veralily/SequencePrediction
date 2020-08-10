@@ -6,6 +6,16 @@ import numpy as np
 import random
 
 
+def vocab_size(event_file=None):
+    with open(event_file, 'r') as f:
+        lines = f.read().split('\n')
+        sess_num = len(lines)
+        events = set(f.read().replace('\n', '\t').split('\t'))
+        event_num = len(events)
+    f.close()
+    return sess_num, event_num
+
+
 def data_split(event_file=None, time_file=None, shuffle=True):
     num_pieces = 10
     read_event = open(event_file, "r")
