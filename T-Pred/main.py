@@ -8,13 +8,11 @@ import Model
 import numpy as np
 import tensorflow as tf
 
-os.environ['CUDA_VISIBLE_DEVICE']='0,2'
-
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', required=True)
 parser.add_argument('--train_dir', required=True)
 parser.add_argument('--train_iter', required=True)
-parser.add_argument('--batch_size', default=128, type=int)
+parser.add_argument('--batch_size', default=512, type=int)
 parser.add_argument('--lr_e', default=0.001, type=float)
 parser.add_argument('--lr_t', default=0.001, type=float)
 parser.add_argument('--lr_j', default=0.001, type=float)
@@ -76,12 +74,9 @@ recall_at_k = tf.keras.metrics.Recall()
 
 # Run Train Epoches
 i_e, t_e, i_t, t_t = read_data.data_iterator(train_data, args.T, args.len)
-sample_t = read_data.generate_sample_t(args.batch_size, i_t, t_t)
 
 i = 0
 gap = 6
-batch_num = len(list(read_data.generate_batch(args.batch_size, i_e, t_e, i_t, t_t)))
-logging.info('Training batch num {}'.format(batch_num))
 
 alpha = args.alpha
 gamma = args.gamma
@@ -92,15 +87,16 @@ for epoch in args.train_iter:
     precision_at_k.reset_states()
     recall_at_k.reset_states()
     for e_x, e_y, t_x, t_y in read_data.generate_batch(args.batch_size, i_e, t_e, i_t, t_t):
+        sample_t = read_data.generate_sample_t(args.batch_size, i_t, t_t)
         i += 1
         feed_dict = {
             model.alpha: alpha,
             model.gamma: gamma,
             model.inputs_e: e_x,
-            model.inputs_t: np.maximum(np.log(t_x), 0),
+            model.inputs_t: np.maximum(np.log(np.maximum(t_x, 1e-4)), 0),
             model.target_t: t_y,
             model.target_e: e_y,
-            model.sample_t: np.maximum(np.log(sample_t), 0)}
+            model.sample_t: np.maximum(np.log(np.maximum(sample_t, 1e-4)), 0)}
 
         # Jointly train
         # If it's discriminator iter
@@ -114,12 +110,12 @@ for epoch in args.train_iter:
                                         y_pred=logits_e)
             recall_at_k.update_state(y_true=tf.one_hot(model.target_e, depth=args.vocab_size),
                                      y_pred=logits_e)
-            if i % (batch_num // 10) == 0:
+            if i // 100 == 0:
                 logging.info('Training metrics Batch partion:{}  MAE: {}, precision@k: {}, recall@k: {}'
-                             .format(i % (batch_num // 10),
-                                     MAE.result(),
-                                     precision_at_k.result(),
-                                     recall_at_k.result()))
+                             .format(i,
+                                     MAE.result().numpy(),
+                                     precision_at_k.result().numpy(),
+                                     recall_at_k.result().numpy()))
         # Train event predictor
         _ = sess.run(model.train_event_op, feed_dict=feed_dict)
 
@@ -130,9 +126,9 @@ for epoch in args.train_iter:
     logging.info('Training metrics Epoch: {} Time: {} MAE: {}, precision@k: {}, recall@k: {}'
                  .format(epoch,
                          t1 - t0,
-                         MAE.result(),
-                         precision_at_k.result(),
-                         recall_at_k.result()))
+                         MAE.result().numpy(),
+                         precision_at_k.result().numpy(),
+                         recall_at_k.result().numpoy()))
 
     # Run validation to update alpha and gamma
     t0 = time.time()
@@ -141,24 +137,22 @@ for epoch in args.train_iter:
     recall_at_k.reset_states()
 
     i_e, t_e, i_t, t_t = read_data.data_iterator(valid_data, args.T, args.len)
-    sample_t = read_data.generate_sample_t(args.batch_size, i_t, t_t)
 
     cross_entropy_sum = 0.0
     huber_loss_sum = 0.0
     gen_loss_sum = 0.0
     i = 0
-    batch_num = len(list(read_data.generate_batch(args.batch_size, i_e, t_e, i_t, t_t)))
-    logging.info('Evaluation batch num {}'.format(batch_num))
     for e_x, e_y, t_x, t_y in read_data.generate_batch(args.batch_size, i_e, t_e, i_t, t_t):
+        sample_t = read_data.generate_sample_t(args.batch_size, i_t, t_t)
         i += 1
         feed_dict = {
             model.alpha: alpha,
             model.gamma: gamma,
             model.inputs_e: e_x,
-            model.inputs_t: np.maximum(np.log(t_x), 0),
+            model.inputs_t: np.maximum(np.log(np.maximum(t_x, 1e-4)), 0),
             model.target_t: t_y,
             model.target_e: e_y,
-            model.sample_t: np.maximum(np.log(sample_t), 0)}
+            model.sample_t: np.maximum(np.log(np.maximum(sample_t, 1e-4)), 0)}
 
         cross_entropy, huber_loss, gen_t_loss, disc_t_loss, logits_e, logits_t = sess.run([model.cross_entropy_loss,
                                                                    model.huber_loss,
@@ -176,9 +170,9 @@ for epoch in args.train_iter:
     gamma = gen_loss_sum / huber_loss_sum
     t1 = time.time()
     logging.info('Validate Time: {} MAE: {}, precision@k: {}, recall@k: {}'.format(t1-t0,
-                                                                                   MAE.result(),
-                                                                                   precision_at_k.result(),
-                                                                                   recall_at_k.result()))
+                                                                                   MAE.result().numpy(),
+                                                                                   precision_at_k.result().numpy(),
+                                                                                   recall_at_k.result().numpy()))
 
 
 # Test
@@ -188,21 +182,21 @@ precision_at_k.reset_states()
 recall_at_k.reset_states()
 
 i_e, t_e, i_t, t_t = read_data.data_iterator(test_data, args.T, args.len)
-sample_t = read_data.generate_sample_t(args.batch_size, i_t, t_t)
 
 i = 0
 batch_num = len(list(read_data.generate_batch(args.batch_size, i_e, t_e, i_t, t_t)))
 logging.info('Evaluation batch num {}'.format(batch_num))
 for e_x, e_y, t_x, t_y in read_data.generate_batch(args.batch_size, i_e, t_e, i_t, t_t):
     i += 1
+    sample_t = read_data.generate_sample_t(args.batch_size, i_t, t_t)
     feed_dict = {
         model.alpha: alpha,
         model.gamma: gamma,
         model.inputs_e: e_x,
-        model.inputs_t: np.maximum(np.log(t_x), 0),
+        model.inputs_t: np.maximum(np.log(np.maximum(t_x, 1e-4)), 0),
         model.target_t: t_y,
         model.target_e: e_y,
-        model.sample_t: np.maximum(np.log(sample_t), 0)}
+        model.sample_t: np.maximum(np.log(np.maximum(sample_t, 1e-4)), 0)}
 
     logits_e, logits_t = sess.run([model.cross_entropy_loss,
                                    model.huber_loss,

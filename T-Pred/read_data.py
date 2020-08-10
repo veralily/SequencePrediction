@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import numpy as np
 import random
+import tqdm
 
 
 def vocab_size(event_file=None):
@@ -17,6 +18,7 @@ def vocab_size(event_file=None):
 
 
 def data_split(event_file=None, time_file=None, shuffle=True):
+    print('Data split ratio: 7-2-1')
     num_pieces = 10
     read_event = open(event_file, "r")
     event_traces = read_event.read().split('\n')
@@ -53,13 +55,13 @@ def data_split(event_file=None, time_file=None, shuffle=True):
     return train_data, valid_data, test_data
 
 
-def data_iterator(input_data, num_steps, length, overlap=True):
+def data_iterator(input_data, num_steps, length, overlap=False):
     input_len_sum = 0
     input_event_data = []
     target_event_data = []
     input_time_data = []
     target_time_data = []
-    print("length of traces: " + str(len(input_data)))  # 9320
+    print("clip sequence-number of traces: " + str(len(input_data)))  # 9320
 
     for event_trace, time_trace in input_data:
         events = np.array([int(event) for event in event_trace.split('\t') if event != ''], dtype=np.int32)
@@ -74,7 +76,7 @@ def data_iterator(input_data, num_steps, length, overlap=True):
         if overlap:
             input_len = data_len - (num_steps + length)
             if input_len > 1:
-                for i in range(input_len):
+                for i in tqdm(range(input_len)):
                     input_event_elem = events[i: i + num_steps]
                     target_event_elem = events[i + num_steps: i + num_steps + length]
                     input_time_elem = times[i: i + num_steps]
@@ -91,7 +93,7 @@ def data_iterator(input_data, num_steps, length, overlap=True):
             input_len = (data_len - 1) // (num_steps + length)
             seg_length = num_steps + length
             if input_len > 0:
-                for i in range(input_len):
+                for i in tqdm(range(input_len)):
                     input_event_elem = events[i * seg_length: i * seg_length + num_steps]
                     target_event_elem = events[i * seg_length + num_steps: (i + 1) * seg_length]
                     input_time_elem = times[i * seg_length: i * seg_length + num_steps]
@@ -110,7 +112,7 @@ def data_iterator(input_data, num_steps, length, overlap=True):
 
 def generate_batch(batch_size, input_event_data, target_event_data, input_time_data, target_time_data):
     batch_num = len(input_event_data) // batch_size
-    for i in range(batch_num):
+    for i in tqdm(range(batch_num)):
         e_x = input_event_data[i * batch_size:(i + 1) * batch_size]
         e_y = target_event_data[i * batch_size:(i + 1) * batch_size]
         t_x = input_time_data[i * batch_size:(i + 1) * batch_size]
