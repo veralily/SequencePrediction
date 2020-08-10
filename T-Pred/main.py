@@ -8,7 +8,7 @@ import Model
 import numpy as np
 import tensorflow as tf
 
-os.environ['CUDA_VISIBLE_DEVICE']='5,6'
+os.environ['CUDA_VISIBLE_DEVICE']='0,2'
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', required=True)
@@ -25,11 +25,10 @@ parser.add_argument('--len', default=5, type=int)
 parser.add_argument('--num_gen_t', default=3, type=int)
 parser.add_argument('--hidden_size', default=200, type=int)
 parser.add_argument('--num_block', default=2, type=int)
-parser.add_argument('--num_epochs', default=50, type=int)
+parser.add_argument('--res_rate', default=0.2, type=float)
 parser.add_argument('--num_head', default=2, type=int)
 parser.add_argument('--drop_rate', default=0.2, type=int)
 parser.add_argument('--vocab_size', default=10000, type=int)
-parser.add_argument()
 
 args = parser.parse_args()
 
@@ -41,13 +40,17 @@ if not os.path.isdir(args.dataset + '_' + args.train_dir):
 
 
 '''remember to change the vocab size '''
-event_file = './T-pred-Dataset/lastfm-5k_event.txt'
-time_file = './T-pred-Dataset/lastfm-5k_time.txt'
+path = './T-pred-Dataset'
+event_file = os.path.join(path,args.dataset + '_event.txt')
+time_file = os.path.join(path,args.dataset + '_time.txt')
 
 FORMAT = "%(asctime)s - [line:%(lineno)s - %(funcName)10s() ] %(message)s"
 DATA_TYPE = event_file.split('/')[-1].split('.')[0]
-logging.basicConfig(filename='log/{}-{}-{}.log'.format('MM-CPred', DATA_TYPE, str(datetime.datetime.now())),
-            level=logging.INFO, format=FORMAT)
+logging.basicConfig(filename='log/{}-{}-{}.log'.format('MM-CPred',
+                                                       DATA_TYPE,
+                                                       str(datetime.datetime.now())),
+                    level=logging.INFO,
+                    format=FORMAT)
 
 handler = logging.StreamHandler()
 handler.setFormatter(logging.Formatter(FORMAT))
@@ -58,13 +61,13 @@ logging.info('Start {}'.format(DATA_TYPE))
 train_data, valid_data, test_data = read_data.data_split(event_file, time_file, shuffle=True)
 
 # Get Config and Create a Session
-config = tf.ConfigProto()
+config = tf.compat.v1.ConfigProto()
 config.gpu_options.allow_growth = True
 config.allow_soft_placement = True
-sess = tf.Session(config=config)
+sess = tf.compat.v1.Session(config=config)
 
 model = Model.MM_CPred(args)
-sess.run(tf.initialize_all_variables)
+sess.run(tf.initialize_all_variables())
 
 # Define Metrics
 MAE = tf.keras.metrics.MeanAbsoluteError()
@@ -107,16 +110,16 @@ for epoch in args.train_iter:
             _, logits_e, logits_t = sess.run([model.train_gen_op, model.logits_e, model.logits_t], feed_dict=feed_dict)
             MAE.update_state(y_true=model.target_t,
                              y_pred=logits_t)
-            precision_at_k.update_state(y_true=tf.one_hot(model.logits_e),
+            precision_at_k.update_state(y_true=tf.one_hot(model.target_e, depth=args.vocab_size),
                                         y_pred=logits_e)
-            recall_at_k.update_state(y_true=tf.one_hot(model.target_e),
+            recall_at_k.update_state(y_true=tf.one_hot(model.target_e, depth=args.vocab_size),
                                      y_pred=logits_e)
             if i % (batch_num // 10) == 0:
                 logging.info('Training metrics Batch partion:{}  MAE: {}, precision@k: {}, recall@k: {}'
                              .format(i % (batch_num // 10),
-                                     MAE.result().numpy(),
-                                     precision_at_k.result().numpy(),
-                                     recall_at_k.result().numpy()))
+                                     MAE.result(),
+                                     precision_at_k.result(),
+                                     recall_at_k.result()))
         # Train event predictor
         _ = sess.run(model.train_event_op, feed_dict=feed_dict)
 
@@ -127,9 +130,9 @@ for epoch in args.train_iter:
     logging.info('Training metrics Epoch: {} Time: {} MAE: {}, precision@k: {}, recall@k: {}'
                  .format(epoch,
                          t1 - t0,
-                         MAE.result().numpy(),
-                         precision_at_k.result().numpy(),
-                         recall_at_k.result().numpy()))
+                         MAE.result(),
+                         precision_at_k.result(),
+                         recall_at_k.result()))
 
     # Run validation to update alpha and gamma
     t0 = time.time()
@@ -173,9 +176,9 @@ for epoch in args.train_iter:
     gamma = gen_loss_sum / huber_loss_sum
     t1 = time.time()
     logging.info('Validate Time: {} MAE: {}, precision@k: {}, recall@k: {}'.format(t1-t0,
-                                                                                   MAE.result().numpy(),
-                                                                                   precision_at_k.result().numpy(),
-                                                                                   recall_at_k.result().numpy()))
+                                                                                   MAE.result(),
+                                                                                   precision_at_k.result(),
+                                                                                   recall_at_k.result()))
 
 
 # Test
@@ -214,6 +217,6 @@ for e_x, e_y, t_x, t_y in read_data.generate_batch(args.batch_size, i_e, t_e, i_
 
 t1 = time.time()
 logging.info('Test Time: {} MAE: {}, precision@k: {}, recall@k: {}'.format(t1-t0,
-                                                                           MAE.result().numpy(),
-                                                                           precision_at_k.result().numpy(),
-                                                                           recall_at_k.result().numpy()))
+                                                                           MAE.result(),
+                                                                           precision_at_k.result(),
+                                                                           recall_at_k.result()))

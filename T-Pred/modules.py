@@ -23,8 +23,8 @@ def embedding(inputs,
         A `Tensor` with one more rank than inputs's. The last dimensionality
         should be `num_units`.
         """
-    with tf.variable_scope(scope, reuse=reuse):
-        lookup_table = tf.get_variable('lookup_table',
+    with tf.compat.v1.variable_scope(scope, reuse=reuse):
+        lookup_table = tf.compat.v1.get_variable('lookup_table',
                                        dtype=tf.float32,
                                        shape=[vocab_size,num_units])
         outputs = tf.nn.embedding_lookup(lookup_table, inputs)
@@ -63,19 +63,20 @@ def multihead_attention(queries,
     :param with_qk:
     :return: A 3d tensor with shape of (N, T_q, C).
     """
-    with tf.variable_scope(scope, reuse=reuse):
+    with tf.compat.v1.variable_scope(scope, reuse=reuse):
         if num_units is None:
             num_units = queries.get_shape().as_list()[-1]
-        Q = tf.layers.dense(queries, num_units, activation=None)
-        K = tf.layers.dense(keys, num_units, activation=None)
-        V = tf.layers.dense(keys, num_units, activation=None)
+        Q = tf.keras.layers.Dense(units=num_units)(queries)
+        K = tf.keras.layers.Dense(units=num_units)(keys)
+        V = tf.keras.layers.Dense(units=num_units)(keys)
 
         Q_ = tf.concat(tf.split(Q, num_heads, axis=2), axis=0)
         K_ = tf.concat(tf.split(K, num_heads, axis=2), axis=0)
-        V_ = tf.concat(tf.split(V, num_units, axis=2), axis=0)
+        V_ = tf.concat(tf.split(V, num_heads, axis=2), axis=0)
 
         # Multiplication
         outputs = tf.matmul(Q_, tf.transpose(K_, [0, 2, 1]))
+
         # Scale
         outputs = outputs / (K_.get_shape().as_list()[-1] ** 0.5)
 
@@ -92,7 +93,7 @@ def multihead_attention(queries,
         outputs = tf.nn.softmax(outputs)
 
         # Dropout
-        outputs = tf.layers.dropout(outputs, rate=drop_rate, training=tf.convert_to_tensor(is_training))
+        outputs = tf.keras.layers.Dropout(rate=drop_rate)(outputs)
 
         # Weighted sum: output
         outputs = tf.matmul(outputs, V_) # [N*h, T_q, C/h]
@@ -117,7 +118,6 @@ def conv1d(inputs,
            kernel_size=3,
            strides=1,
            padding='same',
-           data_format='channels_last',
            activation='relu'):
     """
 
@@ -132,20 +132,22 @@ def conv1d(inputs,
     :param activation: Activation mode
     :return: A Tensor. (N, T(maybe less than T, up to padding mode), num_units)
     """
-    with tf.variable_scope(scope, reuse=reuse):
+
+    with tf.compat.v1.variable_scope(scope, reuse=reuse):
+        input_shape = inputs.get_shape()
         outputs = tf.keras.layers.Conv1D(filters=num_units,
                                          kernel_size=kernel_size,
                                          strides=strides,
                                          padding=padding,
-                                         data_format=data_format,
-                                         activation=activation)(inputs)
+                                         activation=activation,
+                                         input_shape=input_shape[1:])(inputs)
     return outputs
 
 
 def res_block(inputs,
               num_units,
               res_rate,
-              scope = 'ResBlock',
+              scope='ResBlock',
               reuse=True):
     """
 
@@ -156,13 +158,11 @@ def res_block(inputs,
     :param reuse: Boolean.
     :return: A Tensor. (N, T, num_units)
     """
-    with tf.variable_scope(scope, reuse=reuse):
-        output = inputs
-        output = tf.nn.relu(output)
-        output = conv1d(output, scope= 'Conv1D.1', reuse=True, num_units=num_units)
-        output = tf.nn.relu(output)
-        output = conv1d(output, scope= 'Conv1D.2', reuse=True, num_units=num_units)
-    return inputs + (res_rate * output)
+    with tf.compat.v1.variable_scope(scope):
+        outputs = inputs
+        outputs = conv1d(outputs, scope='Conv1D.1', reuse=True, num_units=num_units)
+        outputs = conv1d(outputs, scope='Conv1D.2', reuse=True, num_units=num_units)
+    return inputs + (res_rate * outputs)
 
 def gumbel_softmax(inputs, tau=1e-4, axis=-1):
     """Samples a tensor from a Gumbel distribution.
@@ -171,12 +171,12 @@ def gumbel_softmax(inputs, tau=1e-4, axis=-1):
         tau: Temperature parameter which controls the smoothness of x.
     Returns:
         x: A Tensor. gumbel softmax (N, T, n)
-        y: An int. The argmax of x. (N, T)
+        y: An int-type tensor. The argmax of x. (N, T)
     """
     EPSILON = 1e-20
 
     # Samples an uniform distribution based on the input shape
-    uniform_dist = tf.random.uniform(inputs.get_shape(), 0, 1)
+    uniform_dist = tf.random.uniform(tf.shape(inputs), 0, 1)
 
     # Samples from the Gumbel distribution
     gumbel_dist = -1 * tf.math.log(-1 * tf.math.log(uniform_dist + EPSILON) + EPSILON)
