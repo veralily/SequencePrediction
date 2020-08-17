@@ -8,7 +8,7 @@ import Model
 import numpy as np
 import tensorflow as tf
 
-os.environ['CUDA_VISIBLE_DEVICE'] = '5'
+os.environ['CUDA_VISIBLE_DEVICE'] = '0'
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', required=True)
@@ -99,47 +99,43 @@ for epoch in range(args.train_iter):
 
         # Jointly train
         # If it's discriminator iter
-        if i % gap == 0:
-            _, _ = sess.run([model.train_disc_op, model.train_w_clip_op], feed_dict=feed_dict)
-        else:
-            _, _, _, _, logits_e, logits_t, MAE, precision, recall = sess.run([model.train_gen_op,
-                                                                               model.MAE_op,
-                                                                               model.precision_op,
-                                                                               model.recall_op,
-                                                                               model.logits_e,
-                                                                               model.logits_t,
-                                                                               model.MAE,
-                                                                               model.precision,
-                                                                               model.recall
-                                                                               ], feed_dict=feed_dict)
+        # if i % gap == 0:
+        #     _, _ = sess.run([model.train_disc_op, model.train_w_clip_op], feed_dict=feed_dict)
+        # else:
+        #     _, _, _, _, logits_e, logits_t, MAE, precision, recall = sess.run([model.train_gen_op,
+        #                                                                        model.MAE_op,
+        #                                                                        model.precision_op,
+        #                                                                        model.recall_op,
+        #                                                                        model.logits_e,
+        #                                                                        model.logits_t,
+        #                                                                        model.MAE,
+        #                                                                        model.precision,
+        #                                                                        model.recall
+        #                                                                        ], feed_dict=feed_dict)
 
         # Train event predictor
-        _ = sess.run(model.train_event_op, feed_dict=feed_dict)
+        _, _, _, precision, recall = sess.run([model.train_event_op,
+                                               model.precision_op,
+                                               model.recall_op,
+                                               model.precision,
+                                               model.recall], feed_dict=feed_dict)
 
         # Train time predictor
-        _ = sess.run(model.train_time_op, feed_dict=feed_dict)
+        # _ = sess.run(model.train_time_op, feed_dict=feed_dict)
 
         if i % 100 == 0:
-            logging.info('Training -- Batch:{}  MAE: {}, precision@k: {}, recall@k: {}'.format(i,
-                                                                                               MAE,
-                                                                                               precision,
-                                                                                               recall))
+            logging.info('Training -- Batch:{},  precision@k: {}, recall@k: {}'.format(i, precision, recall))
     t1 = time.time()
-    logging.info('Training metrics of Epoch: {} Time: {} MAE: {}, precision@k: {}, recall@k: {}'
-                 .format(epoch, t1 - t0, MAE, precision, recall))
+    logging.info('Training metrics of Epoch: {} Time: {}, precision@k: {}, recall@k: {}'
+                 .format(epoch, t1 - t0, precision, recall))
 
     # Run validation to update alpha and gamma
     t0 = time.time()
     i = 0
-    sess.run(model.running_MAE_vars_initializer)
     sess.run(model.running_precision_vars_initializer)
     sess.run(model.running_recall_vars_initializer)
 
     valid_i_e, valid_t_e, valid_i_t, valid_t_t = read_data.data_iterator(valid_data, args.T, args.len)
-
-    cross_entropy_sum = 0.0
-    huber_loss_sum = 0.0
-    gen_loss_sum = 0.0
 
     for e_x, e_y, t_x, t_y in read_data.generate_batch(args.batch_size, valid_i_e, valid_t_e, valid_i_t, valid_t_t):
         sample_t = read_data.generate_sample_t(args.batch_size, valid_i_t, valid_t_t)
@@ -153,34 +149,18 @@ for epoch in range(args.train_iter):
             model.target_e: e_y,
             model.sample_t: np.maximum(np.log(np.maximum(sample_t, 1e-4)), 0)}
 
-        cross_entropy, huber_loss, gen_t_loss, disc_t_loss, _, _, _, MAE, precision, recall = sess.run([
-            model.cross_entropy_loss,
-            model.huber_loss,
-            model.gen_t_loss,
-            model.disc_t_loss,
-            model.MAE_op,
-            model.precision_op,
-            model.recall_op,
-            model.MAE,
-            model.precision,
-            model.recall],
-            feed_dict=feed_dict)
-        cross_entropy_sum += cross_entropy
-        huber_loss_sum += huber_loss
-        gen_loss_sum += gen_t_loss
+        _, _, precision, recall = sess.run([model.precision_op,
+                                            model.recall_op,
+                                            model.precision,
+                                            model.recall],
+                                           feed_dict=feed_dict)
 
-    alpha = gen_loss_sum / cross_entropy_sum
-    gamma = gen_loss_sum / huber_loss_sum
     t1 = time.time()
-    logging.info('Validate Time: {} MAE: {}, precision@k: {}, recall@k: {}'.format(t1-t0,
-                                                                                   MAE,
-                                                                                   precision,
-                                                                                   recall))
+    logging.info('Validate Time: {}, precision@k: {}, recall@k: {}'.format(t1-t0, precision, recall))
 
 
 # Test
 t0 = time.time()
-sess.run(model.running_MAE_vars_initializer)
 sess.run(model.running_precision_vars_initializer)
 sess.run(model.running_recall_vars_initializer)
 
@@ -201,17 +181,12 @@ for e_x, e_y, t_x, t_y in read_data.generate_batch(args.batch_size, i_e, t_e, i_
         model.target_e: e_y,
         model.sample_t: np.maximum(np.log(np.maximum(sample_t, 1e-4)), 0)}
 
-    _, _, _, MAE, precision, recall = sess.run([model.MAE_op,
-                                                model.precision_op,
-                                                model.recall_op,
-                                                model.MAE,
-                                                model.precision,
-                                                model.recall],
-                                               feed_dict=feed_dict)
+    _, _, precision, recall = sess.run([model.precision_op,
+                                        model.recall_op,
+                                        model.precision,
+                                        model.recall],
+                                       feed_dict=feed_dict)
 
 
 t1 = time.time()
-logging.info('Test Time: {} MAE: {}, precision@k: {}, recall@k: {}'.format(t1-t0,
-                                                                           MAE,
-                                                                           precision,
-                                                                           recall))
+logging.info('Test Time: {}, precision@k: {}, recall@k: {}'.format(t1-t0, precision, recall))

@@ -76,7 +76,7 @@ def data_iterator(input_data, num_steps, length, overlap=False):
         if overlap:
             input_len = data_len - (num_steps + length)
             if input_len > 1:
-                for i in tqdm(range(input_len)):
+                for i in range(input_len):
                     input_event_elem = events[i: i + num_steps]
                     target_event_elem = events[i + num_steps: i + num_steps + length]
                     input_time_elem = times[i: i + num_steps]
@@ -93,7 +93,7 @@ def data_iterator(input_data, num_steps, length, overlap=False):
             input_len = (data_len - 1) // (num_steps + length)
             seg_length = num_steps + length
             if input_len > 0:
-                for i in tqdm(range(input_len)):
+                for i in range(input_len):
                     input_event_elem = events[i * seg_length: i * seg_length + num_steps]
                     target_event_elem = events[i * seg_length + num_steps: (i + 1) * seg_length]
                     input_time_elem = times[i * seg_length: i * seg_length + num_steps]
@@ -112,7 +112,7 @@ def data_iterator(input_data, num_steps, length, overlap=False):
 
 def generate_batch(batch_size, input_event_data, target_event_data, input_time_data, target_time_data):
     batch_num = len(input_event_data) // batch_size
-    for i in tqdm(range(batch_num)):
+    for i in range(batch_num):
         e_x = input_event_data[i * batch_size:(i + 1) * batch_size]
         e_y = target_event_data[i * batch_size:(i + 1) * batch_size]
         t_x = input_time_data[i * batch_size:(i + 1) * batch_size]

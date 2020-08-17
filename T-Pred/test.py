@@ -1,5 +1,6 @@
 
 from modules import *
+tf.enable_eager_execution()
 import numpy
 # event_file = './T-pred-Dataset/lastfm-v5k_event.txt'
 # time_file = './T-pred-Dataset/lastfm-v5k_time2.txt'
@@ -21,11 +22,9 @@ c = tf.reduce_sum(c, axis= 1)
 a = np.array([1,1,1,2,2,2,3,3,3,4],dtype=float)
 b = np.array([2,2,2,2,2,2,2,2,2,2],dtype=float)
 
-input_shape = (4*64, 5, 50)
-x = tf.random.normal(input_shape)
-y = tf.split(x,4,axis=0)
-y = tf.concat(y, axis=2)
-print(y)
+m = tf.keras.metrics.Mean()
+m.update_state([1, 3, 5, 7])
+print('Final result: ', m.result().numpy())
 
 with tf.Session() as sess:
     #print(sess.run(tf.math.abs(100*a-100*b)))

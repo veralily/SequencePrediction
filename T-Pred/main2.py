@@ -8,7 +8,7 @@ import Model
 import numpy as np
 import tensorflow as tf
 
-os.environ['CUDA_VISIBLE_DEVICE'] = '5'
+os.environ['CUDA_VISIBLE_DEVICE'] = '4'
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', required=True)
@@ -62,7 +62,7 @@ logging.info('Start {}'.format(DATA_TYPE))
 train_data, valid_data, test_data = read_data.data_split(event_file, time_file, shuffle=True)
 
 # initialize the model
-model = Model.MM_CPred(args)
+model = Model.MM_CPred_2(args)
 
 # Get Config and Create a Session
 config = tf.compat.v1.ConfigProto()
@@ -114,10 +114,7 @@ for epoch in range(args.train_iter):
                                                                                ], feed_dict=feed_dict)
 
         # Train event predictor
-        _ = sess.run(model.train_event_op, feed_dict=feed_dict)
-
-        # Train time predictor
-        _ = sess.run(model.train_time_op, feed_dict=feed_dict)
+        _ = sess.run(model.train_MLE_op, feed_dict=feed_dict)
 
         if i % 100 == 0:
             logging.info('Training -- Batch:{}  MAE: {}, precision@k: {}, recall@k: {}'.format(i,
